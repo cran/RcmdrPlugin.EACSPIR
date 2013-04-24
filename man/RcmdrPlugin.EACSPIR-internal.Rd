@@ -1,7 +1,6 @@
 \name{RcmdrPlugin.EACSPIR-internal}
 \title{RcmdrPlugin.EACSPIR: Una GUI para EACSPIR (funciones internas)}
 \alias{ayuda.RcmdrPlugin.EACSPIR}
-\alias{.chequeando.paquetes}
 \alias{resumen.categoricas}
 \alias{indices.categoricas}
 \alias{grafico.Pareto}

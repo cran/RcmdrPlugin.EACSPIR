@@ -38,7 +38,8 @@ Datos acerca de la valoración de todo el material docente elaborado para la asig
     \item{\code{Pythia}}{Grado de satisfacción respecto al recurso Pythia}
     \item{\code{CDs}}{Grado de satisfacción respecto a los CDs interactivos de la asignatura}
     \item{\code{teoria}}{Grado de satisfacción respecto a las sesiones teóricas}
-    \item{\code{tutorias}}{Grado de satisfacción respecto a las tutorías}  
+    \item{\code{tutorias}}{Grado de satisfacción respecto a las tutorías}
+    \item{\code{tutorias}}{Grado de satisfacción respecto a las prácticas}
   }
 }
 \keyword{datasets}

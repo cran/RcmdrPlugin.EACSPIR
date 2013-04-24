@@ -1,9 +1,11 @@
-export(ayuda.RcmdrPlugin.EACSPIR,.chequeando.paquetes,resumen.categoricas,indices.categoricas,
+export(ayuda.RcmdrPlugin.EACSPIR,resumen.categoricas,indices.categoricas,
 grafico.Pareto,resumen.ordinales,resumen.numericas,histograma,diagrama.caja.ord,diagrama.caja,
 bivariante.categoricas,barras.agrupadas,grafico.mosaico,bivariante.ordinales,dispersion.ordinales,
 bivariante.numericas,dispersion.numericas,yuen.test,winvar,yuenWelch.tTest,U.Mann.Whitney,
 pruebaT.Wilcoxon,prueba.conformidad.forma,prueba.conformidad.apuntamiento,tam.muestra,
 determ.tam.proporcion,determ.tam.media,pruebas.normalidad,avar.MR)
+import(Rcmdr)
+importFrom(tcltk,tkbutton)
 
 S3method (print,yuen)
 S3method (print,tmuestra)

@@ -1,152 +1,124 @@
 # Codigo para el desarrollo del plugin de R-Commander para el manual EACSPIR #
 
-.First.lib <- function(libname, pkgname){
-    if (!interactive()) return()
-    Rcmdr <- options()$Rcmdr
-    plugins <- Rcmdr$plugins
-    if ((!pkgname %in% plugins) && !getRcmdr("autoRestart")) {
-        Rcmdr$plugins <- c(plugins, pkgname)
-        options(Rcmdr=Rcmdr)
+.onAttach <- function(libname, pkgname){
+  if (!interactive()) return()
+  Rcmdr <- options()$Rcmdr
+  plugins <- Rcmdr$plugins
+  if (!pkgname %in% plugins) {
+    Rcmdr$plugins <- c(plugins, pkgname)
+    options(Rcmdr=Rcmdr)
+    if("package:Rcmdr" %in% search()) {
+      if(!getRcmdr("autoRestart")) {
         closeCommander(ask=FALSE, ask.save=TRUE)
         Commander()
-        }
+      }
+    }
+    else {
+      Commander()
+    }
+  }
 }
 
 # Pendiente de introducir funcion findGlobals() desarrollada por J. Fox #
 if (getRversion() >= '2.15.1') globalVariables(c('errorMessage', 'top', 'alternativaVariable', 'pruebaVariable',
-   'meds', 'Rangos', 'UMW', 'alternativaFrame', 'pruebaFrame', 'buttonsFrame', '..values', 'SCuadradosVariable',
-   'datos.ANOVAMR', 'descriptivo.ANOVAMR', 'tablaVariable', '.Tabla', 'tablaFrame', 'porcentajesVariable',
-   'subsetVariable', '.porcentajes', '.esperadas', '.Jicuadrado', '.Componentes', '.phi', '.Coef.Contingencia',
-   '.sakoda', '.chuprov', '.VCramer', '.Q', '.Y', '.V', 'lambda.a.b', 'lambda.b.a', '.lambda', 'tau.a.b', 'tau.b.a',
-   'theil.a.b', 'theil.b.a', '.theil', 'porcentajesFrame', 'subsetFrame', 'covariancia', 'correlacion', 'R2pearson',
-   'R2spearman', 'R2kendall', 'cond1', 'cond2', 'cond3', 'cond4', 'E.X', 'E.Y', 'E.XY', 'gammaGK', 'tau.a', 'tau.b',
-   'tau.c', 'sommers.x.y', 'sommers.y.x', '.sommers', '.wilson', 'dtm', 'cond', 'ok', '.tabla', '.x', 'escalaVariable',
-   '.xfit', '.yfit', '.h', 'escalaFrame', '.odds', '.moda', '.RV', '.blau', '.ni', 'indicescat', '.IVQ', '.teachman',
-   'curtosis.estandar', 'valor.p', 'curtosis', 'error.curtosis', 'sim.estandar', 'sesgo', 'error.simetria', 'meddif',
-   'Wilcoxon', '.groups', 'groupsFrame', 'Rcmdr.resumen.categoricas', '.TablaResumen', '.media', '.mediana',
-   '.media.geom', '.trimedia', '.Finf', '.Md', '.Fsup', '.promcuartiles', '.Q1', '.Q3', '.midR', '.min', '.max',
-   '.media.rec', '.dt', '.variancia', '.dt.geometrica', '.desv.media', '.CV', '.rango', '.IQR', '.mad', '.CVR', '.DQ',
-   '.AC', '.ACinf', '.ACsup', '.Q2', '.Pct', '.H1', '.H3', '.AC90', '.AC10', '.beta1', '.gamma1', '.n', '.K2', '.K3',
-   '.Einf', '.Esup', '.beta2', '.gamma2', 'ywttest', 'TWilcoxon'))
-
-# Funcion creada a partir de la funcion .onLoad de John Fox incluida en R-Commander #
-.chequeando.paquetes <- function(){
-    packagesAvailable <- function(packages){
-        sapply(sapply(packages, .find.package, quiet=TRUE),
-            function(x) length(x) != 0)
-        }
-    if (!interactive()) return()
-    save.options <- options(warn=-1)
-    on.exit(options(save.options))
-    required.packages <- rev(c("R2HTML","nortest","ez"))
-    packages.to.load <- options("Rcmdr")[[1]]$load.at.startup
-    check <- options("Rcmdr")[[1]]$check.packages
-    if (length(check) > 0 && !check) return()
-    packages.to.check <- union(required.packages, packages.to.load)
-    available.packages <- packagesAvailable(packages.to.check)
-    missing.packages <- packages.to.check[!available.packages]
-    if (any(!available.packages)) {
-        response <- tkmessageBox(message=paste(gettext("Los siguientes paquetes usados por RcmdrPlugin.EACSPIR no estan instalados:\n", domain="R-Rcmdr"),
-                            paste(missing.packages, collapse=", "),
-                            gettext("\nSin estos paquetes, algunas utilidades no estaran disponibles.", domain="R-Rcmdr"),
-                            gettext("\nInstalar estos paquetes desde CRAN?", domain="R-Rcmdr")),
-                        icon="error", type="yesno")
-        if (tclvalue(response) == "yes") {
-                    packages <- utils:::CRAN.packages()[,1]
-                    present <- missing.packages %in% packages
-                    if (!all(present)) errorMessage()
-                    if (!any(present)) return()
-                    utils:::install.packages(missing.packages[present], dependencies=TRUE, lib=.libPaths()[1])
-                    }
-                tkfocus(CommanderWindow())
-    }
-}
+    'meds', 'Rangos', 'UMW', 'alternativaFrame', 'pruebaFrame', 'buttonsFrame', '..values', 'SCuadradosVariable',
+    'datos.ANOVAMR', 'descriptivo.ANOVAMR', 'tablaVariable', '.Tabla', 'tablaFrame', 'porcentajesVariable',
+    'subsetVariable', '.porcentajes', '.esperadas', '.Jicuadrado', '.Componentes', '.phi', '.Coef.Contingencia',
+    '.sakoda', '.chuprov', '.VCramer', '.Q', '.Y', '.V', 'lambda.a.b', 'lambda.b.a', '.lambda', 'tau.a.b', 'tau.b.a',
+    'theil.a.b', 'theil.b.a', '.theil', 'porcentajesFrame', 'subsetFrame', 'covariancia', 'correlacion', 'R2pearson',
+    'R2spearman', 'R2kendall', 'cond1', 'cond2', 'cond3', 'cond4', 'E.X', 'E.Y', 'E.XY', 'gammaGK', 'tau.a', 'tau.b',
+    'tau.c', 'sommers.x.y', 'sommers.y.x', '.sommers', '.wilson', 'dtm', 'cond', 'ok', '.tabla', '.x', 'escalaVariable',
+    '.xfit', '.yfit', '.h', 'escalaFrame', '.odds', '.moda', '.RV', '.blau', '.ni', 'indicescat', '.IVQ', '.teachman',
+    'curtosis.estandar', 'valor.p', 'curtosis', 'error.curtosis', 'sim.estandar', 'sesgo', 'error.simetria', 'meddif',
+    'Wilcoxon', '.groups', 'groupsFrame', 'Rcmdr.resumen.categoricas', '.TablaResumen', '.media', '.mediana',
+    '.media.geom', '.trimedia', '.Finf', '.Md', '.Fsup', '.promcuartiles', '.Q1', '.Q3', '.midR', '.min', '.max',
+    '.media.rec', '.dt', '.variancia', '.dt.geometrica', '.desv.media', '.CV', '.rango', '.IQR', '.mad', '.CVR', '.DQ',
+    '.AC', '.ACinf', '.ACsup', '.Q2', '.Pct', '.H1', '.H3', '.AC90', '.AC10', '.beta1', '.gamma1', '.n', '.K2', '.K3',
+    '.Einf', '.Esup', '.beta2', '.gamma2', 'ywttest', 'TWilcoxon'))
 
 resumen.categoricas <- function(){
-    .chequeando.paquetes()
-    initializeDialog(title=gettextRcmdr("Resumen distribucion de frecuencias"))
-    listaVar <- variableListBox(top, Factors(), selectmode="multiple",
-                title=gettextRcmdr("Variables (escoja una o mas)"))
-    opcionesFrame <- tkframe(top)
-    echocodigoVariable <- tclVar("0")
-    echoCheckBox <- tkcheckbutton(opcionesFrame, variable=echocodigoVariable)
-    creahtmlVariable <- tclVar("0")
-    htmlCheckBox <- tkcheckbutton(opcionesFrame, variable=creahtmlVariable)
-    onOK <- function()
-    {
-        x <- getSelection(listaVar)
-        if (length(x) == 0){
-            errorCondition(recall=Rcmdr.resumen.categoricas, 
-                           message=gettextRcmdr("Debe escoger una variable."))
-            return()
-            }
-           .BaseDatosActiva <- ActiveDataSet()
-           echocodigo <- tclvalue(echocodigoVariable)
-           creahtml <- tclvalue(creahtmlVariable)
-           if (creahtml == 1)
-           {
-             require(R2HTML)
-             if (!file.exists("Informe de Resultados.html"))
-               .archivo <- HTMLInitFile(file.path(getwd()),
-                           "Informe de Resultados", BackGroundColor="#FFFFCC")
-             else
-               .archivo <- file.path(getwd(), "Informe de Resultados.html") 
-           }
-        for (variable in x)
-        {
-            instruccion1 <- paste("table(", .BaseDatosActiva, "$", variable, ",useNA='always')", sep="")
-            instruccion2 <- ".ni/sum(.ni)"
-            instruccion3 <- "cumsum(.ni)"
-            instruccion4 <- "cumsum(.fi)"
-            instruccion5 <- paste("as.data.frame(matrix(round(cbind(.ni,.Ni,.fi,.Fi),2), ",
-                                  "nrow=nrow(.ni), byrow=FALSE,",
-                                  " dimnames=list(c(levels(", .BaseDatosActiva, "$", variable,
-                                  " ),'NAs'),c('ni','Ni','fi','Fi'))))",sep="")
-            if (echocodigo == 1)
-            {
-            logger(paste(".ni <-", instruccion1))
-            logger(paste(".fi <-", instruccion2))
-            logger(paste(".Ni <-", instruccion3))
-            logger(paste(".Fi <-", instruccion4))
-            logger(paste(".TablaResumen <-", instruccion5))
-            }
-            assign(".ni", justDoIt(instruccion1), envir=.GlobalEnv)
-            assign(".fi", justDoIt(instruccion2), envir=.GlobalEnv)
-            assign(".Ni", justDoIt(instruccion3), envir=.GlobalEnv)
-            assign(".Fi", justDoIt(instruccion4), envir=.GlobalEnv)
-            assign(".TablaResumen", justDoIt(instruccion5), envir=.GlobalEnv)
-            doItAndPrint(paste(".TablaResumen # Resumen distribucion de frecuencias para", variable))
-        if (creahtml == 1)
-        {
-          titulo <- paste("Distribucion frecuencias para variable ", 
-                    variable,sep="")
-          HTML(as.title(titulo),file=.archivo)
-          HTML(.TablaResumen, file=.archivo)
-          HTMLhr(file = .archivo)                   
-        }
-        }
-        closeDialog()
-        if (echocodigo == 1) logger("remove(list=c('.TablaResumen','.ni','.Ni','.fi','.Fi'))") 
-        remove(.TablaResumen, envir=.GlobalEnv)  
-        tkfocus(CommanderWindow())
+  initializeDialog(title=gettextRcmdr("Resumen distribucion de frecuencias"))
+  listaVar <- variableListBox(top, Factors(), selectmode="multiple",
+                              title=gettextRcmdr("Variables (escoja una o mas)"))
+  opcionesFrame <- tkframe(top)
+  echocodigoVariable <- tclVar("0")
+  echoCheckBox <- tkcheckbutton(opcionesFrame, variable=echocodigoVariable)
+  creahtmlVariable <- tclVar("0")
+  htmlCheckBox <- tkcheckbutton(opcionesFrame, variable=creahtmlVariable)
+  onOK <- function()
+  {
+    x <- getSelection(listaVar)
+    if (length(x) == 0){
+      errorCondition(recall=Rcmdr.resumen.categoricas, 
+                     message=gettextRcmdr("Debe escoger una variable."))
+      return()
     }
-    OKCancelHelp(helpSubject="table")
-    tkgrid(getFrame(listaVar), sticky="nw") 
-    tkgrid(labelRcmdr(opcionesFrame,
-    text=gettextRcmdr("Opciones"), fg="blue"), sticky="w")
-    tkgrid(labelRcmdr(opcionesFrame, 
-    text=gettextRcmdr("Mostrar en pantalla el codigo de R ejecutado ")),
-    echoCheckBox, sticky="w")
-    tkgrid(labelRcmdr(opcionesFrame,
-    text=gettextRcmdr("Generar informe de resultados ")),
-    htmlCheckBox,sticky="w")
-    tkgrid(opcionesFrame, sticky="w")
-    tkgrid(buttonsFrame, sticky="w")
-    dialogSuffix(rows=4, columns=2)
+    .BaseDatosActiva <- ActiveDataSet()
+    echocodigo <- tclvalue(echocodigoVariable)
+    creahtml <- tclvalue(creahtmlVariable)
+    if (creahtml == 1)
+    {
+      require(R2HTML)
+      if (!file.exists("Informe de Resultados.html"))
+        .archivo <- HTMLInitFile(file.path(getwd()),
+                                 "Informe de Resultados", BackGroundColor="#FFFFCC")
+      else
+        .archivo <- file.path(getwd(), "Informe de Resultados.html") 
+    }
+    for (variable in x)
+    {
+      instruccion1 <- paste(".ni <- table(", .BaseDatosActiva, "$", variable, ",useNA='always')", sep="")
+      instruccion2 <- ".fi <- .ni/sum(.ni)"
+      instruccion3 <- ".Ni <- cumsum(.ni)"
+      instruccion4 <- ".Fi <- cumsum(.fi)"
+      instruccion5 <- paste(".TablaResumen <- as.data.frame(matrix(round(cbind(.ni,.Ni,.fi,.Fi),2), ",
+                            "nrow=nrow(.ni), byrow=FALSE,",
+                            " dimnames=list(c(levels(", .BaseDatosActiva, "$", variable,
+                            " ),'NAs'),c('ni','Ni','fi','Fi'))))",sep="")
+      if (echocodigo == 1)
+      {
+        logger(instruccion1)
+        logger(instruccion2)
+        logger(instruccion3)
+        logger(instruccion4)
+        logger(instruccion5)
+      }
+      justDoIt(instruccion1)
+      justDoIt(instruccion2)
+      justDoIt(instruccion3)
+      justDoIt(instruccion4)
+      justDoIt(instruccion5)
+      doItAndPrint(paste(".TablaResumen # Resumen distribucion de frecuencias para", variable))
+      if (creahtml == 1)
+      {
+        titulo <- paste("Distribucion frecuencias para variable ", 
+                        variable,sep="")
+        HTML(as.title(titulo),file=.archivo)
+        HTML(.TablaResumen, file=.archivo)
+        HTMLhr(file = .archivo)                   
+      }
+    }
+    closeDialog()
+    if (echocodigo == 1) logger("remove(list=c('.TablaResumen','.ni','.Ni','.fi','.Fi'))") 
+    remove(.TablaResumen, envir=.GlobalEnv)  
+    tkfocus(CommanderWindow())
+  }
+  OKCancelHelp(helpSubject="table")
+  tkgrid(getFrame(listaVar), sticky="nw") 
+  tkgrid(labelRcmdr(opcionesFrame,
+                    text=gettextRcmdr("Opciones"), fg="blue"), sticky="w")
+  tkgrid(labelRcmdr(opcionesFrame, 
+                    text=gettextRcmdr("Mostrar en pantalla el codigo de R ejecutado ")),
+         echoCheckBox, sticky="w")
+  tkgrid(labelRcmdr(opcionesFrame,
+                    text=gettextRcmdr("Generar informe de resultados ")),
+         htmlCheckBox,sticky="w")
+  tkgrid(opcionesFrame, sticky="w")
+  tkgrid(buttonsFrame, sticky="w")
+  dialogSuffix(rows=4, columns=2)
 }
     
 indices.categoricas <- function(){
-    .chequeando.paquetes()
     initializeDialog(title=gettextRcmdr("Otros indices para variables categoricas"))
     listaVar <- variableListBox(top, Factors(), selectmode="multiple",
     title=gettextRcmdr("Variables (escoja una o mas)"))
@@ -204,9 +176,9 @@ indices.categoricas <- function(){
              numfilas <- as.numeric(RVval)+as.numeric(blauval)+
                          as.numeric(IVQval)+as.numeric(teachmanval)
              numcolumnas <- length(x)
-             instruccion <- paste("as.data.frame(matrix(nrow=",numfilas,",ncol=",
+             instruccion <- paste(".TablaResultados <- as.data.frame(matrix(nrow=",numfilas,",ncol=",
              numcolumnas,"))")
-             assign(".TablaResultados", justDoIt(instruccion), envir=.GlobalEnv)
+             justDoIt(instruccion)
              colnames(.TablaResultados) <- x
              titulo <- "Descriptivos para variables categoricas"
              HTML(as.title(titulo),file=.archivo)
@@ -232,17 +204,17 @@ indices.categoricas <- function(){
         {
           j <- j+1
           i <- 0
-          instruccion1 <- paste("table(", .BaseDatosActiva, "$", variable, ")", sep="")
-          assign(".ni", justDoIt(instruccion1), envir=.GlobalEnv)
+          instruccion1 <- paste(".ni <- table(", .BaseDatosActiva, "$", variable, ")", sep="")
+          justDoIt(instruccion1)
           if (echocodigo == 1)
           {
-            logger(paste(".ni <-", instruccion1))
+            logger(instruccion1)
           }
           if (oddsval == 1)
           {
-            instruccion2 <- "round(.ni/(sum(.ni)-.ni), 2)"
-            assign(".odds", justDoIt(instruccion2), envir=.GlobalEnv)
-            if (echocodigo == 1) logger(paste(".odds <-", instruccion2))              
+            instruccion2 <- ".odds <- round(.ni/(sum(.ni)-.ni), 2)"
+            justDoIt(instruccion2)
+            if (echocodigo == 1) logger(instruccion2)              
             doItAndPrint(paste(".odds  # Odds para", variable))
             if (echocodigo == 1) logger("remove(.odds)")
             if (creahtml == 1)
@@ -259,12 +231,12 @@ indices.categoricas <- function(){
           {
             if (is.numeric(variable))
             {
-              instruccion2 <- "as.numeric(names(.ni)[which(.ni==max(.ni))])"              
+              instruccion2 <- ".moda <- as.numeric(names(.ni)[which(.ni==max(.ni))])"              
             }
             else
-              instruccion2 <-"names(.ni)[which(.ni==max(.ni))]"
-            assign(".moda", justDoIt(instruccion2), envir=.GlobalEnv)
-            if (echocodigo == 1) logger(paste(".moda <-", instruccion2))              
+              instruccion2 <-".moda <- names(.ni)[which(.ni==max(.ni))]"
+            justDoIt(instruccion2)
+            if (echocodigo == 1) logger(instruccion2)              
             doItAndPrint(paste(".moda  # Moda para", variable))
             if (echocodigo == 1) logger("remove(.moda)")
             if (creahtml == 1)
@@ -279,9 +251,9 @@ indices.categoricas <- function(){
           }
           if (RVval == 1)
           {
-            instruccion2 <- "round(1 - max(.ni)/sum(.ni),2)"
-            assign(".RV", justDoIt(instruccion2), envir=.GlobalEnv)
-            if (echocodigo == 1) logger(paste(".RV <-", instruccion2))              
+            instruccion2 <- ".RV <- round(1 - max(.ni)/sum(.ni),2)"
+            justDoIt(instruccion2)
+            if (echocodigo == 1) logger(instruccion2)             
             doItAndPrint(paste(".RV  # Indice RV para", variable))
             if (echocodigo == 1) logger("remove(.RV)")
             if (creahtml == 1)
@@ -294,9 +266,9 @@ indices.categoricas <- function(){
           }
           if (blauval == 1)
           {
-            instruccion2 <- "round(1-sum(prop.table(.ni)^2),2)"
-            assign(".blau", justDoIt(instruccion2), envir=.GlobalEnv)
-            if (echocodigo == 1) logger(paste(".blau <-", instruccion2))              
+            instruccion2 <- ".blau <- round(1-sum(prop.table(.ni)^2),2)"
+            justDoIt(instruccion2)
+            if (echocodigo == 1) logger(instruccion2)              
             doItAndPrint(paste(".blau  # Indice de Blau para", variable)) 
             if (echocodigo == 1) logger("remove(.blau)")
             if (creahtml == 1)
@@ -329,10 +301,10 @@ indices.categoricas <- function(){
                              (paste("El numero de categorias k debe ser mayor que ",length(.ni)," .")))
                              return()          
             }                 
-            instruccion2 <- paste("round((1-sum(prop.table(.ni)^2))/((",kval,"-1)/",
+            instruccion2 <- paste(".IVQ <- round((1-sum(prop.table(.ni)^2))/((",kval,"-1)/",
                                   kval,"),2)",sep="")
-            assign(".IVQ", justDoIt(instruccion2), envir=.GlobalEnv)
-            if (echocodigo == 1) logger(paste(".IVQ <-", instruccion2))              
+            justDoIt(instruccion2)
+            if (echocodigo == 1) logger(instruccion2)            
             doItAndPrint(paste(".IVQ  # Indice IVQ para", variable))
             if (echocodigo == 1) logger("remove(.IVQ)")
             if (creahtml == 1)
@@ -345,9 +317,9 @@ indices.categoricas <- function(){
           }
           if (teachmanval == 1)
           {
-            instruccion2 <- "round(-sum(prop.table(.ni)*log(prop.table(.ni))),2)"
-            assign(".teachman", justDoIt(instruccion2), envir=.GlobalEnv)
-            if (echocodigo == 1) logger(paste(".teachman <-", instruccion2))              
+            instruccion2 <- ".teachman <- round(-sum(prop.table(.ni)*log(prop.table(.ni))),2)"
+            justDoIt(instruccion2)
+            if (echocodigo == 1) logger(instruccion2)              
             doItAndPrint(paste(".teachman  # Indice de Teachman para", variable))  
             if (echocodigo == 1) logger("remove(.teachman)")
             if (creahtml == 1)
@@ -409,7 +381,6 @@ indices.categoricas <- function(){
     }
 
 grafico.Pareto <- function(){
-    .chequeando.paquetes()
     initializeDialog(title=gettextRcmdr("Diagrama de Pareto"))
     selecVar <- variableListBox(top, Factors(), title=gettextRcmdr("Variables (escoja una)"))
     opcionesFrame <- tkframe(top)
@@ -441,21 +412,21 @@ grafico.Pareto <- function(){
         }
         if (tabVariable == "ni")
         {
-        instruccion1 <- paste("table(", .BaseDatosActiva, "$", variable, ")", sep="")
-        assign(".tabla", justDoIt(instruccion1), envir=.GlobalEnv)     
+        instruccion1 <- paste(".tabla <- table(", .BaseDatosActiva, "$", variable, ")", sep="")
+        justDoIt(instruccion1)    
         }
         if (tabVariable == "fi")
         {  
-        instruccion1 <- paste("table(",.BaseDatosActiva,"$",variable,")/(sum(table(",.BaseDatosActiva,"$",variable,")))",sep="")
-        assign(".tabla", justDoIt(instruccion1), envir=.GlobalEnv)
+        instruccion1 <- paste(".tabla <- table(",.BaseDatosActiva,"$",variable,")/(sum(table(",.BaseDatosActiva,"$",variable,")))",sep="")
+        justDoIt(instruccion1)
         }
-        instruccion2 <- ".tabla[order(-.tabla)]"
-        assign(".tabla",justDoIt(instruccion2), envir=.GlobalEnv)
+        instruccion2 <- ".tabla <- .tabla[order(-.tabla)]"
+        justDoIt(instruccion2)
         titulo <- paste('Diagrama de Pareto para ', variable, sep="")
         tituloy <- if (tabVariable == "ni") "Frecuencias Absolutas"
         else "Frecuencias Relativas"
         instruccion3 <- "par(mar=c(5,4,4,4))"
-        instruccion4 <- paste("barplot(.tabla, main='",titulo,"',",
+        instruccion4 <- paste(".x <- barplot(.tabla, main='",titulo,"',",
                         "ylab='",tituloy,"',ylim=c(0,sum(.tabla)*1.05),",
                         "col=heat.colors(length(.tabla)))",sep="")
         instruccion5 <- "lines(.x[1:length(.tabla)],cumsum(.tabla),type='b')"
@@ -463,7 +434,7 @@ grafico.Pareto <- function(){
         instruccion7 <- paste("axis(4,at=seq(0,max(cumsum(.tabla)),length=5),",
                         "labels=paste(seq(0,1,length=5)*100,'%',sep=''))",sep='')
         instruccion8 <- "mtext('Porcentaje Acumulado', 4, line=2.5, las=3)"
-        assign(".x", justDoIt(instruccion4), envir=.GlobalEnv)
+        justDoIt(instruccion4)
         justDoIt(instruccion3)
         justDoIt(instruccion4) 
         justDoIt(instruccion5)
@@ -472,8 +443,8 @@ grafico.Pareto <- function(){
         justDoIt(instruccion8)
         if (echocodigo == 1)
         {
-          logger(paste(".tabla <-", instruccion1))
-          logger(paste(".x <-", instruccion2))
+          logger(instruccion1)
+          logger(instruccion2)
           logger(instruccion3)
           logger(instruccion4)
           logger(instruccion5)
@@ -516,7 +487,6 @@ grafico.Pareto <- function(){
     }
 
 resumen.ordinales <- function(){
-    .chequeando.paquetes()
     initializeDialog(title=gettextRcmdr("Indices para variables ordinales"))
     listaVar <- variableListBox(top, Factors(), selectmode="multiple",
     title=gettextRcmdr("Variables (escoja una o mas)"))
@@ -593,7 +563,7 @@ resumen.ordinales <- function(){
         }
         for (variable in x)
         {          
-        assign("cond", justDoIt(paste("!is.ordered(",paste(ActiveDataSet(),"$",variable,sep=""),")",sep="")), envir=.GlobalEnv)
+        justDoIt(paste("cond <- !is.ordered(",paste(ActiveDataSet(),"$",variable,sep=""),")",sep=""))
         if (cond){
             errorCondition(recall=resumen.ordinales, message=gettextRcmdr(paste("Variable ",variable, " no es ordinal.",sep='')))
             return()
@@ -677,18 +647,18 @@ resumen.ordinales <- function(){
           {
             numfilas <- selec
             numcolumnas <- length(x)
-            instruccion <- paste("as.data.frame(matrix(nrow=",numfilas,",ncol=",
+            instruccion <- paste(".TablaResTC <- as.data.frame(matrix(nrow=",numfilas,",ncol=",
             numcolumnas,"))")
-            assign(".TablaResTC", justDoIt(instruccion), envir=.GlobalEnv)
+            justDoIt(instruccion)
             colnames(.TablaResTC) <- x
           }
           if (selec2 > 0)
           {
             numfilas <- selec2
             numcolumnas <- length(x)
-            instruccion <- paste("as.data.frame(matrix(nrow=",numfilas,",ncol=",
+            instruccion <- paste(".TablaResDisp <- as.data.frame(matrix(nrow=",numfilas,",ncol=",
             numcolumnas,"))")
-            assign(".TablaResDisp", justDoIt(instruccion), envir=.GlobalEnv)
+            justDoIt(instruccion)
             colnames(.TablaResDisp) <- x
           }
           if (selec3 > 0)
@@ -700,18 +670,18 @@ resumen.ordinales <- function(){
             }
             else  numfilas <- selec3
             numcolumnas <- length(x)
-            instruccion <- paste("as.data.frame(matrix(nrow=",numfilas,",ncol=",
+            instruccion <- paste(".TablaResPosic <- as.data.frame(matrix(nrow=",numfilas,",ncol=",
             numcolumnas,"))")
-            assign(".TablaResPosic", justDoIt(instruccion), envir=.GlobalEnv)
+            justDoIt(instruccion)
             colnames(.TablaResPosic) <- x
           }
           if (selec4 > 0)
           {
             numfilas <- selec4
             numcolumnas <- length(x)
-            instruccion <- paste("as.data.frame(matrix(nrow=",numfilas,",ncol=",
+            instruccion <- paste(".TablaResForm <- as.data.frame(matrix(nrow=",numfilas,",ncol=",
             numcolumnas,"))")
-            assign(".TablaResForm", justDoIt(instruccion), envir=.GlobalEnv)
+            justDoIt(instruccion)
             colnames(.TablaResForm) <- x
           }
           titulo <- "Indicadores descriptivos para variables ordinales"
@@ -727,9 +697,9 @@ resumen.ordinales <- function(){
           l <- 0
           if (medianaval == 1)
           {
-            instruccion <- paste("median(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)",sep="")
-            assign(".mediana", justDoIt(instruccion), envir=.GlobalEnv)
-            if (echocodigo == 1) logger(paste(".mediana <-", instruccion))              
+            instruccion <- paste(".mediana <- median(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)",sep="")
+            justDoIt(instruccion)
+            if (echocodigo == 1) logger(instruccion)              
             doItAndPrint(paste(".mediana  # Mediana para", variable))
             if (echocodigo == 1) logger("remove(.mediana)")
             if (creahtml == 1)
@@ -742,15 +712,15 @@ resumen.ordinales <- function(){
           }
           if (modaval == 1)
           {     
-            instruccion1 <- paste("table(as.numeric(", .BaseDatosActiva, "$", variable, "))", sep="")
-            assign(".ni", justDoIt(instruccion1), envir=.GlobalEnv)
+            instruccion1 <- paste(".ni <- table(as.numeric(", .BaseDatosActiva, "$", variable, "))", sep="")
+            justDoIt(instruccion1)
             if (echocodigo == 1)
             {
-              logger(paste(".ni <-", instruccion1))
+              logger(instruccion1)
             }                
-            instruccion2 <- "as.numeric(names(.ni)[which(.ni==max(.ni))])"              
-            assign(".moda", justDoIt(instruccion2), envir=.GlobalEnv)
-            if (echocodigo == 1) logger(paste(".moda <-", instruccion2))              
+            instruccion2 <- ".moda <- as.numeric(names(.ni)[which(.ni==max(.ni))])"              
+            justDoIt(instruccion2)
+            if (echocodigo == 1) logger(instruccion2)            
             doItAndPrint(paste(".moda  # Moda para", variable))
             if (echocodigo == 1)
             {
@@ -777,20 +747,20 @@ resumen.ordinales <- function(){
           }
           if (trimediaval == 1)
           {
-            instruccion1 <- paste("fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[2]",sep="")
-            assign(".Finf", justDoIt(instruccion1), envir=.GlobalEnv)
-            instruccion2 <- paste("fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[3]",sep="")
-            assign(".Md", justDoIt(instruccion2), envir=.GlobalEnv) 
-            instruccion3 <- paste("fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[4]",sep="")
-            assign(".Fsup", justDoIt(instruccion3), envir=.GlobalEnv)
-            instruccion4 <- "(.Finf+2*.Md+.Fsup)/4"
-            assign(".trimedia", justDoIt(instruccion4), envir=.GlobalEnv)
+            instruccion1 <- paste(".Finf <- fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[2]",sep="")
+            justDoIt(instruccion1)
+            instruccion2 <- paste(".Md <- fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[3]",sep="")
+            justDoIt(instruccion2)
+            instruccion3 <- paste(".Fsup <- fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[4]",sep="")
+            justDoIt(instruccion3)
+            instruccion4 <- "(.trimedia <- .Finf+2*.Md+.Fsup)/4"
+            justDoIt(instruccion4)
             if (echocodigo == 1) 
             {
-              logger(paste(".Finf <-", instruccion1))
-              logger(paste(".Md <-", instruccion2))
-              logger(paste(".Fsup <-", instruccion3))
-              logger(paste(".trimedia <-", instruccion4))
+              logger(instruccion1)
+              logger(instruccion2)
+              logger(instruccion3)
+              logger(instruccion4)
             }
             doItAndPrint(paste(".trimedia  # Trimedia para", variable))
             if (echocodigo == 1)
@@ -813,17 +783,17 @@ resumen.ordinales <- function(){
           }
           if (promcuarval == 1)
           {
-            instruccion1 <- paste("quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[2]",sep="")
-            assign(".Q1", justDoIt(instruccion1), envir=.GlobalEnv)
-            instruccion2 <- paste("quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[4]",sep="")
-            assign(".Q3", justDoIt(instruccion2), envir=.GlobalEnv) 
-            instruccion3 <- "(.Q1+.Q3)/2"
-            assign(".promcuartiles", justDoIt(instruccion3), envir=.GlobalEnv)
+            instruccion1 <- paste(".Q1 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[2]",sep="")
+            justDoIt(instruccion1)
+            instruccion2 <- paste(".Q3 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[4]",sep="")
+            justDoIt(instruccion2)
+            instruccion3 <- ".promcuartiles <- (.Q1+.Q3)/2"
+            justDoIt(instruccion3)
             if (echocodigo == 1) 
             {
-              logger(paste(".Q1 <-", instruccion1))
-              logger(paste(".Q3 <-", instruccion2))
-              logger(paste(".promcuartiles <-", instruccion3))
+              logger(instruccion1)
+              logger(instruccion2)
+              logger(instruccion3)
             }
             justDoIt("names(.promcuartiles)<-NULL")
             doItAndPrint(paste(".promcuartiles  # Promedio de cuartiles para", variable))
@@ -845,17 +815,17 @@ resumen.ordinales <- function(){
           }            
           if (midRval == 1)
           {
-            instruccion1 <- paste("quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[1]",sep="")
-            assign(".min", justDoIt(instruccion1), envir=.GlobalEnv)
-            instruccion2 <- paste("quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[5]",sep="")
-            assign(".max", justDoIt(instruccion2), envir=.GlobalEnv) 
-            instruccion3 <- "(.min+.max)/2"
-            assign(".midR", justDoIt(instruccion3), envir=.GlobalEnv)
+            instruccion1 <- paste(".min <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[1]",sep="")
+            justDoIt(instruccion1)
+            instruccion2 <- paste(".max <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[5]",sep="")
+            justDoIt(instruccion2)
+            instruccion3 <- ".midR <- (.min+.max)/2"
+            justDoIt(instruccion3)
             if (echocodigo == 1) 
             {
-              logger(paste(".min <-", instruccion1))
-              logger(paste(".max <-", instruccion2))
-              logger(paste(".midR <-", instruccion3))
+              logger(instruccion1)
+              logger(instruccion2)
+              logger(instruccion3)
             }
             justDoIt("names(.midR)<-NULL")
             doItAndPrint(paste(".midR  # Rango medio para", variable))
@@ -885,9 +855,9 @@ resumen.ordinales <- function(){
               Message(message=gettextRcmdr("Proporcion de recorte invalida se utilizara valor por defecto."),
                 type="warning")              
             }
-            instruccion <- paste("mean(as.numeric(",.BaseDatosActiva,"$",variable,"),trim=",rec,",na.rm=TRUE)",sep="")
-            assign(".media.rec", justDoIt(instruccion), envir=.GlobalEnv)
-            if (echocodigo == 1) logger(paste(".media <-", instruccion))              
+            instruccion <- paste(".media.rec <- mean(as.numeric(",.BaseDatosActiva,"$",variable,"),trim=",rec,",na.rm=TRUE)",sep="")
+            justDoIt(instruccion)
+            if (echocodigo == 1) logger(instruccion)             
             doItAndPrint(paste(".media.rec  # Media recortada para", variable))
             if (echocodigo == 1) logger("remove(.media.rec)")
             if (creahtml == 1)
@@ -901,17 +871,17 @@ resumen.ordinales <- function(){
           }          
           if (rangoval == 1)
           {
-            instruccion1 <- paste("quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[1]",sep="")
-            assign(".min", justDoIt(instruccion1), envir=.GlobalEnv)
-            instruccion2 <- paste("quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[5]",sep="")
-            assign(".max", justDoIt(instruccion2), envir=.GlobalEnv) 
-            instruccion3 <- ".max-.min"
-            assign(".rango", justDoIt(instruccion3), envir=.GlobalEnv)
+            instruccion1 <- paste(".min <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[1]",sep="")
+            justDoIt(instruccion1)
+            instruccion2 <- paste(".max <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[5]",sep="")
+            justDoIt(instruccion2)
+            instruccion3 <- ".rango <- .max-.min"
+            justDoIt(instruccion3)
             if (echocodigo == 1) 
             {
-              logger(paste(".min <-", instruccion1))
-              logger(paste(".max <-", instruccion2))
-              logger(paste(".rango <-", instruccion3))
+              logger(instruccion1)
+              logger(instruccion2)
+              logger(instruccion3)
             }
             justDoIt("names(.rango)<-NULL")
             doItAndPrint(paste(".rango  # Amplitud para", variable))
@@ -933,17 +903,17 @@ resumen.ordinales <- function(){
           }
           if (IQRval == 1)
           {
-            instruccion1 <- paste("quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[2]",sep="")
-            assign(".Q1", justDoIt(instruccion1), envir=.GlobalEnv)
-            instruccion2 <- paste("quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[4]",sep="")
-            assign(".Q3", justDoIt(instruccion2), envir=.GlobalEnv) 
-            instruccion3 <- ".Q3-.Q1"
-            assign(".IQR", justDoIt(instruccion3), envir=.GlobalEnv)
+            instruccion1 <- paste(".Q1 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[2]",sep="")
+            justDoIt(instruccion1)
+            instruccion2 <- paste(".Q3 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[4]",sep="")
+            justDoIt(instruccion2)
+            instruccion3 <- ".IQR <- .Q3-.Q1"
+            justDoIt(instruccion3)
             if (echocodigo == 1) 
             {
-              logger(paste(".Q1 <-", instruccion1))
-              logger(paste(".Q3 <-", instruccion2))
-              logger(paste(".IQR <-", instruccion3))
+              logger(instruccion1)
+              logger(instruccion2)
+              logger(instruccion3)
             }
             justDoIt("names(.IQR)<-NULL")
             doItAndPrint(paste(".IQR  # Amplitud Intercuartil para", variable))
@@ -965,15 +935,15 @@ resumen.ordinales <- function(){
           }
           if (madval == 1)
           {
-            instruccion1 <- paste("median(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)",sep="")
-            assign(".mediana", justDoIt(instruccion1), envir=.GlobalEnv)
-            instruccion2 <- paste("median(abs(as.numeric(",.BaseDatosActiva,"$",variable,
+            instruccion1 <- paste(".mediana <- median(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)",sep="")
+            justDoIt(instruccion1)
+            instruccion2 <- paste(".mad <- median(abs(as.numeric(",.BaseDatosActiva,"$",variable,
                             ")-.mediana),na.rm=TRUE)",sep="")
-            assign(".mad", justDoIt(instruccion2), envir=.GlobalEnv)
+            justDoIt(instruccion2)
             if (echocodigo == 1)
             {
-              logger(paste(".mediana <-", instruccion1))
-              logger(paste(".mad <-", instruccion2))
+              logger(instruccion1)
+              logger(instruccion2)
             }
             doItAndPrint(paste(".mad  # Indice MAD para", variable))
             if (echocodigo == 1)
@@ -992,17 +962,17 @@ resumen.ordinales <- function(){
           }
           if (CVRval == 1)
           {
-            instruccion1 <- paste("fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[2]",sep="")
-            assign(".Finf", justDoIt(instruccion1), envir=.GlobalEnv)
-            instruccion2 <- paste("fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[4]",sep="")
-            assign(".Fsup", justDoIt(instruccion2), envir=.GlobalEnv)
-            instruccion3 <- "round((.Fsup-.Finf)/(.Finf+.Fsup), 2)"
-            assign(".CVR", justDoIt(instruccion3), envir=.GlobalEnv)
+            instruccion1 <- paste(".Finf <- fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[2]",sep="")
+            justDoIt(instruccion1)
+            instruccion2 <- paste(".Fsup <- fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[4]",sep="")
+            justDoIt(instruccion2)
+            instruccion3 <- ".CVR <- round((.Fsup-.Finf)/(.Finf+.Fsup), 2)"
+            justDoIt(instruccion3)
             if (echocodigo == 1) 
             {
-              logger(paste(".Finf <-", instruccion1))
-              logger(paste(".Fsup <-", instruccion2))
-              logger(paste(".CVR <-", instruccion3))
+              logger(instruccion1)
+              logger(instruccion2)
+              logger(instruccion3)
             }
             doItAndPrint(paste(".CVR  # Coeficiente Variacion Robusto para", variable))
             if (echocodigo == 1)
@@ -1023,17 +993,17 @@ resumen.ordinales <- function(){
           }
           if (desvcuarval == 1)
           {
-            instruccion1 <- paste("quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[2]",sep="")
-            assign(".Q1", justDoIt(instruccion1), envir=.GlobalEnv)
-            instruccion2 <- paste("quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[4]",sep="")
-            assign(".Q3", justDoIt(instruccion2), envir=.GlobalEnv) 
-            instruccion3 <- "(.Q3-.Q1)/2"
-            assign(".DQ", justDoIt(instruccion3), envir=.GlobalEnv)
+            instruccion1 <- paste(".Q1 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[2]",sep="")
+            justDoIt(instruccion1)
+            instruccion2 <- paste(".Q3 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[4]",sep="")
+            justDoIt(instruccion2)
+            instruccion3 <- ".DQ <- (.Q3-.Q1)/2"
+            justDoIt(instruccion3)
             if (echocodigo == 1) 
             {
-              logger(paste(".Q1 <-", instruccion1))
-              logger(paste(".Q3 <-", instruccion2))
-              logger(paste(".DQ <-", instruccion3))
+              logger(instruccion1)
+              logger(instruccion2)
+              logger(instruccion3)
             }
             justDoIt("names(.DQ)<-NULL")
             doItAndPrint(paste(".DQ  # Desviacion cuartil para", variable))
@@ -1062,17 +1032,17 @@ resumen.ordinales <- function(){
               Message(message=gettextRcmdr("Proporcion de datos invalida se utilizara valor por defecto."),
                 type="warning")              
             }
-            instruccion1 <- paste("round(quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=",(1-propdat)/2,",na.rm=TRUE), 2)",sep="")
-            assign(".ACinf", justDoIt(instruccion1), envir=.GlobalEnv)
-            instruccion2 <- paste("round(quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=",1-(1-propdat)/2,",na.rm=TRUE), 2)",sep="")
-            assign(".ACsup", justDoIt(instruccion2), envir=.GlobalEnv)
-            instruccion3 <- ".ACsup-.ACinf"
-            assign(".AC", justDoIt(instruccion3), envir=.GlobalEnv)
+            instruccion1 <- paste(".ACinf <- round(quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=",(1-propdat)/2,",na.rm=TRUE), 2)",sep="")
+            justDoIt(instruccion1)
+            instruccion2 <- paste(".ACsup <- round(quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=",1-(1-propdat)/2,",na.rm=TRUE), 2)",sep="")
+            justDoIt(instruccion2)
+            instruccion3 <- ".AC <- .ACsup-.ACinf"
+            justDoIt(instruccion3)
             if (echocodigo == 1) 
             {
-              logger(paste(".ACinf <-", instruccion1))
-              logger(paste(".ACsup <-", instruccion2))
-              logger(paste(".AC <-", instruccion3))
+              logger(instruccion1)
+              logger(instruccion2)
+              logger(instruccion3)
             }
             justDoIt("names(.AC)<-NULL")
             doItAndPrint(paste(".AC  # Amplitud centilica con ",propdat*100,"% datos para ", variable,sep=""))
@@ -1095,9 +1065,9 @@ resumen.ordinales <- function(){
           } 
           if (minval == 1)
           {
-            instruccion <- paste("min(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)",sep="")
-            assign(".min", justDoIt(instruccion), envir=.GlobalEnv)
-            if (echocodigo == 1) logger(paste(".min <-", instruccion))              
+            instruccion <- paste(".min <-min(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)",sep="")
+            justDoIt(instruccion)
+            if (echocodigo == 1) logger(instruccion)             
             doItAndPrint(paste(".min  # Minimo valor para", variable))
             if (echocodigo == 1) logger("remove(.min)")
             if (creahtml == 1)
@@ -1110,9 +1080,9 @@ resumen.ordinales <- function(){
           }
           if (maxval == 1)
           {
-            instruccion <- paste("max(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)",sep="")
-            assign(".max", justDoIt(instruccion), envir=.GlobalEnv)
-            if (echocodigo == 1) logger(paste(".max <-", instruccion))              
+            instruccion <- paste(".max <- max(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)",sep="")
+            justDoIt(instruccion)
+            if (echocodigo == 1) logger(instruccion)              
             doItAndPrint(paste(".max  # Maximo valor para", variable))
             if (echocodigo == 1) logger("remove(.max)")
             if (creahtml == 1)
@@ -1125,9 +1095,9 @@ resumen.ordinales <- function(){
           }
           if (Q1val == 1)
           {
-            instruccion <- paste("quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[2]",sep="")
-            assign(".Q1", justDoIt(instruccion), envir=.GlobalEnv)
-            if (echocodigo == 1) logger(paste(".Q1 <-", instruccion))
+            instruccion <- paste(".Q1 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[2]",sep="")
+            justDoIt(instruccion)
+            if (echocodigo == 1) logger(instruccion)
             justDoIt("names(.Q1)<-NULL")
             doItAndPrint(paste(".Q1  # Primer cuartil para", variable))
             if (echocodigo == 1) logger("remove(.Q1)")
@@ -1141,9 +1111,9 @@ resumen.ordinales <- function(){
           }  
           if (Q2val == 1)
           {
-            instruccion <- paste("quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[3]",sep="")
-            assign(".Q2", justDoIt(instruccion), envir=.GlobalEnv)
-            if (echocodigo == 1) logger(paste(".Q2 <-", instruccion))
+            instruccion <- paste(".Q2 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[3]",sep="")
+            justDoIt(instruccion)
+            if (echocodigo == 1) logger(instruccion)
             justDoIt("names(.Q2)<-NULL")
             doItAndPrint(paste(".Q2  # Segundo cuartil para", variable))
             if (echocodigo == 1) logger("remove(.Q2)")
@@ -1157,9 +1127,9 @@ resumen.ordinales <- function(){
           }
           if (Q3val == 1)
           {
-            instruccion <- paste("quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[4]",sep="")
-            assign(".Q3", justDoIt(instruccion), envir=.GlobalEnv)
-            if (echocodigo == 1) logger(paste(".Q3 <-", instruccion))
+            instruccion <- paste(".Q3 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[4]",sep="")
+            justDoIt(instruccion)
+            if (echocodigo == 1) logger(instruccion)
             justDoIt("names(.Q3)<-NULL")
             doItAndPrint(paste(".Q3  # Tercer cuartil para", variable))
             if (echocodigo == 1) logger("remove(.Q3)")
@@ -1173,9 +1143,9 @@ resumen.ordinales <- function(){
           }
           if (percentval == 1)
           {
-             instruccion <- paste("quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=c(",pct,"),na.rm=TRUE)",sep="")
-             assign(".Pct", justDoIt(instruccion), envir=.GlobalEnv)
-             if (echocodigo == 1) logger(paste(".Pct <-", instruccion))              
+             instruccion <- paste(".Pct <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=c(",pct,"),na.rm=TRUE)",sep="")
+             justDoIt(instruccion)
+             if (echocodigo == 1) logger(instruccion)             
              doItAndPrint(paste(".Pct  # Percentiles para", variable))
              if (echocodigo == 1) logger("remove(.PCt)")
             if (creahtml == 1)
@@ -1190,20 +1160,20 @@ resumen.ordinales <- function(){
           }
           if (H1val == 1)
           {
-            instruccion1 <- paste("fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[2]",sep="")
-            assign(".Finf", justDoIt(instruccion1), envir=.GlobalEnv)
-            instruccion2 <- paste("fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[3]",sep="")
-            assign(".Md", justDoIt(instruccion2), envir=.GlobalEnv) 
-            instruccion3 <- paste("fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[4]",sep="")
-            assign(".Fsup", justDoIt(instruccion3), envir=.GlobalEnv)
-            instruccion4 <- "(.Finf+.Fsup-2*.Md)/(2*.Md)"
-            assign(".H1", justDoIt(instruccion4), envir=.GlobalEnv)
+            instruccion1 <- paste(".Finf <- fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[2]",sep="")
+            justDoIt(instruccion1)
+            instruccion2 <- paste(".Md <- fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[3]",sep="")
+            justDoIt(instruccion2)
+            instruccion3 <- paste(".Fsup <- fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[4]",sep="")
+            justDoIt(instruccion3)
+            instruccion4 <- ".H1 <- (.Finf+.Fsup-2*.Md)/(2*.Md)"
+            justDoIt(instruccion4)
             if (echocodigo == 1) 
             {
-              logger(paste(".Finf <-", instruccion1))
-              logger(paste(".Md <-", instruccion2))
-              logger(paste(".Fsup <-", instruccion3))
-              logger(paste(".H1 <-", instruccion4))
+              logger(instruccion1)
+              logger(instruccion2)
+              logger(instruccion3)
+              logger(instruccion4)
             }
             doItAndPrint(paste(".H1  # Indice de Yule H1 para", variable))
             if (echocodigo == 1)
@@ -1226,20 +1196,20 @@ resumen.ordinales <- function(){
           }
           if (H3val == 1)
           {
-            instruccion1 <- paste("quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=0.9,na.rm=TRUE)",sep="")
-            assign(".AC90", justDoIt(instruccion1), envir=.GlobalEnv)
-            instruccion2 <- paste("quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=0.1,na.rm=TRUE)",sep="")
-            assign(".AC10", justDoIt(instruccion2), envir=.GlobalEnv)
-            instruccion3 <- paste("fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[3]",sep="")
-            assign(".Md", justDoIt(instruccion3), envir=.GlobalEnv) 
-            instruccion4 <- "(.AC90+.AC10-2*.Md)/(2*.Md)"
-            assign(".H3", justDoIt(instruccion4), envir=.GlobalEnv)
+            instruccion1 <- paste(".AC90 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=0.9,na.rm=TRUE)",sep="")
+            justDoIt(instruccion1)
+            instruccion2 <- paste(".AC10 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=0.1,na.rm=TRUE)",sep="")
+            justDoIt(instruccion2)
+            instruccion3 <- paste(".Md <- fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[3]",sep="")
+            justDoIt(instruccion3)
+            instruccion4 <- ".H3 <- (.AC90+.AC10-2*.Md)/(2*.Md)"
+            justDoIt(instruccion4)
             if (echocodigo == 1) 
             {
-              logger(paste(".AC90 <-", instruccion1))
-              logger(paste(".AC10 <-", instruccion2))
-              logger(paste(".Md <-", instruccion3))  
-              logger(paste(".H3 <-", instruccion4))
+              logger(instruccion1)
+              logger(instruccion2)
+              logger(instruccion3) 
+              logger(instruccion4)
             }
             justDoIt("names(.H3)<-NULL")
             doItAndPrint(paste(".H3  # Indice de Kelly H3  para ", variable,sep=""))
@@ -1263,23 +1233,23 @@ resumen.ordinales <- function(){
           }
           if (K2val == 1)
           {
-            instruccion1 <- paste("quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=0.9,na.rm=TRUE)",sep="")
-            assign(".AC90", justDoIt(instruccion1), envir=.GlobalEnv)
-            instruccion2 <- paste("quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=0.1,na.rm=TRUE)",sep="")
-            assign(".AC10", justDoIt(instruccion2), envir=.GlobalEnv)
-            instruccion3 <- paste("quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[2]",sep="")
-            assign(".Q1", justDoIt(instruccion3), envir=.GlobalEnv)
-            instruccion4 <- paste("quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[4]",sep="")
-            assign(".Q3", justDoIt(instruccion4), envir=.GlobalEnv) 
-            instruccion5 <- "(.AC90-.AC10)/(1.9*(.Q3-.Q1))"
-            assign(".K2", justDoIt(instruccion5), envir=.GlobalEnv)
+            instruccion1 <- paste(".AC90 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=0.9,na.rm=TRUE)",sep="")
+            justDoIt(instruccion1)
+            instruccion2 <- paste(".AC10 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=0.1,na.rm=TRUE)",sep="")
+            justDoIt(instruccion2)
+            instruccion3 <- paste(".Q1 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[2]",sep="")
+            justDoIt(instruccion3)
+            instruccion4 <- paste(".Q3 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[4]",sep="")
+            justDoIt(instruccion4)
+            instruccion5 <- ".K2 <- (.AC90-.AC10)/(1.9*(.Q3-.Q1))"
+            justDoIt(instruccion5)
             if (echocodigo == 1) 
             {
-              logger(paste(".AC90 <-", instruccion1))
-              logger(paste(".AC10 <-", instruccion2))              
-              logger(paste(".Q1 <-", instruccion3))
-              logger(paste(".Q3 <-", instruccion4))
-              logger(paste(".K2 <-", instruccion5))
+              logger(instruccion1)
+              logger(instruccion2)              
+              logger(instruccion3)
+              logger(instruccion4)
+              logger(instruccion5)
             }
             justDoIt("names(.K2)<-NULL")
             doItAndPrint(paste(".K2  # Coef. Apunt. K2 para", variable))
@@ -1305,23 +1275,23 @@ resumen.ordinales <- function(){
           }
           if (K3val == 1)
           {
-            instruccion1 <- paste("quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=0.125,na.rm=TRUE)",sep="")
-            assign(".Einf", justDoIt(instruccion1), envir=.GlobalEnv)
-            instruccion2 <- paste("quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=0.875,na.rm=TRUE)",sep="")
-            assign(".Esup", justDoIt(instruccion2), envir=.GlobalEnv)
-            instruccion3 <- paste("fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[2]",sep="")
-            assign(".Finf", justDoIt(instruccion3), envir=.GlobalEnv)
-            instruccion4 <- paste("fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[4]",sep="")
-            assign(".Fsup", justDoIt(instruccion4), envir=.GlobalEnv) 
-            instruccion5 <- "(.Esup-.Einf)/(1.7*(.Fsup-.Finf))"
-            assign(".K3", justDoIt(instruccion5), envir=.GlobalEnv)
+            instruccion1 <- paste(".Einf <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=0.125,na.rm=TRUE)",sep="")
+            justDoIt(instruccion1)
+            instruccion2 <- paste(".Esup <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=0.875,na.rm=TRUE)",sep="")
+            justDoIt(instruccion2)
+            instruccion3 <- paste(".Finf <- fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[2]",sep="")
+            justDoIt(instruccion3)
+            instruccion4 <- paste(".Fsup <- fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[4]",sep="")
+            justDoIt(instruccion4)
+            instruccion5 <- ".K3 <- (.Esup-.Einf)/(1.7*(.Fsup-.Finf))"
+            justDoIt(instruccion5)
             if (echocodigo == 1) 
             {
-              logger(paste(".Einf <-", instruccion1))
-              logger(paste(".Esup <-", instruccion2))              
-              logger(paste(".Finf <-", instruccion3))
-              logger(paste(".Fsup <-", instruccion4))
-              logger(paste(".K3 <-", instruccion5))
+              logger(instruccion1)
+              logger(instruccion2)            
+              logger(instruccion3)
+              logger(instruccion4)
+              logger(instruccion5)
             }
             justDoIt("names(.K3)<-NULL")
             doItAndPrint(paste(".K3  # Coef. Apunt. K3 para", variable))
@@ -1478,7 +1448,6 @@ resumen.ordinales <- function(){
     }
 
 resumen.numericas <- function(){
-  .chequeando.paquetes()
   initializeDialog(title=gettextRcmdr("Indices para variables numericas"))
   listaVar <- variableListBox(top, Numeric(), selectmode="multiple",
                               title=gettextRcmdr("Variables (escoja una o mas)"))
@@ -1670,18 +1639,18 @@ resumen.numericas <- function(){
       {
         numfilas <- selec
         numcolumnas <- length(x)
-        instruccion <- paste("as.data.frame(matrix(nrow=",numfilas,",ncol=",
+        instruccion <- paste(".TablaResTC <- as.data.frame(matrix(nrow=",numfilas,",ncol=",
                              numcolumnas,"))")
-        assign(".TablaResTC", justDoIt(instruccion), envir=.GlobalEnv)
+        justDoIt(instruccion)
         colnames(.TablaResTC) <- x
       }
       if (selec2 > 0)
       {
         numfilas <- selec2
         numcolumnas <- length(x)
-        instruccion <- paste("as.data.frame(matrix(nrow=",numfilas,",ncol=",
+        instruccion <- paste(".TablaResDisp <- as.data.frame(matrix(nrow=",numfilas,",ncol=",
                              numcolumnas,"))")
-        assign(".TablaResDisp", justDoIt(instruccion), envir=.GlobalEnv)
+        justDoIt(instruccion)
         colnames(.TablaResDisp) <- x
       }
       if (selec3 > 0)
@@ -1693,18 +1662,18 @@ resumen.numericas <- function(){
         }
         else  numfilas <- selec3
         numcolumnas <- length(x)
-        instruccion <- paste("as.data.frame(matrix(nrow=",numfilas,",ncol=",
+        instruccion <- paste(".TablaResPosic <- as.data.frame(matrix(nrow=",numfilas,",ncol=",
                              numcolumnas,"))")
-        assign(".TablaResPosic", justDoIt(instruccion), envir=.GlobalEnv)
+        justDoIt(instruccion)
         colnames(.TablaResPosic) <- x
       }
       if (selec4 > 0)
       {
         numfilas <- selec4
         numcolumnas <- length(x)
-        instruccion <- paste("as.data.frame(matrix(nrow=",numfilas,",ncol=",
+        instruccion <- paste(".TablaResForm <- as.data.frame(matrix(nrow=",numfilas,",ncol=",
                              numcolumnas,"))")
-        assign(".TablaResForm", justDoIt(instruccion), envir=.GlobalEnv)
+        justDoIt(instruccion)
         colnames(.TablaResForm) <- x
       }
       titulo <- "Indicadores descriptivos para variables numericas"
@@ -1720,9 +1689,9 @@ resumen.numericas <- function(){
       l <- 0
       if (mediaval == 1)
       {
-        instruccion <- paste("mean(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
-        assign(".media", justDoIt(instruccion), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste(".media <-", instruccion))              
+        instruccion <- paste(".media <- mean(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
+        justDoIt(instruccion)
+        if (echocodigo == 1) logger(instruccion)              
         doItAndPrint(paste(".media  # Media para", variable))
         if (echocodigo == 1) logger("remove(.media)")
         if (creahtml == 1)
@@ -1735,9 +1704,9 @@ resumen.numericas <- function(){
       }
       if (medianaval == 1)
       {
-        instruccion <- paste("median(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
-        assign(".mediana", justDoIt(instruccion), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste(".mediana <-", instruccion))              
+        instruccion <- paste(".mediana <- median(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
+        justDoIt(instruccion)
+        if (echocodigo == 1) logger(instruccion)             
         doItAndPrint(paste(".mediana  # Mediana para", variable))
         if (echocodigo == 1) logger("remove(.mediana)")
         if (creahtml == 1)
@@ -1750,15 +1719,15 @@ resumen.numericas <- function(){
       }
       if (modaval == 1)
       {     
-        instruccion1 <- paste("table(", .BaseDatosActiva, "$", variable, ")", sep="")
-        assign(".ni", justDoIt(instruccion1), envir=.GlobalEnv)
+        instruccion1 <- paste(".ni <- table(", .BaseDatosActiva, "$", variable, ")", sep="")
+        justDoIt(instruccion1)
         if (echocodigo == 1)
         {
-          logger(paste(".ni <-", instruccion1))
+          logger(instruccion1)
         }                
-        instruccion2 <- "as.numeric(names(.ni)[which(.ni==max(.ni))])"              
-        assign(".moda", justDoIt(instruccion2), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste(".moda <-", instruccion2))              
+        instruccion2 <- ".moda <- as.numeric(names(.ni)[which(.ni==max(.ni))])"              
+        justDoIt(instruccion2)
+        if (echocodigo == 1) logger(instruccion2)              
         doItAndPrint(paste(".moda  # Moda para", variable))
         if (echocodigo == 1)
         {
@@ -1785,9 +1754,9 @@ resumen.numericas <- function(){
       }
       if (mediageomval == 1)
       {
-        instruccion <- paste("mean(log(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)",sep="")
-        assign(".media.geom", justDoIt(instruccion), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste(".media <-", instruccion))              
+        instruccion <- paste(".media.geom <- mean(log(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)",sep="")
+        justDoIt(instruccion)
+        if (echocodigo == 1) logger(instruccion)             
         doItAndPrint(paste(".media.geom  # Media geometrica para", variable))
         if (echocodigo == 1) logger("remove(.media.geom)")
         if (creahtml == 1)
@@ -1800,20 +1769,20 @@ resumen.numericas <- function(){
       }
       if (trimediaval == 1)
       {
-        instruccion1 <- paste("fivenum(",.BaseDatosActiva,"$",variable,")[2]",sep="")
-        assign(".Finf", justDoIt(instruccion1), envir=.GlobalEnv)
-        instruccion2 <- paste("fivenum(",.BaseDatosActiva,"$",variable,")[3]",sep="")
-        assign(".Md", justDoIt(instruccion2), envir=.GlobalEnv) 
-        instruccion3 <- paste("fivenum(",.BaseDatosActiva,"$",variable,")[4]",sep="")
-        assign(".Fsup", justDoIt(instruccion3), envir=.GlobalEnv)
-        instruccion4 <- "(.Finf+2*.Md+.Fsup)/4"
-        assign(".trimedia", justDoIt(instruccion4), envir=.GlobalEnv)
+        instruccion1 <- paste(".Finf <- fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[2]",sep="")
+        justDoIt(instruccion1)
+        instruccion2 <- paste(".Md <- fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[3]",sep="")
+        justDoIt(instruccion2)
+        instruccion3 <- paste(".Fsup <- fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[4]",sep="")
+        justDoIt(instruccion3)
+        instruccion4 <- "(.trimedia <- .Finf+2*.Md+.Fsup)/4"
+        justDoIt(instruccion4)
         if (echocodigo == 1) 
         {
-          logger(paste(".Finf <-", instruccion1))
-          logger(paste(".Md <-", instruccion2))
-          logger(paste(".Fsup <-", instruccion3))
-          logger(paste(".trimedia <-", instruccion4))
+          logger(instruccion1)
+          logger(instruccion2)
+          logger(instruccion3)
+          logger(instruccion4)
         }
         doItAndPrint(paste(".trimedia  # Trimedia para", variable))
         if (echocodigo == 1)
@@ -1836,17 +1805,17 @@ resumen.numericas <- function(){
       }
       if (promcuarval == 1)
       {
-        instruccion1 <- paste("quantile(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)[2]",sep="")
-        assign(".Q1", justDoIt(instruccion1), envir=.GlobalEnv)
-        instruccion2 <- paste("quantile(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)[4]",sep="")
-        assign(".Q3", justDoIt(instruccion2), envir=.GlobalEnv) 
-        instruccion3 <- "(.Q1+.Q3)/2"
-        assign(".promcuartiles", justDoIt(instruccion3), envir=.GlobalEnv)
+        instruccion1 <- paste(".Q1 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[2]",sep="")
+        justDoIt(instruccion1)
+        instruccion2 <- paste(".Q3 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[4]",sep="")
+        justDoIt(instruccion2)
+        instruccion3 <- ".promcuartiles <- (.Q1+.Q3)/2"
+        justDoIt(instruccion3)
         if (echocodigo == 1) 
         {
-          logger(paste(".Q1 <-", instruccion1))
-          logger(paste(".Q3 <-", instruccion2))
-          logger(paste(".promcuartiles <-", instruccion3))
+          logger(instruccion1)
+          logger(instruccion2)
+          logger(instruccion3)
         }
         justDoIt("names(.promcuartiles)<-NULL")
         doItAndPrint(paste(".promcuartiles  # Promedio de cuartiles para", variable))
@@ -1868,17 +1837,17 @@ resumen.numericas <- function(){
       }            
       if (midRval == 1)
       {
-        instruccion1 <- paste("quantile(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)[1]",sep="")
-        assign(".min", justDoIt(instruccion1), envir=.GlobalEnv)
-        instruccion2 <- paste("quantile(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)[5]",sep="")
-        assign(".max", justDoIt(instruccion2), envir=.GlobalEnv) 
-        instruccion3 <- "(.min+.max)/2"
-        assign(".midR", justDoIt(instruccion3), envir=.GlobalEnv)
+        instruccion1 <- paste(".min <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[1]",sep="")
+        justDoIt(instruccion1)
+        instruccion2 <- paste(".max <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[5]",sep="")
+        justDoIt(instruccion2)
+        instruccion3 <- ".midR <- (.min+.max)/2"
+        justDoIt(instruccion3)
         if (echocodigo == 1) 
         {
-          logger(paste(".min <-", instruccion1))
-          logger(paste(".max <-", instruccion2))
-          logger(paste(".midR <-", instruccion3))
+          logger(instruccion1)
+          logger(instruccion2)
+          logger(instruccion3)
         }
         justDoIt("names(.midR)<-NULL")
         doItAndPrint(paste(".midR  # Rango medio para", variable))
@@ -1908,9 +1877,9 @@ resumen.numericas <- function(){
           Message(message=gettextRcmdr("Proporcion de recorte invalida se utilizara valor por defecto."),
                   type="warning")              
         }
-        instruccion <- paste("mean(",.BaseDatosActiva,"$",variable,",trim=",rec,",na.rm=TRUE)",sep="")
-        assign(".media.rec", justDoIt(instruccion), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste(".media <-", instruccion))              
+        instruccion <- paste(".media.rec <- mean(as.numeric(",.BaseDatosActiva,"$",variable,"),trim=",rec,",na.rm=TRUE)",sep="")
+        justDoIt(instruccion)
+        if (echocodigo == 1) logger(instruccion)             
         doItAndPrint(paste(".media.rec  # Media recortada para", variable))
         if (echocodigo == 1) logger("remove(.media.rec)")
         if (creahtml == 1)
@@ -1921,12 +1890,12 @@ resumen.numericas <- function(){
           .TablaResTC[i,j] <- .media.rec
         }            
         remove(.media.rec, envir=.GlobalEnv)
-      }          
+      }         
       if (sdval == 1)
       {
-        instruccion <- paste("sd(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
-        assign(".dt", justDoIt(instruccion), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste(".dt <-", instruccion))              
+        instruccion <- paste(".dt <- sd(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
+        justDoIt(instruccion)
+        if (echocodigo == 1) logger(instruccion)             
         doItAndPrint(paste(".dt  # Desviacion tipica para", variable))
         if (echocodigo == 1) logger("remove(.dt)")
         if (creahtml == 1)
@@ -1939,9 +1908,9 @@ resumen.numericas <- function(){
       }
       if (varianciaval == 1)
       {
-        instruccion <- paste("var(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
-        assign(".variancia", justDoIt(instruccion), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste(".variancia <-", instruccion))              
+        instruccion <- paste(".variancia <- var(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
+        justDoIt(instruccion)
+        if (echocodigo == 1) logger(instruccion)              
         doItAndPrint(paste(".variancia  # Variancia para", variable))
         if (echocodigo == 1) logger("remove(.variancia)")
         if (creahtml == 1)
@@ -1954,9 +1923,9 @@ resumen.numericas <- function(){
       }
       if (sdgeomval == 1)
       {
-        instruccion <- paste("sd(log(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)",sep="")
-        assign(".dt.geometrica", justDoIt(instruccion), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste(".dt.geometrica <-", instruccion))              
+        instruccion <- paste(".dt.geometrica <- sd(log(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)",sep="")
+        justDoIt(instruccion)
+        if (echocodigo == 1) logger(instruccion)             
         doItAndPrint(paste(".dt.geometrica  # Desv. tipica geometrica para", variable))
         if (echocodigo == 1) logger("remove(.dt.geometrica)")
         if (creahtml == 1)
@@ -1969,15 +1938,15 @@ resumen.numericas <- function(){
       }
       if (desvmedval == 1)
       {
-        instruccion1 <- paste("mean(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
-        assign(".media", justDoIt(instruccion1), envir=.GlobalEnv)
-        instruccion2 <- paste("sum(abs(",.BaseDatosActiva,"$",variable,
+        instruccion1 <- paste(".media <- mean(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
+        justDoIt(instruccion1)
+        instruccion2 <- paste(".desv.media <- sum(abs(",.BaseDatosActiva,"$",variable,
                               "-.media),na.rm=TRUE)/length(na.omit(",.BaseDatosActiva,"$",variable,"))",sep="")
-        assign(".desv.media", justDoIt(instruccion2), envir=.GlobalEnv)
+        justDoIt(instruccion2)
         if (echocodigo == 1)
         {
-          logger(paste(".media <-", instruccion1))
-          logger(paste(".desv.media <-", instruccion2))
+          logger(instruccion1)
+          logger(instruccion2)
         }
         doItAndPrint(paste(".desv.media  # Desviacion media para", variable))
         if (echocodigo == 1)
@@ -1996,17 +1965,17 @@ resumen.numericas <- function(){
       }
       if (CVval == 1)
       {
-        instruccion1 <- paste("mean(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
-        assign(".media", justDoIt(instruccion1), envir=.GlobalEnv)
-        instruccion2 <- paste("sd(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
-        assign(".dt", justDoIt(instruccion2), envir=.GlobalEnv)
-        instruccion3 <- ".dt/.media"
-        assign(".CV", justDoIt(instruccion3), envir=.GlobalEnv)            
+        instruccion1 <- paste(".media <- mean(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
+        justDoIt(instruccion1)
+        instruccion2 <- paste(".dt <- sd(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
+        justDoIt(instruccion2)
+        instruccion3 <- ".CV <- .dt/.media"
+        justDoIt(instruccion3)         
         if (echocodigo == 1)
         {
-          logger(paste(".media <-", instruccion1))
-          logger(paste(".dt <-", instruccion2))
-          logger(paste(".CV <-", instruccion3))
+          logger(instruccion1)
+          logger(instruccion2)
+          logger(instruccion3)
         }
         doItAndPrint(paste(".CV  # Coeficiente de Variacion para", variable))
         if (echocodigo == 1)
@@ -2027,17 +1996,17 @@ resumen.numericas <- function(){
       }
       if (rangoval == 1)
       {
-        instruccion1 <- paste("quantile(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)[1]",sep="")
-        assign(".min", justDoIt(instruccion1), envir=.GlobalEnv)
-        instruccion2 <- paste("quantile(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)[5]",sep="")
-        assign(".max", justDoIt(instruccion2), envir=.GlobalEnv) 
-        instruccion3 <- ".max-.min"
-        assign(".rango", justDoIt(instruccion3), envir=.GlobalEnv)
+        instruccion1 <- paste(".min <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[1]",sep="")
+        justDoIt(instruccion1)
+        instruccion2 <- paste(".max <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[5]",sep="")
+        justDoIt(instruccion2)
+        instruccion3 <- ".rango <- .max-.min"
+        justDoIt(instruccion3)
         if (echocodigo == 1) 
         {
-          logger(paste(".min <-", instruccion1))
-          logger(paste(".max <-", instruccion2))
-          logger(paste(".rango <-", instruccion3))
+          logger(instruccion1)
+          logger(instruccion2)
+          logger(instruccion3)
         }
         justDoIt("names(.rango)<-NULL")
         doItAndPrint(paste(".rango  # Amplitud para", variable))
@@ -2059,17 +2028,17 @@ resumen.numericas <- function(){
       }
       if (IQRval == 1)
       {
-        instruccion1 <- paste("quantile(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)[2]",sep="")
-        assign(".Q1", justDoIt(instruccion1), envir=.GlobalEnv)
-        instruccion2 <- paste("quantile(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)[4]",sep="")
-        assign(".Q3", justDoIt(instruccion2), envir=.GlobalEnv) 
-        instruccion3 <- ".Q3-.Q1"
-        assign(".IQR", justDoIt(instruccion3), envir=.GlobalEnv)
+        instruccion1 <- paste(".Q1 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[2]",sep="")
+        justDoIt(instruccion1)
+        instruccion2 <- paste(".Q3 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[4]",sep="")
+        justDoIt(instruccion2)
+        instruccion3 <- ".IQR <- .Q3-.Q1"
+        justDoIt(instruccion3)
         if (echocodigo == 1) 
         {
-          logger(paste(".Q1 <-", instruccion1))
-          logger(paste(".Q3 <-", instruccion2))
-          logger(paste(".IQR <-", instruccion3))
+          logger(instruccion1)
+          logger(instruccion2)
+          logger(instruccion3)
         }
         justDoIt("names(.IQR)<-NULL")
         doItAndPrint(paste(".IQR  # Amplitud Intercuartil para", variable))
@@ -2091,15 +2060,15 @@ resumen.numericas <- function(){
       }
       if (madval == 1)
       {
-        instruccion1 <- paste("median(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
-        assign(".mediana", justDoIt(instruccion1), envir=.GlobalEnv)
-        instruccion2 <- paste("median(abs(",.BaseDatosActiva,"$",variable,
-                              "-.mediana),na.rm=TRUE)",sep="")
-        assign(".mad", justDoIt(instruccion2), envir=.GlobalEnv)
+        instruccion1 <- paste(".mediana <- median(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)",sep="")
+        justDoIt(instruccion1)
+        instruccion2 <- paste(".mad <- median(abs(as.numeric(",.BaseDatosActiva,"$",variable,
+                              ")-.mediana),na.rm=TRUE)",sep="")
+        justDoIt(instruccion2)
         if (echocodigo == 1)
         {
-          logger(paste(".mediana <-", instruccion1))
-          logger(paste(".mad <-", instruccion2))
+          logger(instruccion1)
+          logger(instruccion2)
         }
         doItAndPrint(paste(".mad  # Indice MAD para", variable))
         if (echocodigo == 1)
@@ -2118,17 +2087,17 @@ resumen.numericas <- function(){
       }
       if (CVRval == 1)
       {
-        instruccion1 <- paste("fivenum(",.BaseDatosActiva,"$",variable,")[2]",sep="")
-        assign(".Finf", justDoIt(instruccion1), envir=.GlobalEnv)
-        instruccion2 <- paste("fivenum(",.BaseDatosActiva,"$",variable,")[4]",sep="")
-        assign(".Fsup", justDoIt(instruccion2), envir=.GlobalEnv)
-        instruccion3 <- "round((.Fsup-.Finf)/(.Finf+.Fsup), 2)"
-        assign(".CVR", justDoIt(instruccion3), envir=.GlobalEnv)
+        instruccion1 <- paste(".Finf <- fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[2]",sep="")
+        justDoIt(instruccion1)
+        instruccion2 <- paste(".Fsup <- fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[4]",sep="")
+        justDoIt(instruccion2)
+        instruccion3 <- ".CVR <- round((.Fsup-.Finf)/(.Finf+.Fsup), 2)"
+        justDoIt(instruccion3)
         if (echocodigo == 1) 
         {
-          logger(paste(".Finf <-", instruccion1))
-          logger(paste(".Fsup <-", instruccion2))
-          logger(paste(".CVR <-", instruccion3))
+          logger(instruccion1)
+          logger(instruccion2)
+          logger(instruccion3)
         }
         doItAndPrint(paste(".CVR  # Coeficiente Variacion Robusto para", variable))
         if (echocodigo == 1)
@@ -2149,17 +2118,17 @@ resumen.numericas <- function(){
       }
       if (desvcuarval == 1)
       {
-        instruccion1 <- paste("quantile(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)[2]",sep="")
-        assign(".Q1", justDoIt(instruccion1), envir=.GlobalEnv)
-        instruccion2 <- paste("quantile(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)[4]",sep="")
-        assign(".Q3", justDoIt(instruccion2), envir=.GlobalEnv) 
-        instruccion3 <- "(.Q3-.Q1)/2"
-        assign(".DQ", justDoIt(instruccion3), envir=.GlobalEnv)
+        instruccion1 <- paste(".Q1 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[2]",sep="")
+        justDoIt(instruccion1)
+        instruccion2 <- paste(".Q3 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[4]",sep="")
+        justDoIt(instruccion2)
+        instruccion3 <- ".DQ <- (.Q3-.Q1)/2"
+        justDoIt(instruccion3)
         if (echocodigo == 1) 
         {
-          logger(paste(".Q1 <-", instruccion1))
-          logger(paste(".Q3 <-", instruccion2))
-          logger(paste(".DQ <-", instruccion3))
+          logger(instruccion1)
+          logger(instruccion2)
+          logger(instruccion3)
         }
         justDoIt("names(.DQ)<-NULL")
         doItAndPrint(paste(".DQ  # Desviacion cuartil para", variable))
@@ -2188,17 +2157,17 @@ resumen.numericas <- function(){
           Message(message=gettextRcmdr("Proporcion de datos invalida se utilizara valor por defecto."),
                   type="warning")              
         }
-        instruccion1 <- paste("round(quantile(",.BaseDatosActiva,"$",variable,",probs=",(1-propdat)/2,",na.rm=TRUE), 2)",sep="")
-        assign(".ACinf", justDoIt(instruccion1), envir=.GlobalEnv)
-        instruccion2 <- paste("round(quantile(",.BaseDatosActiva,"$",variable,",probs=",1-(1-propdat)/2,",na.rm=TRUE), 2)",sep="")
-        assign(".ACsup", justDoIt(instruccion2), envir=.GlobalEnv)
-        instruccion3 <- ".ACsup-.ACinf"
-        assign(".AC", justDoIt(instruccion3), envir=.GlobalEnv)
+        instruccion1 <- paste(".ACinf <- round(quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=",(1-propdat)/2,",na.rm=TRUE), 2)",sep="")
+        justDoIt(instruccion1)
+        instruccion2 <- paste(".ACsup <- round(quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=",1-(1-propdat)/2,",na.rm=TRUE), 2)",sep="")
+        justDoIt(instruccion2)
+        instruccion3 <- ".AC <- .ACsup-.ACinf"
+        justDoIt(instruccion3)
         if (echocodigo == 1) 
         {
-          logger(paste(".ACinf <-", instruccion1))
-          logger(paste(".ACsup <-", instruccion2))
-          logger(paste(".AC <-", instruccion3))
+          logger(instruccion1)
+          logger(instruccion2)
+          logger(instruccion3)
         }
         justDoIt("names(.AC)<-NULL")
         doItAndPrint(paste(".AC  # Amplitud centilica con ",propdat*100,"% datos para ", variable,sep=""))
@@ -2221,9 +2190,9 @@ resumen.numericas <- function(){
       } 
       if (minval == 1)
       {
-        instruccion <- paste("min(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
-        assign(".min", justDoIt(instruccion), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste(".min <-", instruccion))              
+        instruccion <- paste(".min <-min(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)",sep="")
+        justDoIt(instruccion)
+        if (echocodigo == 1) logger(instruccion)             
         doItAndPrint(paste(".min  # Minimo valor para", variable))
         if (echocodigo == 1) logger("remove(.min)")
         if (creahtml == 1)
@@ -2236,9 +2205,9 @@ resumen.numericas <- function(){
       }
       if (maxval == 1)
       {
-        instruccion <- paste("max(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
-        assign(".max", justDoIt(instruccion), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste(".max <-", instruccion))              
+        instruccion <- paste(".max <- max(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)",sep="")
+        justDoIt(instruccion)
+        if (echocodigo == 1) logger(instruccion)              
         doItAndPrint(paste(".max  # Maximo valor para", variable))
         if (echocodigo == 1) logger("remove(.max)")
         if (creahtml == 1)
@@ -2251,9 +2220,9 @@ resumen.numericas <- function(){
       }
       if (Q1val == 1)
       {
-        instruccion <- paste("quantile(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)[2]",sep="")
-        assign(".Q1", justDoIt(instruccion), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste(".Q1 <-", instruccion))
+        instruccion <- paste(".Q1 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[2]",sep="")
+        justDoIt(instruccion)
+        if (echocodigo == 1) logger(instruccion)
         justDoIt("names(.Q1)<-NULL")
         doItAndPrint(paste(".Q1  # Primer cuartil para", variable))
         if (echocodigo == 1) logger("remove(.Q1)")
@@ -2267,9 +2236,9 @@ resumen.numericas <- function(){
       }  
       if (Q2val == 1)
       {
-        instruccion <- paste("quantile(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)[3]",sep="")
-        assign(".Q2", justDoIt(instruccion), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste(".Q2 <-", instruccion))
+        instruccion <- paste(".Q2 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[3]",sep="")
+        justDoIt(instruccion)
+        if (echocodigo == 1) logger(instruccion)
         justDoIt("names(.Q2)<-NULL")
         doItAndPrint(paste(".Q2  # Segundo cuartil para", variable))
         if (echocodigo == 1) logger("remove(.Q2)")
@@ -2283,9 +2252,9 @@ resumen.numericas <- function(){
       }
       if (Q3val == 1)
       {
-        instruccion <- paste("quantile(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)[4]",sep="")
-        assign(".Q3", justDoIt(instruccion), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste(".Q3 <-", instruccion))
+        instruccion <- paste(".Q3 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[4]",sep="")
+        justDoIt(instruccion)
+        if (echocodigo == 1) logger(instruccion)
         justDoIt("names(.Q3)<-NULL")
         doItAndPrint(paste(".Q3  # Tercer cuartil para", variable))
         if (echocodigo == 1) logger("remove(.Q3)")
@@ -2299,9 +2268,9 @@ resumen.numericas <- function(){
       }
       if (percentval == 1)
       {
-        instruccion <- paste("quantile(",.BaseDatosActiva,"$",variable,",probs=c(",pct,"),na.rm=TRUE)",sep="")
-        assign(".Pct", justDoIt(instruccion), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste(".Pct <-", instruccion))              
+        instruccion <- paste(".Pct <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=c(",pct,"),na.rm=TRUE)",sep="")
+        justDoIt(instruccion)
+        if (echocodigo == 1) logger(instruccion)             
         doItAndPrint(paste(".Pct  # Percentiles para", variable))
         if (echocodigo == 1) logger("remove(.PCt)")
         if (creahtml == 1)
@@ -2316,20 +2285,20 @@ resumen.numericas <- function(){
       }
       if (H1val == 1)
       {
-        instruccion1 <- paste("fivenum(",.BaseDatosActiva,"$",variable,")[2]",sep="")
-        assign(".Finf", justDoIt(instruccion1), envir=.GlobalEnv)
-        instruccion2 <- paste("fivenum(",.BaseDatosActiva,"$",variable,")[3]",sep="")
-        assign(".Md", justDoIt(instruccion2), envir=.GlobalEnv) 
-        instruccion3 <- paste("fivenum(",.BaseDatosActiva,"$",variable,")[4]",sep="")
-        assign(".Fsup", justDoIt(instruccion3), envir=.GlobalEnv)
-        instruccion4 <- "(.Finf+.Fsup-2*.Md)/(2*.Md)"
-        assign(".H1", justDoIt(instruccion4), envir=.GlobalEnv)
+        instruccion1 <- paste(".Finf <- fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[2]",sep="")
+        justDoIt(instruccion1)
+        instruccion2 <- paste(".Md <- fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[3]",sep="")
+        justDoIt(instruccion2)
+        instruccion3 <- paste(".Fsup <- fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[4]",sep="")
+        justDoIt(instruccion3)
+        instruccion4 <- ".H1 <- (.Finf+.Fsup-2*.Md)/(2*.Md)"
+        justDoIt(instruccion4)
         if (echocodigo == 1) 
         {
-          logger(paste(".Finf <-", instruccion1))
-          logger(paste(".Md <-", instruccion2))
-          logger(paste(".Fsup <-", instruccion3))
-          logger(paste(".H1 <-", instruccion4))
+          logger(instruccion1)
+          logger(instruccion2)
+          logger(instruccion3)
+          logger(instruccion4)
         }
         doItAndPrint(paste(".H1  # Indice de Yule H1 para", variable))
         if (echocodigo == 1)
@@ -2352,20 +2321,20 @@ resumen.numericas <- function(){
       }
       if (H3val == 1)
       {
-        instruccion1 <- paste("quantile(",.BaseDatosActiva,"$",variable,",probs=0.9,na.rm=TRUE)",sep="")
-        assign(".AC90", justDoIt(instruccion1), envir=.GlobalEnv)
-        instruccion2 <- paste("quantile(",.BaseDatosActiva,"$",variable,",probs=0.1,na.rm=TRUE)",sep="")
-        assign(".AC10", justDoIt(instruccion2), envir=.GlobalEnv)
-        instruccion3 <- paste("fivenum(",.BaseDatosActiva,"$",variable,")[3]",sep="")
-        assign(".Md", justDoIt(instruccion3), envir=.GlobalEnv) 
-        instruccion4 <- "(.AC90+.AC10-2*.Md)/(2*.Md)"
-        assign(".H3", justDoIt(instruccion4), envir=.GlobalEnv)
+        instruccion1 <- paste(".AC90 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=0.9,na.rm=TRUE)",sep="")
+        justDoIt(instruccion1)
+        instruccion2 <- paste(".AC10 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=0.1,na.rm=TRUE)",sep="")
+        justDoIt(instruccion2)
+        instruccion3 <- paste(".Md <- fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[3]",sep="")
+        justDoIt(instruccion3)
+        instruccion4 <- ".H3 <- (.AC90+.AC10-2*.Md)/(2*.Md)"
+        justDoIt(instruccion4)
         if (echocodigo == 1) 
         {
-          logger(paste(".AC90 <-", instruccion1))
-          logger(paste(".AC10 <-", instruccion2))
-          logger(paste(".Md <-", instruccion3))  
-          logger(paste(".H3 <-", instruccion4))
+          logger(instruccion1)
+          logger(instruccion2)
+          logger(instruccion3) 
+          logger(instruccion4)
         }
         justDoIt("names(.H3)<-NULL")
         doItAndPrint(paste(".H3  # Indice de Kelly H3  para ", variable,sep=""))
@@ -2389,18 +2358,18 @@ resumen.numericas <- function(){
       }
       if (beta1val == 1)
       {
-        instruccion1 <- paste("mean(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
-        assign(".media", justDoIt(instruccion1), envir=.GlobalEnv)
-        instruccion2 <- paste("(sum((",.BaseDatosActiva,"$",variable,
+        instruccion1 <- paste(".media <- mean(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
+        justDoIt(instruccion1)
+        instruccion2 <- paste(".beta1 <- (sum((",.BaseDatosActiva,"$",variable,
                               "-.media)^3,na.rm=TRUE)/length(na.omit(",.BaseDatosActiva,"$",
                               variable,")))^2/", "(sum((",.BaseDatosActiva,"$",
                               variable, "-.media)^2,na.rm=TRUE)/length(na.omit(",.BaseDatosActiva,
                               "$",variable,")))^3",sep="")
-        assign(".beta1", justDoIt(instruccion2), envir=.GlobalEnv)
+        justDoIt(instruccion2)
         if (echocodigo == 1)
         {
-          logger(paste(".media <-", instruccion1))
-          logger(paste(".beta1 <-", instruccion2))
+          logger(instruccion1)
+          logger(instruccion2)
         }
         doItAndPrint(paste(".beta1  # Coef. Asim. Pearson para", variable))
         if (echocodigo == 1)
@@ -2419,22 +2388,22 @@ resumen.numericas <- function(){
       }
       if (gamma1val == 1)
       {
-        instruccion1 <- paste("mean(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
-        assign(".media", justDoIt(instruccion1), envir=.GlobalEnv)
-        instruccion2 <- paste("sd(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
-        assign(".dt", justDoIt(instruccion2),envir=.GlobalEnv)
-        instruccion3 <- paste("length(na.omit(",.BaseDatosActiva,"$",
+        instruccion1 <- paste(".media <- mean(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
+        justDoIt(instruccion1)
+        instruccion2 <- paste(".dt <- sd(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
+        justDoIt(instruccion2)
+        instruccion3 <- paste(".n <- length(na.omit(",.BaseDatosActiva,"$",
                               variable,"))",sep="")
-        assign(".n", justDoIt(instruccion3),envir=.GlobalEnv)            
-        instruccion4 <- paste(".n*sum((",.BaseDatosActiva,"$",variable,
+        justDoIt(instruccion3)            
+        instruccion4 <- paste(".gamma1 <- .n*sum((",.BaseDatosActiva,"$",variable,
                               "-.media)^3,na.rm=TRUE)/((.n-1)*(.n-2))/(.dt^3)",sep="")            
-        assign(".gamma1", justDoIt(instruccion4), envir=.GlobalEnv)
+        justDoIt(instruccion4)
         if (echocodigo == 1)
         {
-          logger(paste(".media <-", instruccion1))
-          logger(paste(".dt <-", instruccion2))
-          logger(paste(".n <-", instruccion3))
-          logger(paste(".gamma1 <-", instruccion4))
+          logger(instruccion1)
+          logger(instruccion2)
+          logger(instruccion3)
+          logger(instruccion4)
         }
         doItAndPrint(paste(".gamma1  # Coef. Asim. Fisher para", variable))
         if (echocodigo == 1)
@@ -2457,23 +2426,23 @@ resumen.numericas <- function(){
       }
       if (K2val == 1)
       {
-        instruccion1 <- paste("quantile(",.BaseDatosActiva,"$",variable,",probs=0.9,na.rm=TRUE)",sep="")
-        assign(".AC90", justDoIt(instruccion1), envir=.GlobalEnv)
-        instruccion2 <- paste("quantile(",.BaseDatosActiva,"$",variable,",probs=0.1,na.rm=TRUE)",sep="")
-        assign(".AC10", justDoIt(instruccion2), envir=.GlobalEnv)
-        instruccion3 <- paste("quantile(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)[2]",sep="")
-        assign(".Q1", justDoIt(instruccion3), envir=.GlobalEnv)
-        instruccion4 <- paste("quantile(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)[4]",sep="")
-        assign(".Q3", justDoIt(instruccion4), envir=.GlobalEnv) 
-        instruccion5 <- "(.AC90-.AC10)/(1.9*(.Q3-.Q1))"
-        assign(".K2", justDoIt(instruccion5), envir=.GlobalEnv)
+        instruccion1 <- paste(".AC90 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=0.9,na.rm=TRUE)",sep="")
+        justDoIt(instruccion1)
+        instruccion2 <- paste(".AC10 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=0.1,na.rm=TRUE)",sep="")
+        justDoIt(instruccion2)
+        instruccion3 <- paste(".Q1 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[2]",sep="")
+        justDoIt(instruccion3)
+        instruccion4 <- paste(".Q3 <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),na.rm=TRUE)[4]",sep="")
+        justDoIt(instruccion4)
+        instruccion5 <- ".K2 <- (.AC90-.AC10)/(1.9*(.Q3-.Q1))"
+        justDoIt(instruccion5)
         if (echocodigo == 1) 
         {
-          logger(paste(".AC90 <-", instruccion1))
-          logger(paste(".AC10 <-", instruccion2))              
-          logger(paste(".Q1 <-", instruccion3))
-          logger(paste(".Q3 <-", instruccion4))
-          logger(paste(".K2 <-", instruccion5))
+          logger(instruccion1)
+          logger(instruccion2)              
+          logger(instruccion3)
+          logger(instruccion4)
+          logger(instruccion5)
         }
         justDoIt("names(.K2)<-NULL")
         doItAndPrint(paste(".K2  # Coef. Apunt. K2 para", variable))
@@ -2499,23 +2468,23 @@ resumen.numericas <- function(){
       }
       if (K3val == 1)
       {
-        instruccion1 <- paste("quantile(",.BaseDatosActiva,"$",variable,",probs=0.125,na.rm=TRUE)",sep="")
-        assign(".Einf", justDoIt(instruccion1), envir=.GlobalEnv)
-        instruccion2 <- paste("quantile(",.BaseDatosActiva,"$",variable,",probs=0.875,na.rm=TRUE)",sep="")
-        assign(".Esup", justDoIt(instruccion2), envir=.GlobalEnv)
-        instruccion3 <- paste("fivenum(",.BaseDatosActiva,"$",variable,")[2]",sep="")
-        assign(".Finf", justDoIt(instruccion3), envir=.GlobalEnv)
-        instruccion4 <- paste("fivenum(",.BaseDatosActiva,"$",variable,")[4]",sep="")
-        assign(".Fsup", justDoIt(instruccion4), envir=.GlobalEnv) 
-        instruccion5 <- "(.Esup-.Einf)/(1.7*(.Fsup-.Finf))"
-        assign(".K3", justDoIt(instruccion5), envir=.GlobalEnv)
+        instruccion1 <- paste(".Einf <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=0.125,na.rm=TRUE)",sep="")
+        justDoIt(instruccion1)
+        instruccion2 <- paste(".Esup <- quantile(as.numeric(",.BaseDatosActiva,"$",variable,"),probs=0.875,na.rm=TRUE)",sep="")
+        justDoIt(instruccion2)
+        instruccion3 <- paste(".Finf <- fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[2]",sep="")
+        justDoIt(instruccion3)
+        instruccion4 <- paste(".Fsup <- fivenum(as.numeric(",.BaseDatosActiva,"$",variable,"))[4]",sep="")
+        justDoIt(instruccion4)
+        instruccion5 <- ".K3 <- (.Esup-.Einf)/(1.7*(.Fsup-.Finf))"
+        justDoIt(instruccion5)
         if (echocodigo == 1) 
         {
-          logger(paste(".Einf <-", instruccion1))
-          logger(paste(".Esup <-", instruccion2))              
-          logger(paste(".Finf <-", instruccion3))
-          logger(paste(".Fsup <-", instruccion4))
-          logger(paste(".K3 <-", instruccion5))
+          logger(instruccion1)
+          logger(instruccion2)            
+          logger(instruccion3)
+          logger(instruccion4)
+          logger(instruccion5)
         }
         justDoIt("names(.K3)<-NULL")
         doItAndPrint(paste(".K3  # Coef. Apunt. K3 para", variable))
@@ -2541,18 +2510,18 @@ resumen.numericas <- function(){
       }
       if (beta2val == 1)
       {
-        instruccion1 <- paste("mean(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
-        assign(".media", justDoIt(instruccion1), envir=.GlobalEnv)
-        instruccion2 <- paste("sum((",.BaseDatosActiva,"$",variable,
+        instruccion1 <- paste(".media <- mean(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
+        justDoIt(instruccion1)
+        instruccion2 <- paste(".beta2 <- sum((",.BaseDatosActiva,"$",variable,
                               "-.media)^4,na.rm=TRUE)/length(na.omit(",.BaseDatosActiva,"$",
                               variable,"))/", "(sum((",.BaseDatosActiva,"$",
                               variable, "-.media)^2,na.rm=TRUE)/length(na.omit(",.BaseDatosActiva,
                               "$",variable,")))^2",sep="")
-        assign(".beta2", justDoIt(instruccion2), envir=.GlobalEnv)
+        justDoIt(instruccion2)
         if (echocodigo == 1)
         {
-          logger(paste(".media <-", instruccion1))
-          logger(paste(".beta2 <-", instruccion2))
+          logger(instruccion1)
+          logger(instruccion2)
         }
         doItAndPrint(paste(".beta2  # Coef. Apunt. Pearson para", variable))
         if (echocodigo == 1)
@@ -2571,24 +2540,24 @@ resumen.numericas <- function(){
       }
       if (gamma2val == 1)
       {
-        instruccion1 <- paste("mean(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
-        assign(".media", justDoIt(instruccion1), envir=.GlobalEnv)
-        instruccion2 <- paste("sd(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
-        assign(".dt", justDoIt(instruccion2),envir=.GlobalEnv)
-        instruccion3 <- paste("length(na.omit(",.BaseDatosActiva,"$",
+        instruccion1 <- paste(".media <- mean(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
+        justDoIt(instruccion1)
+        instruccion2 <- paste(".dt <- sd(",.BaseDatosActiva,"$",variable,",na.rm=TRUE)",sep="")
+        justDoIt(instruccion2)
+        instruccion3 <- paste(".n <- length(na.omit(",.BaseDatosActiva,"$",
                               variable,"))",sep="")
-        assign(".n", justDoIt(instruccion3),envir=.GlobalEnv)            
-        instruccion4 <- paste("(.n*(.n+1)*sum((",.BaseDatosActiva,"$",variable,
+        justDoIt(instruccion3)           
+        instruccion4 <- paste(".gamma2 <- (.n*(.n+1)*sum((",.BaseDatosActiva,"$",variable,
                               "-.media)^4,na.rm=TRUE)/((.n-1)*(.n-2)*(.n-3))-3*
                             sum((",.BaseDatosActiva,"$",variable,
                             "-.media)^2,na.rm=TRUE)^2/((.n-2)*(.n-3)))/(.dt^4)",sep="")            
-        assign(".gamma2", justDoIt(instruccion4), envir=.GlobalEnv)
+        justDoIt(instruccion4)
         if (echocodigo == 1)
         {
-          logger(paste(".media <-", instruccion1))
-          logger(paste(".dt <-", instruccion2))
-          logger(paste(".n <-", instruccion3))
-          logger(paste(".gamma2 <-", instruccion4))
+          logger(instruccion1)
+          logger(instruccion2)
+          logger(instruccion3)
+          logger(instruccion4)
         }
         doItAndPrint(paste(".gamma2  # Coef. Apunt. Fisher para", variable))
         if (echocodigo == 1)
@@ -2764,7 +2733,6 @@ resumen.numericas <- function(){
 
 # Funcion creada a partir de la funcion Hist de John Fox incluida en R-Commander #
 histograma <- function(){
-    .chequeando.paquetes()
     initializeDialog(title=gettextRcmdr("Histograma"))
     selecVar <- variableListBox(top, Numeric(), title=gettextRcmdr("Variables (escoja una)"))
     opcionesFrame <- tkframe(top)
@@ -2817,34 +2785,34 @@ histograma <- function(){
           frecuencia <- FALSE
         }
         titulox <- "Intervalos"
-        instruccion <- paste("hist(", ActiveDataSet(), "$", variable, ",freq=",
+        instruccion <- paste(".h <- hist(", ActiveDataSet(), "$", variable, ",freq=",
             frecuencia,", breaks=", interv,",main='",titulop,"',ylab='",tituloy,
             "',xlab='",titulox,"',col='red')", sep="")
-        assign(".h", justDoIt(instruccion), envir=.GlobalEnv)
+        justDoIt(instruccion)
         if (echocodigo == 1)
-          logger(paste(".h <-", instruccion)) 
+          logger(instruccion) 
         if (normalsup == 1)
         {
-          instruccion2 <- paste("seq(min(", ActiveDataSet(), "$", variable,",na.rm=TRUE),max(",
+          instruccion2 <- paste(".xfit <- seq(min(", ActiveDataSet(), "$", variable,",na.rm=TRUE),max(",
                           ActiveDataSet(), "$", variable,",na.rm=TRUE),length=1000)",sep="")
-          assign(".xfit", justDoIt(instruccion2), envir=.GlobalEnv)
-          instruccion3 <- paste("dnorm(x=.xfit,mean=mean(",ActiveDataSet(), "$", variable,
+          justDoIt(instruccion2)
+          instruccion3 <- paste(".yfit <- dnorm(x=.xfit,mean=mean(",ActiveDataSet(), "$", variable,
                           ",na.rm=TRUE),sd=sd(",ActiveDataSet(), "$", variable,",na.rm=TRUE))",sep="")
-          assign(".yfit", justDoIt(instruccion3), envir=.GlobalEnv)
+          justDoIt(instruccion3)
           if (escala == "frequency")
           { 
-            instruccion4 <- paste(".yfit*diff(.h$mids[1:2])*length(na.omit(",
+            instruccion4 <- paste(".yfit <- .yfit*diff(.h$mids[1:2])*length(na.omit(",
                             ActiveDataSet(), "$", variable,"))",sep="")
-            assign(".yfit", justDoIt(instruccion4), envir=.GlobalEnv)
+            justDoIt(instruccion4)
           }
           instruccion5 <- "lines(.xfit,.yfit,col='blue',lwd=2)"
           instruccion6 <- "box()"
           if (echocodigo == 1)
           {
-            logger(paste(".xfit <-", instruccion2)) 
-            logger(paste(".yfit <-", instruccion3))
+            logger(instruccion2) 
+            logger(instruccion3)
             if (escala == "frequency")
-              logger(paste(".yfit <-", instruccion4))
+              logger(instruccion4)
             doItAndPrint(instruccion5)
             doItAndPrint(instruccion6)
             logger("remove(.xfit)")
@@ -2901,7 +2869,6 @@ histograma <- function(){
 }
            
 diagrama.caja.ord <- function (){
-    .chequeando.paquetes()
     initializeDialog(title=gettextRcmdr("Diagrama de Caja"))
     selecVar <- variableListBox(top, Factors(), title=gettextRcmdr("Variables (escoja una)"))
     opcionesFrame <- tkframe(top)
@@ -2939,7 +2906,7 @@ diagrama.caja.ord <- function (){
             errorCondition(recall=diagrama.caja.ord, message=gettextRcmdr("Debe escoger una variable."))
             return()
             }
-        assign("cond", justDoIt(paste("!is.ordered(",paste(ActiveDataSet(),"$",variable,sep=""),")",sep="")), envir=.GlobalEnv)
+        justDoIt(paste("cond <- !is.ordered(",paste(ActiveDataSet(),"$",variable,sep=""),")",sep=""))
         if (cond){
             errorCondition(recall=diagrama.caja.ord, message=gettextRcmdr(paste("Variable ",variable, " no es ordinal.",sep='')))
             return()
@@ -2955,38 +2922,38 @@ diagrama.caja.ord <- function (){
             .archivo <- file.path(getwd(), "Informe de Resultados.html")
         }
         titulop <- paste("Diagrama de caja para ",variable, sep="")
-        instruccion <- paste("boxplot.stats(as.numeric(", ActiveDataSet(), "$", variable,
+        instruccion <- paste(".bxp1 <- boxplot.stats(as.numeric(", ActiveDataSet(), "$", variable,
                              "),coef=",intervinf,")",sep="")
-        assign(".bxp1", justDoIt(instruccion), envir=.GlobalEnv)
+        justDoIt(instruccion)
         if (echocodigo == 1)
-          logger(paste(".bxp1 <-", instruccion)) 
-        instruccion2 <- paste("boxplot.stats(as.numeric(", ActiveDataSet(), "$", variable,
+          logger(instruccion)
+        instruccion2 <- paste(".bxp2 <- boxplot.stats(as.numeric(", ActiveDataSet(), "$", variable,
                              "),coef=",intervsup,")",sep="")
-        assign(".bxp2", justDoIt(instruccion2), envir=.GlobalEnv)
+        justDoIt(instruccion2)
         if (echocodigo == 1)
           logger(paste(".bxp2 <-", instruccion2))
         instruccion3 <- paste("boxplot(as.numeric(", ActiveDataSet(), "$", variable,
                              "),main='",titulop,"',col='red',outpch=NA)",sep="")
         if (echocodigo == 1) doItAndPrint(instruccion3)
         else justDoIt(instruccion3)
-        instruccion4 <- ".bxp1$out %in% .bxp2$out"
-        assign(".selec", justDoIt(instruccion4), envir=.GlobalEnv)
+        instruccion4 <- ".selec <- .bxp1$out %in% .bxp2$out"
+        justDoIt(instruccion4)
         if (echocodigo == 1)
-          logger(paste(".selec <-", instruccion4,sep=""))
-        instruccion5 <- ".bxp1$out"
-        assign(".anom", justDoIt(instruccion5), envir=.GlobalEnv)
+          logger(instruccion4)
+        instruccion5 <- ".anom <- .bxp1$out"
+        justDoIt(instruccion5)
         if (echocodigo == 1)
-          logger(paste(".anom <-", instruccion5,sep=""))
+          logger(instruccion5)
         instruccion6 <- ".anom[.selec] <- NA"
         if (echocodigo == 1) doItAndPrint(instruccion6)
         else justDoIt(instruccion6)
         instruccion7 <- "points(rep(1, length(.anom)), .anom, pch = 1, col = 'blue')"
         if (echocodigo == 1) doItAndPrint(instruccion7)
         else justDoIt(instruccion7)
-        instruccion8 <- ".bxp2$out"
-        assign(".extrem", justDoIt(instruccion8), envir=.GlobalEnv)
+        instruccion8 <- ".extrem <- .bxp2$out"
+        justDoIt(instruccion8)
         if (echocodigo == 1)
-          logger(paste(".extrem <-", instruccion8))
+          logger(instruccion8)
         instruccion9 <- "points(rep(1, length(.extrem)), .extrem, pch = 8, col = 'red')"
         if (echocodigo == 1) doItAndPrint(instruccion9)
         else justDoIt(instruccion9)
@@ -3042,7 +3009,6 @@ diagrama.caja.ord <- function (){
 }        
 
 diagrama.caja <- function (){
-    .chequeando.paquetes()
     initializeDialog(title=gettextRcmdr("Diagrama de Caja"))
     selecVar <- variableListBox(top, Numeric(), title=gettextRcmdr("Variables (escoja una)"))
     opcionesFrame <- tkframe(top)
@@ -3090,38 +3056,38 @@ diagrama.caja <- function (){
             .archivo <- file.path(getwd(), "Informe de Resultados.html")
         }
         titulop <- paste("Diagrama de caja para ",variable, sep="")
-        instruccion <- paste("boxplot.stats(", ActiveDataSet(), "$", variable,
+        instruccion <- paste(".bxp1 <- boxplot.stats(", ActiveDataSet(), "$", variable,
                              ",coef=",intervinf,")",sep="")
-        assign(".bxp1", justDoIt(instruccion), envir=.GlobalEnv)
+        justDoIt(instruccion)
         if (echocodigo == 1)
-          logger(paste(".bxp1 <-", instruccion)) 
-        instruccion2 <- paste("boxplot.stats(", ActiveDataSet(), "$", variable,
+          logger(instruccion)
+        instruccion2 <- paste(".bxp2 <- boxplot.stats(", ActiveDataSet(), "$", variable,
                              ",coef=",intervsup,")",sep="")
-        assign(".bxp2", justDoIt(instruccion2), envir=.GlobalEnv)
+        justDoIt(instruccion2)
         if (echocodigo == 1)
-          logger(paste(".bxp2 <-", instruccion2))
+          logger(instruccion2)
         instruccion3 <- paste("boxplot(", ActiveDataSet(), "$", variable,
                              ",main='",titulop,"',col='red',outpch=NA)",sep="")
         if (echocodigo == 1) doItAndPrint(instruccion3)
         else justDoIt(instruccion3)
-        instruccion4 <- ".bxp1$out %in% .bxp2$out"
-        assign(".selec", justDoIt(instruccion4), envir=.GlobalEnv)
+        instruccion4 <- ".selec <- .bxp1$out %in% .bxp2$out"
+        justDoIt(instruccion4)
         if (echocodigo == 1)
-          logger(paste(".selec <-", instruccion4,sep=""))
-        instruccion5 <- ".bxp1$out"
-        assign(".anom", justDoIt(instruccion5), envir=.GlobalEnv)
+          logger(instruccion4)
+        instruccion5 <- ".anom <- .bxp1$out"
+        justDoIt(instruccion5)
         if (echocodigo == 1)
-          logger(paste(".anom <-", instruccion5,sep=""))
+          logger(instruccion5)
         instruccion6 <- ".anom[.selec] <- NA"
         if (echocodigo == 1) doItAndPrint(instruccion6)
         else justDoIt(instruccion6)
         instruccion7 <- "points(rep(1, length(.anom)), .anom, pch = 1, col = 'blue')"
         if (echocodigo == 1) doItAndPrint(instruccion7)
         else justDoIt(instruccion7)
-        instruccion8 <- ".bxp2$out"
-        assign(".extrem", justDoIt(instruccion8), envir=.GlobalEnv)
+        instruccion8 <- ".extrem <- .bxp2$out"
+        justDoIt(instruccion8)
         if (echocodigo == 1)
-          logger(paste(".extrem <-", instruccion8))
+          logger(instruccion8)
         instruccion9 <- "points(rep(1, length(.extrem)), .extrem, pch = 8, col = 'red')"
         if (echocodigo == 1) doItAndPrint(instruccion9)
         else justDoIt(instruccion9)
@@ -3175,619 +3141,614 @@ diagrama.caja <- function (){
 }
 
 bivariante.categoricas <- function(){
-    .chequeando.paquetes()
-    require("abind")
-    initializeDialog(title=gettextRcmdr("Descripcion tablas de contingencia"))
-    opcionesFrame <- tkframe(top)
-    variablesFrame <- tkframe(top)
-    filaVar <- variableListBox(variablesFrame, Factors(), title=gettextRcmdr("Variable por filas (escoja una)"))
-    columnaVar <- variableListBox(variablesFrame, Factors(), title=gettextRcmdr("Variable por columnas (escoja una)"))
-    subsetBox()
-    radioButtons(name="porcentajes", buttons=c("fila",
-    "columna", "total", "ninguno"),values=c("fila", "columna",
-    "total", "ninguno"), initialValue="ninguno",
-    labels=gettextRcmdr(c("Porcentajes respecto a marginales fila",
-    "Porcentajes respecto a marginales columna","Porcentajes respecto al total",
-    "Ningun porcentaje")),title=gettextRcmdr("Calcular Porcentajes"))
-    echocodigoVariable <- tclVar("0")
-    echoCheckBox <- tkcheckbutton(opcionesFrame, variable=echocodigoVariable)
-    creahtmlVariable <- tclVar("0")
-    htmlCheckBox <- tkcheckbutton(opcionesFrame, variable=creahtmlVariable)
-    esperadasFrame <- tkframe(top)
-    frecEspVariable <- tclVar("0")
-    frecEspCheckBox <- tkcheckbutton(esperadasFrame, variable=frecEspVariable)
-    descjiFrame <- tkframe(top, borderwidth=2, relief="groove")
-    jicuadradoVariable <- tclVar("0")
-    jicuadradoCheckBox <- tkcheckbutton(descjiFrame, variable=jicuadradoVariable)
-    jiComponentesVariable <- tclVar("0")
-    jiComponentesCheckBox <- tkcheckbutton(descjiFrame, variable=jiComponentesVariable)
-    phiPearsonVariable <- tclVar("0")
-    phiPearsonCheckBox <- tkcheckbutton(descjiFrame, variable=phiPearsonVariable)    
-    contingPearsonVariable <- tclVar("0")
-    contingPearsonCheckBox <- tkcheckbutton(descjiFrame, variable=contingPearsonVariable)
-    sakodaVariable <- tclVar("0")
-    sakodaCheckBox <- tkcheckbutton(descjiFrame, variable=sakodaVariable)
-    chuprovVariable <- tclVar("0")
-    chuprovCheckBox <- tkcheckbutton(descjiFrame, variable=chuprovVariable)
-    VCramerVariable <- tclVar("0")
-    VCramerCheckBox <- tkcheckbutton(descjiFrame, variable=VCramerVariable)
-    yuleVariable <- tclVar("0")
-    yuleCheckBox <- tkcheckbutton(descjiFrame, variable=yuleVariable)
-    errorpredFrame <- tkframe(top, borderwidth=2, relief="groove")
-    lambdaVariable <- tclVar("0")
-    lambdaCheckBox <- tkcheckbutton(errorpredFrame, variable=lambdaVariable)
-    tauVariable <- tclVar("0")
-    tauCheckBox <- tkcheckbutton(errorpredFrame, variable=tauVariable)
-    theilVariable <- tclVar("0")
-    theilCheckBox <- tkcheckbutton(errorpredFrame, variable=theilVariable)
-    onOK <- function(){
-        fila <- getSelection(filaVar)
-        columna <- getSelection(columnaVar)
-        if (length(fila) == 0 || length(columna) == 0){
-            errorCondition(recall=bivariante.categoricas, message=gettextRcmdr("Debe seleccionar dos variables."))
-            return()
-            }
-        if (fila == columna) {
-            errorCondition(recall=bivariante.categoricas, message=gettextRcmdr("Debe seleccionar dos variables distintas."))
-            return()
-            }
-        porcentajes <- as.character(tclvalue(porcentajesVariable))
-        esperadas <- tclvalue(frecEspVariable)
-        jicuadrado <- tclvalue(jicuadradoVariable)
-        jicomponentes <- tclvalue(jiComponentesVariable)
-        phival <- tclvalue(phiPearsonVariable)
-        contingval <- tclvalue(contingPearsonVariable)
-        sakodaval <- tclvalue(sakodaVariable)
-        chuprovval <- tclvalue(chuprovVariable)
-        VCramerval <- tclvalue(VCramerVariable)
-        yuleval <- tclvalue(yuleVariable)
-        lambdaval <- tclvalue(lambdaVariable)
-        tauval <- tclvalue(tauVariable)
-        theilval <- tclvalue(theilVariable)
-        subconjunto <- tclvalue(subsetVariable)
-        subconjunto <- if (trim.blanks(subconjunto) == gettextRcmdr("<all valid cases>")) ""
-            else paste(", subset=", subconjunto, sep="")
-        echocodigo <- tclvalue(echocodigoVariable)
-        selec <- as.numeric(jicuadrado) + as.numeric(phival) + as.numeric(contingval) + 
-                 as.numeric(sakodaval) + as.numeric(chuprovval) + as.numeric(VCramerval) +
-                 as.numeric(yuleval)*3
-        selec2 <- as.numeric(lambdaval)*3 + as.numeric(tauval)*2 + as.numeric(theilval)*3
-        creahtml <- tclvalue(creahtmlVariable)
-        if (creahtml == 1)
-        {
-         require(R2HTML)
-         if (!file.exists("Informe de Resultados.html"))
-           .archivo <- HTMLInitFile(file.path(getwd()),
-                       "Informe de Resultados", BackGroundColor="#FFFFCC")
-         else
-           .archivo <- file.path(getwd(), "Informe de Resultados.html")
-         if (selec > 0)
-         {
-           numfilas <- selec
-           instruccion <- paste("as.data.frame(matrix(nrow=",numfilas,",ncol=1))")
-           assign(".TablaCoefAsoc", justDoIt(instruccion), envir=.GlobalEnv)
-           colnames(.TablaCoefAsoc) <- "Valores"
-         }
-       if (selec2 > 0)
-         {
-           numfilas <- selec2
-           instruccion <- paste("as.data.frame(matrix(nrow=",numfilas,",ncol=1))")
-           assign(".TablaErrorPred", justDoIt(instruccion), envir=.GlobalEnv)
-           colnames(.TablaErrorPred) <- "Valores"
-         }             
-         titulo <- paste("Descripcion bivariante de datos categoricos: ",fila, 
-                   " y ", columna, sep="")
-         HTML(as.title(titulo),file=.archivo)
-        }
-        closeDialog()
-        instruccion <- paste("xtabs(~", fila, "+", columna, ", data=", ActiveDataSet(),
-            subconjunto, ")", sep="")
-        assign(".Tabla", justDoIt(instruccion), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste(".Tabla <- ", instruccion, sep=""))
-        doItAndPrint(paste(".Tabla  # Tabla de contingencia para ",
-                     fila," y ",columna,sep=""))
-        if (creahtml == 1)
-        {
-          subtitulo <- "Tabla de contingencia"      
-          HTML(subtitulo,file=.archivo)
-          HTML(.Tabla,file=.archivo)
-        }
-        if (porcentajes == "fila")
-        {
-          instruccion2 <- "rowPercents(.Tabla)"
-          assign(".porcentajes", justDoIt(instruccion2), envir=.GlobalEnv)
-          if (echocodigo == 1) logger(paste(".porcentajes <- ", instruccion2, sep=""))
-          doItAndPrint(".porcentajes  # Porcentajes respecto a marginales fila ")
-          if (echocodigo == 1) logger("remove(.porcentajes)")
-          if (creahtml == 1)
-          {
-             subtitulo <- "Tabla porcentajes respecto a marginales fila"      
-             HTML(subtitulo,file=.archivo)
-             HTML(.porcentajes,file=.archivo)
-          }
-          remove(.porcentajes, envir=.GlobalEnv)
-        }
-        if (porcentajes == "columna")
-        {
-          instruccion2 <- "colPercents(.Tabla)"
-          assign(".porcentajes", justDoIt(instruccion2), envir=.GlobalEnv)
-          if (echocodigo == 1) logger(paste(".porcentajes <- ", instruccion2, sep=""))
-          doItAndPrint(".porcentajes  # Porcentajes respecto a marginales columna ")
-          if (echocodigo == 1) logger("remove(.porcentajes)")
-          if (creahtml == 1)
-          {
-             subtitulo <- "Tabla porcentajes respecto a marginales columna"      
-             HTML(subtitulo,file=.archivo)
-             HTML(.porcentajes,file=.archivo)
-          }
-          remove(.porcentajes, envir=.GlobalEnv)
-        }
-        if (porcentajes == "total")
-        {
-          instruccion2 <- "totPercents(.Tabla)"
-          assign(".porcentajes", justDoIt(instruccion2), envir=.GlobalEnv)
-          if (echocodigo == 1) logger(paste(".porcentajes <- ", instruccion2, sep=""))
-          doItAndPrint(".porcentajes  # Porcentajes respecto al total")
-          if (echocodigo == 1) logger("remove(.porcentajes)")
-          if (creahtml == 1)
-          {
-             subtitulo <- "Tabla porcentajes respecto al total"      
-             HTML(subtitulo,file=.archivo)
-             HTML(.porcentajes,file=.archivo)
-          }
-          remove(.porcentajes, envir=.GlobalEnv)
-        }
-        if (esperadas == 1)
-        {
-          instruccion4 <- "chisq.test(.Tabla, correct=FALSE)$expected"
-          assign(".esperadas", justDoIt(instruccion4), envir=.GlobalEnv)
-          if (echocodigo == 1) logger(paste(".esperadas <- ", instruccion4, sep=""))
-          doItAndPrint(".esperadas  # Frecuencias Esperadas")
-          mensAviso <- NULL
-          if (0 < (emq1 <- sum(.esperadas < 1))) mensAviso <- paste(emq1,
-                gettextRcmdr("frecuencias esperadas menores que 1"))
-          if (0 < (emq5 <- sum(.esperadas < 5))) mensAviso <- paste(mensAviso, "\n", emq5,
-                gettextRcmdr(" frecuencias esperadas menores que 5"), sep="")
-          if (!is.null(mensAviso)) Message(message=mensAviso,
-              type="warning")
-          if (echocodigo == 1) logger("remove(.esperadas)")
-          if (creahtml == 1)
-          {
-             subtitulo <- "Frecuencias Esperadas"      
-             HTML(subtitulo,file=.archivo)
-             HTML(.esperadas,file=.archivo)
-          }
-          remove(.esperadas, envir=.GlobalEnv)
-        }
-        if ( jicomponentes == 1 ||phival == 1 || contingval == 1 ||
-             sakodaval == 1 || chuprovval == 1 || VCramerval == 1 ) 
-          jicuadrado <- TRUE
-        i <- 0
-        j <- 0
-        if (jicuadrado == 1)
-        {
-            instruccion3 <- "chisq.test(.Tabla, correct=FALSE)$statistic"
-            if (echocodigo == 1) logger(paste(".Jicuadrado <- ", instruccion3, sep=""))
-            assign(".Jicuadrado", justDoIt(instruccion3), envir=.GlobalEnv)
-            justDoIt("names(.Jicuadrado)<-NULL")
-            doItAndPrint(".Jicuadrado # Estadistico Ji cuadrado de Pearson")
-            if (creahtml == 1)
-            {
-              i <- i+1
-              rownames(.TablaCoefAsoc)[i] <- "Ji Cuadrado"
-              .TablaCoefAsoc[i,1] <- .Jicuadrado
-            }
-        }
-        if (jicomponentes == 1)
-        {
-          instruccion5 <- "round(chisq.test(.Tabla, correct=FALSE)$residuals^2,
-                           2)"
-          if (echocodigo == 1) logger(paste(".Componentes <- ", instruccion5, sep=""))
-          assign(".Componentes", justDoIt(instruccion5), envir=.GlobalEnv)
-          doItAndPrint(".Componentes # Descomposicion del estadistico Ji cuadrado")
-          if (echocodigo == 1) logger("remove(.Componentes)")
-          if (creahtml == 1)
-          {
-             subtitulo <- "Descomposicion Ji Cuadrado de Pearson"      
-             HTML(subtitulo,file=.archivo)
-             HTML(.Componentes,file=.archivo)
-          }
-          remove(.Componentes, envir=.GlobalEnv)
-        }
-        if (phival == 1)
-        {
-          instruccion6 <- "sqrt(.Jicuadrado/sum(.Tabla))"
-          if (echocodigo == 1) logger(paste(".phi <- ", instruccion6, sep=""))
-          assign(".phi", justDoIt(instruccion6), envir=.GlobalEnv)
-          doItAndPrint(".phi # Coeficiente Phi de Pearson")
-          if (echocodigo == 1) logger("remove(.phi)")
-          if (creahtml == 1)
-          {
-            i <- i+1
-            rownames(.TablaCoefAsoc)[i] <- "Phi Pearson"
-            .TablaCoefAsoc[i,1] <- .phi
-          }
-          remove(.phi, envir=.GlobalEnv)
-        }
-        if (contingval == 1)
-        {
-          instruccion7 <- "sqrt(.Jicuadrado/(sum(.Tabla)+.Jicuadrado))"
-          if (echocodigo == 1) logger(paste(".Coef.Contingencia <- ",
-                               instruccion7, sep=""))
-          assign(".Coef.Contingencia", justDoIt(instruccion7), envir=.GlobalEnv)
-          doItAndPrint(".Coef.Contingencia # Coeficiente Contingencia de Pearson")
-          if (echocodigo == 1) logger("remove(.Coef.Contingencia)")
-          if (creahtml == 1)
-          {
-            i <- i+1
-            rownames(.TablaCoefAsoc)[i] <- "Coeficiente Contingencia"
-            .TablaCoefAsoc[i,1] <- .Coef.Contingencia
-          }
-          remove(.Coef.Contingencia, envir=.GlobalEnv)
-	      }
-        if (sakodaval == 1)
-        {
-          instruccion8 <- "sqrt(min(dim(.Tabla))*.Jicuadrado/((min(dim(.Tabla))-1)*
-                           (sum(.Tabla)+.Jicuadrado)))"
-          if (echocodigo == 1) logger(paste(".sakoda <- ", instruccion8, sep=""))
-          assign(".sakoda", justDoIt(instruccion8), envir=.GlobalEnv)
-          doItAndPrint(".sakoda # Transformacion Sakoda ")
-          if (echocodigo == 1) logger("remove(.sakoda)")
-          if (creahtml == 1)
-          {
-            i <- i+1
-            rownames(.TablaCoefAsoc)[i] <- "Transf. Sakoda"
-            .TablaCoefAsoc[i,1] <- .sakoda
-          }
-          remove(.sakoda, envir=.GlobalEnv)
-	      }
-        if (chuprovval == 1)
-        {
-          instruccion9 <- "sqrt(.Jicuadrado/(sum(.Tabla)*(dim(.Tabla)[1]-1)*
-                           (dim(.Tabla)[2]-1)))"
-          if (echocodigo == 1) logger(paste(".chuprov <- ",
-                               instruccion7, sep=""))
-          assign(".chuprov", justDoIt(instruccion9), envir=.GlobalEnv)
-          doItAndPrint(".chuprov # Coeficiente Contingencia Chuprov")
-          if (echocodigo == 1) logger("remove(.chuprov)")
-          if (creahtml == 1)
-          {
-            i <- i+1
-            rownames(.TablaCoefAsoc)[i] <- "Coef. Contingencia Chuprov"
-            .TablaCoefAsoc[i,1] <- .chuprov
-          }
-          remove(.chuprov, envir=.GlobalEnv)
-        }
-        if (VCramerval == 1)
-        {
-          instruccion10 <- "sqrt(.Jicuadrado/((min(dim(.Tabla))-1)*sum(.Tabla)))"
-          if (echocodigo == 1) logger(paste(".VCramer <- ", instruccion10, sep=""))
-          assign(".VCramer", justDoIt(instruccion10), envir=.GlobalEnv)
-          doItAndPrint(".VCramer # Coef. Contingencia Cramer ")
-          if (echocodigo == 1) logger("remove(.VCramer)")
-          if (creahtml == 1)
-          {
-            i <- i+1
-            rownames(.TablaCoefAsoc)[i] <- "Coef. Contingencia Cramer"
-            .TablaCoefAsoc[i,1] <- .VCramer
-          }
-          remove(.VCramer, envir=.GlobalEnv)
-        }
-        if (yuleval == 1)
-        {
-          if ( dim(.Tabla)[1] != 2 || dim(.Tabla)[2] != 2){
-          Message(message=gettextRcmdr("La tabla de contingencia no es de tamano 2x2: \n Indices de Yule no se calcularan"),
-          type="warning")
-          }
-          instruccion11 <- ".Tabla[1,1]"
-          if (echocodigo == 1) logger(paste(".a <- ", instruccion11, sep=""))
-          assign(".a", justDoIt(instruccion11), envir=.GlobalEnv)
-          instruccion12 <- ".Tabla[1,2]"
-          if (echocodigo == 1) logger(paste(".b <- ", instruccion12, sep=""))
-          assign(".b", justDoIt(instruccion12), envir=.GlobalEnv)
-          instruccion13 <- ".Tabla[2,1]"
-          if (echocodigo == 1) logger(paste(".c <- ", instruccion13, sep=""))
-          assign(".c", justDoIt(instruccion13), envir=.GlobalEnv)
-          instruccion14 <- ".Tabla[2,2]"
-          if (echocodigo == 1) logger(paste(".d <- ", instruccion14, sep=""))
-          assign(".d", justDoIt(instruccion14), envir=.GlobalEnv)
-          instruccion15 <- "(.a*.d-.b*.c)/(.a*.d+.b*.c)"
-          if (echocodigo == 1) logger(paste(".Q <- ", instruccion15, sep=""))
-          assign(".Q", justDoIt(instruccion15), envir=.GlobalEnv)
-          doItAndPrint(".Q # Coef. Q de Yule ")
-          instruccion16 <- "(sqrt(.a*.d)-sqrt(.b*.c))/(sqrt(.a*.d)+sqrt(.b*.c))"
-          if (echocodigo == 1) logger(paste(".Y <- ", instruccion16, sep=""))
-          assign(".Y", justDoIt(instruccion16), envir=.GlobalEnv)
-          doItAndPrint(".Y # Coef. Y de Yule ")
-          instruccion17 <- "(.a*.d-.b*.c)/((.a+.b)*(.a+.c)*(.b+.d)*(.c+.d))"
-          if (echocodigo == 1) logger(paste(".V <- ", instruccion17, sep=""))
-          assign(".V", justDoIt(instruccion17), envir=.GlobalEnv)
-          doItAndPrint(".V # Coef. V de Yule ")
-          if (echocodigo == 1) logger("remove(list=c('.a','.b','.c','.d','.Q','.Y','.V'))")
-          if (creahtml == 1)
-          {
-            i <- i+1
-            rownames(.TablaCoefAsoc)[i:(i+2)] <- paste("Coeficiente ",c("Q","Y","V")," de Yule",sep="")
-            .TablaCoefAsoc[i:(i+2),1] <- c(.Q,.Y,.V)
-          }
-          remove(list=c('.a','.b','.c','.d','.Q','.Y','.V'), envir=.GlobalEnv)
-        }
-        if (lambdaval == 1)
-        {
-          instruccion18 <- "(sum(apply(.Tabla,2,max)/sum(.Tabla)) - 
-                           max(rowSums(.Tabla))/sum(.Tabla))/(1 - 
-                           max(rowSums(.Tabla))/sum(.Tabla))"
-          if (echocodigo == 1) logger(paste("lambda.a.b <- ", instruccion18, sep=""))
-          assign("lambda.a.b", justDoIt(instruccion18), envir=.GlobalEnv)
-          doItAndPrint(paste("lambda.a.b # Lambda de Goodman-Kruskal (",fila,
-                      " dependiente)",sep=""))
-          instruccion19 <- "(sum(apply(.Tabla,1,max)/sum(.Tabla)) - 
-                           max(colSums(.Tabla))/sum(.Tabla))/(1 - 
-                           max(colSums(.Tabla))/sum(.Tabla))"
-          if (echocodigo == 1) logger(paste("lambda.b.a <- ", instruccion19, sep=""))
-          assign("lambda.b.a", justDoIt(instruccion19), envir=.GlobalEnv)
-          doItAndPrint(paste("lambda.b.a # Lambda de Goodman-Kruskal (",columna,
-                      " dependiente)",sep=""))
-          instruccion20 <- "(lambda.a.b + lambda.b.a)/2"
-          if (echocodigo == 1) logger(paste(".lambda <- ", instruccion20, sep=""))
-          assign(".lambda", justDoIt(instruccion20), envir=.GlobalEnv)
-          doItAndPrint(".lambda # Lambda de Goodman-Kruskal (simetrica) ")
-          if (echocodigo == 1) logger("remove(list=c('lambda.a.b','lambda.b.a','.lambda'))")
-          if (creahtml == 1)
-          {
-            j <- j+1
-            rownames(.TablaErrorPred)[j:(j+2)] <- paste("Coeficiente Lambda ",c("A/B","B/A","Simetrico")," Goodman-Kruskal",sep="")
-            .TablaErrorPred[j:(j+2),1] <- c(lambda.a.b,lambda.b.a,.lambda)
-            j <- j+2
-          }
-          remove(list=c('lambda.a.b','lambda.b.a','.lambda'), envir=.GlobalEnv)
-        }
-        if (tauval == 1)
-        {
-          instruccion21 <- "(sum((.Tabla/sum(.Tabla))^2/matrix(colSums(.Tabla)[col(.Tabla)]
-          /sum(.Tabla),nrow=nrow(.Tabla)))-sum((rowSums(.Tabla)/sum(.Tabla))^2))/
-          (1-sum((rowSums(.Tabla)/sum(.Tabla))^2))"
-          if (echocodigo == 1) logger(paste("tau.a.b <- ", instruccion21, sep=""))
-          assign("tau.a.b", justDoIt(instruccion21), envir=.GlobalEnv)
-          doItAndPrint(paste("tau.a.b # Tau de Goodman-Kruskal (",fila,
-                      " dependiente)",sep=""))
-          instruccion22 <- "(sum((.Tabla/sum(.Tabla))^2/matrix(rowSums(.Tabla)[row(.Tabla)]/
-          sum(.Tabla),nrow=nrow(.Tabla)))-sum((colSums(.Tabla)/sum(.Tabla))^2))/
-          (1-sum((colSums(.Tabla)/sum(.Tabla))^2))"
-          if (echocodigo == 1) logger(paste("tau.b.a <- ", instruccion22, sep=""))
-          assign("tau.b.a", justDoIt(instruccion22), envir=.GlobalEnv)
-          doItAndPrint(paste("tau.b.a # Tau de Goodman-Kruskal (",columna,
-                      " dependiente)",sep=""))
-          if (echocodigo == 1) logger("remove(list=c('tau.a.b','tau.b.a'))")
-          if (creahtml == 1)
-          {
-            j <- j+1
-            rownames(.TablaErrorPred)[j:(j+1)] <- paste("Coeficiente Tau ",c("A/B","B/A")," Goodman-Kruskal",sep="")
-            .TablaErrorPred[j:(j+1),1] <- c(tau.a.b,tau.b.a)
-            j <- j+1
-          }
-          remove(list=c('tau.a.b','tau.b.a'), envir=.GlobalEnv)
-        }
-        if (theilval == 1)
-        {
-          instruccion23 <- "-sum(.Tabla/sum(.Tabla)*log(.Tabla/sum(.Tabla)),na.rm=TRUE)"
-          if (echocodigo == 1) logger(paste("H.a.b <- ", instruccion23, sep=""))
-          assign("H.a.b", justDoIt(instruccion23), envir=.GlobalEnv)
-          instruccion24 <- "-sum(rowSums(.Tabla)/sum(.Tabla)*log(rowSums(.Tabla)/sum(.Tabla)),na.rm=TRUE)"
-          if (echocodigo == 1) logger(paste("H.a <- ", instruccion24, sep=""))
-          assign("H.a", justDoIt(instruccion24), envir=.GlobalEnv)
-          instruccion25 <- "-sum(colSums(.Tabla)/sum(.Tabla)*log(colSums(.Tabla)/sum(.Tabla)),na.rm=TRUE)"
-          if (echocodigo == 1) logger(paste("H.b <- ", instruccion25, sep=""))
-          assign("H.b", justDoIt(instruccion25), envir=.GlobalEnv)
-          instruccion26 <- "(H.a + H.b - H.a.b)/H.a"
-          if (echocodigo == 1) logger(paste("theil.a.b <- ", instruccion26, sep=""))
-          assign("theil.a.b", justDoIt(instruccion26), envir=.GlobalEnv)
-          doItAndPrint(paste("theil.a.b # Coef. de Theil ( ",fila,
-                      " dependiente)",sep=""))
-          instruccion27 <- "(H.a + H.b - H.a.b)/H.b"
-          if (echocodigo == 1) logger(paste("theil.b.a <- ", instruccion27, sep=""))
-          assign("theil.b.a", justDoIt(instruccion27), envir=.GlobalEnv)
-          doItAndPrint(paste("theil.b.a # Coef. de Theil ( ",columna,
-                      " dependiente)",sep=""))
-          instruccion28 <- "2*(H.a + H.b - H.a.b)/(H.a+H.b)"
-          if (echocodigo == 1) logger(paste(".theil <- ", instruccion28, sep=""))
-          assign(".theil", justDoIt(instruccion28), envir=.GlobalEnv)
-          doItAndPrint(".theil # Coef. de Theil (simetrico) ")
-          if (echocodigo == 1) logger("remove(list=c('H.a','H.b','H.a.b',
-                                      'theil.a.b','theil.b.a','.theil'))")
-          if (creahtml == 1)
-          {
-            j <- j+1
-            rownames(.TablaErrorPred)[j:(j+2)] <- paste("Coef. Incertidumbre de Theil ",c("A/B","B/A","Simetrico"),sep="")
-            .TablaErrorPred[j:(j+2),1] <- c(theil.a.b,theil.b.a,.theil)
-            j <- j+2
-          }
-          remove(list=c('H.a','H.b','H.a.b','theil.a.b','theil.b.a','.theil'),
-          envir=.GlobalEnv)
-        }
-        if (echocodigo == 1)
-        {
-          logger("remove(.Tabla)")
-          if (jicuadrado == 1) logger("remove(.Jicuadrado)")
-        }
-        remove(.Tabla, envir=.GlobalEnv)
-        if (jicuadrado == 1) remove(.Jicuadrado, envir=.GlobalEnv)
-        tkfocus(CommanderWindow())
-        if (creahtml == 1)
-        {
-          if (selec > 0)
-          {
-            HTML("Coeficientes de Asociacion", file=.archivo)
-            HTML(.TablaCoefAsoc, file=.archivo)
-            .TablaCoefAsoc <- round(.TablaCoefAsoc,3)
-            remove(.TablaCoefAsoc, envir=.GlobalEnv)
-          }
-          HTMLhr(file = .archivo)
-        }
-        if (creahtml == 1)
-        {
-          if (selec2 > 0)
-          {
-            HTML("Medidas del error de prediccion", file=.archivo)
-            HTML(.TablaErrorPred, file=.archivo)
-            .TablaErrorPred <- round(.TablaErrorPred,3)
-            remove(.TablaErrorPred, envir=.GlobalEnv)
-          }
-          HTMLhr(file = .archivo)
-        }
+  require("abind")
+  initializeDialog(title=gettextRcmdr("Descripcion tablas de contingencia"))
+  opcionesFrame <- tkframe(top)
+  variablesFrame <- tkframe(top)
+  filaVar <- variableListBox(variablesFrame, Factors(), title=gettextRcmdr("Variable por filas (escoja una)"))
+  columnaVar <- variableListBox(variablesFrame, Factors(), title=gettextRcmdr("Variable por columnas (escoja una)"))
+  subsetBox()
+  radioButtons(name="porcentajes", buttons=c("fila",
+                                             "columna", "total", "ninguno"),values=c("fila", "columna",
+                                                                                     "total", "ninguno"), initialValue="ninguno",
+               labels=gettextRcmdr(c("Porcentajes respecto a marginales fila",
+                                     "Porcentajes respecto a marginales columna","Porcentajes respecto al total",
+                                     "Ningun porcentaje")),title=gettextRcmdr("Calcular Porcentajes"))
+  echocodigoVariable <- tclVar("0")
+  echoCheckBox <- tkcheckbutton(opcionesFrame, variable=echocodigoVariable)
+  creahtmlVariable <- tclVar("0")
+  htmlCheckBox <- tkcheckbutton(opcionesFrame, variable=creahtmlVariable)
+  esperadasFrame <- tkframe(top)
+  frecEspVariable <- tclVar("0")
+  frecEspCheckBox <- tkcheckbutton(esperadasFrame, variable=frecEspVariable)
+  descjiFrame <- tkframe(top, borderwidth=2, relief="groove")
+  jicuadradoVariable <- tclVar("0")
+  jicuadradoCheckBox <- tkcheckbutton(descjiFrame, variable=jicuadradoVariable)
+  jiComponentesVariable <- tclVar("0")
+  jiComponentesCheckBox <- tkcheckbutton(descjiFrame, variable=jiComponentesVariable)
+  phiPearsonVariable <- tclVar("0")
+  phiPearsonCheckBox <- tkcheckbutton(descjiFrame, variable=phiPearsonVariable)    
+  contingPearsonVariable <- tclVar("0")
+  contingPearsonCheckBox <- tkcheckbutton(descjiFrame, variable=contingPearsonVariable)
+  sakodaVariable <- tclVar("0")
+  sakodaCheckBox <- tkcheckbutton(descjiFrame, variable=sakodaVariable)
+  chuprovVariable <- tclVar("0")
+  chuprovCheckBox <- tkcheckbutton(descjiFrame, variable=chuprovVariable)
+  VCramerVariable <- tclVar("0")
+  VCramerCheckBox <- tkcheckbutton(descjiFrame, variable=VCramerVariable)
+  yuleVariable <- tclVar("0")
+  yuleCheckBox <- tkcheckbutton(descjiFrame, variable=yuleVariable)
+  errorpredFrame <- tkframe(top, borderwidth=2, relief="groove")
+  lambdaVariable <- tclVar("0")
+  lambdaCheckBox <- tkcheckbutton(errorpredFrame, variable=lambdaVariable)
+  tauVariable <- tclVar("0")
+  tauCheckBox <- tkcheckbutton(errorpredFrame, variable=tauVariable)
+  theilVariable <- tclVar("0")
+  theilCheckBox <- tkcheckbutton(errorpredFrame, variable=theilVariable)
+  onOK <- function(){
+    fila <- getSelection(filaVar)
+    columna <- getSelection(columnaVar)
+    if (length(fila) == 0 || length(columna) == 0){
+      errorCondition(recall=bivariante.categoricas, message=gettextRcmdr("Debe seleccionar dos variables."))
+      return()
     }
-    OKCancelHelp(helpSubject="xtabs")
-    tkgrid(labelRcmdr(esperadasFrame,
-    text=gettextRcmdr("Frecuencias Esperadas"), fg="blue"), columnspan=6, sticky="w")
-    tkgrid(labelRcmdr(esperadasFrame,text=gettextRcmdr("Calcular frecuencias esperadas ")), 
-    frecEspCheckBox, sticky="w")
-    tkgrid(labelRcmdr(descjiFrame,
-    text=gettextRcmdr("Coeficientes de Asociacion"), fg="blue"), columnspan=6, sticky="w")
-    tkgrid(labelRcmdr(descjiFrame,text=gettextRcmdr("Ji Cuadrado ")), 
-    jicuadradoCheckBox, labelRcmdr(descjiFrame, 
-    text=gettextRcmdr("Descomposicion Ji cuadrado de Pearson ")), 
-    jiComponentesCheckBox,sticky="w")
-    tkgrid(labelRcmdr(descjiFrame,text=gettextRcmdr("Phi de Pearson ")), 
-    phiPearsonCheckBox, labelRcmdr(descjiFrame,
-    text=gettextRcmdr("Coef. Contingencia Pearson ")),contingPearsonCheckBox,
-    sticky="w")
-    tkgrid(labelRcmdr(descjiFrame,text=gettextRcmdr("Transformacion de Sakoda ")), 
-    sakodaCheckBox, labelRcmdr(descjiFrame,
-    text=gettextRcmdr("Coef. Contingencia Chuprov ")),chuprovCheckBox,
-    sticky="w")
-    tkgrid(labelRcmdr(descjiFrame,text=gettextRcmdr("Coef. Contingencia Cramer ")), 
-    VCramerCheckBox, labelRcmdr(descjiFrame,
-    text=gettextRcmdr("Coeficientes Yule (Tablas 2x2) ")),yuleCheckBox,
-    sticky="w")
-    tkgrid(labelRcmdr(errorpredFrame,
-    text=gettextRcmdr("Medidas Error de Prediccion"), fg="blue"), columnspan=6, sticky="w")
-    tkgrid(labelRcmdr(errorpredFrame,text=gettextRcmdr("Lambda Goodman-Kruskal ")), 
-    lambdaCheckBox, labelRcmdr(errorpredFrame,text=gettextRcmdr("Tau Goodman-Kruskal ")), 
-    tauCheckBox, labelRcmdr(errorpredFrame,text=gettextRcmdr("Coef. Incertidumbre Theil ")), 
-    theilCheckBox,sticky="w")
-    tkgrid(labelRcmdr(opcionesFrame,
-    text=gettextRcmdr("Opciones"), fg="blue"), sticky="w")
-    tkgrid(labelRcmdr(opcionesFrame, 
-    text=gettextRcmdr("Mostrar en pantalla el codigo de R ejecutado ")), 
-    echoCheckBox, sticky="w")
-    tkgrid(labelRcmdr(opcionesFrame,
-    text=gettextRcmdr("Generar informe de resultados ")),
-    htmlCheckBox,sticky="w")
-    tkgrid(getFrame(filaVar), labelRcmdr(variablesFrame, text="    "),
-    getFrame(columnaVar), sticky="nw")
-    tkgrid(variablesFrame, sticky="w")
-    tkgrid(porcentajesFrame, sticky="w")
-    tkgrid(esperadasFrame, sticky="w")
-    tkgrid(descjiFrame, sticky="w")
-    tkgrid(errorpredFrame, sticky="w")
-    tkgrid(subsetFrame, sticky="w")
-    tkgrid(opcionesFrame, sticky="w")
-    tkgrid(buttonsFrame, sticky="w")
-    dialogSuffix(rows=6, columns=1)
+    if (fila == columna) {
+      errorCondition(recall=bivariante.categoricas, message=gettextRcmdr("Debe seleccionar dos variables distintas."))
+      return()
     }
+    porcentajes <- as.character(tclvalue(porcentajesVariable))
+    esperadas <- tclvalue(frecEspVariable)
+    jicuadrado <- tclvalue(jicuadradoVariable)
+    jicomponentes <- tclvalue(jiComponentesVariable)
+    phival <- tclvalue(phiPearsonVariable)
+    contingval <- tclvalue(contingPearsonVariable)
+    sakodaval <- tclvalue(sakodaVariable)
+    chuprovval <- tclvalue(chuprovVariable)
+    VCramerval <- tclvalue(VCramerVariable)
+    yuleval <- tclvalue(yuleVariable)
+    lambdaval <- tclvalue(lambdaVariable)
+    tauval <- tclvalue(tauVariable)
+    theilval <- tclvalue(theilVariable)
+    subconjunto <- tclvalue(subsetVariable)
+    subconjunto <- if (trim.blanks(subconjunto) == gettextRcmdr("<all valid cases>")) ""
+    else paste(", subset=", subconjunto, sep="")
+    echocodigo <- tclvalue(echocodigoVariable)
+    selec <- as.numeric(jicuadrado) + as.numeric(phival) + as.numeric(contingval) + 
+      as.numeric(sakodaval) + as.numeric(chuprovval) + as.numeric(VCramerval) +
+      as.numeric(yuleval)*3
+    selec2 <- as.numeric(lambdaval)*3 + as.numeric(tauval)*2 + as.numeric(theilval)*3
+    creahtml <- tclvalue(creahtmlVariable)
+    if (creahtml == 1)
+    {
+      require(R2HTML)
+      if (!file.exists("Informe de Resultados.html"))
+        .archivo <- HTMLInitFile(file.path(getwd()),
+                                 "Informe de Resultados", BackGroundColor="#FFFFCC")
+      else
+        .archivo <- file.path(getwd(), "Informe de Resultados.html")
+      if (selec > 0)
+      {
+        numfilas <- selec
+        instruccion <- paste(".TablaCoefAsoc <- as.data.frame(matrix(nrow=",numfilas,",ncol=1))")
+        justDoIt(instruccion)
+        colnames(.TablaCoefAsoc) <- "Valores"
+      }
+      if (selec2 > 0)
+      {
+        numfilas <- selec2
+        instruccion <- paste(".TablaErrorPred <- as.data.frame(matrix(nrow=",numfilas,",ncol=1))")
+        justDoIt(instruccion)
+        colnames(.TablaErrorPred) <- "Valores"
+      }             
+      titulo <- paste("Descripcion bivariante de datos categoricos: ",fila, 
+                      " y ", columna, sep="")
+      HTML(as.title(titulo),file=.archivo)
+    }
+    closeDialog()
+    instruccion <- paste(".Tabla <- xtabs(~", fila, "+", columna, ", data=", ActiveDataSet(),
+                         subconjunto, ")", sep="")
+    justDoIt(instruccion)
+    if (echocodigo == 1) logger(instruccion)
+    doItAndPrint(paste(".Tabla  # Tabla de contingencia para ",
+                       fila," y ",columna,sep=""))
+    if (creahtml == 1)
+    {
+      subtitulo <- "Tabla de contingencia"      
+      HTML(subtitulo,file=.archivo)
+      HTML(.Tabla,file=.archivo)
+    }
+    if (porcentajes == "fila")
+    {
+      instruccion2 <- ".porcentajes <- rowPercents(.Tabla)"
+      justDoIt(instruccion2)
+      if (echocodigo == 1) logger(instruccion2)
+      doItAndPrint(".porcentajes  # Porcentajes respecto a marginales fila ")
+      if (echocodigo == 1) logger("remove(.porcentajes)")
+      if (creahtml == 1)
+      {
+        subtitulo <- "Tabla porcentajes respecto a marginales fila"      
+        HTML(subtitulo,file=.archivo)
+        HTML(.porcentajes,file=.archivo)
+      }
+      remove(.porcentajes, envir=.GlobalEnv)
+    }
+    if (porcentajes == "columna")
+    {
+      instruccion2 <- ".porcentajes <- colPercents(.Tabla)"
+      justDoIt(instruccion2)
+      if (echocodigo == 1) logger(instruccion2)
+      doItAndPrint(".porcentajes  # Porcentajes respecto a marginales columna ")
+      if (echocodigo == 1) logger("remove(.porcentajes)")
+      if (creahtml == 1)
+      {
+        subtitulo <- "Tabla porcentajes respecto a marginales columna"      
+        HTML(subtitulo,file=.archivo)
+        HTML(.porcentajes,file=.archivo)
+      }
+      remove(.porcentajes, envir=.GlobalEnv)
+    }
+    if (porcentajes == "total")
+    {
+      instruccion2 <- ".porcentajes <- totPercents(.Tabla)"
+      justDoIt(instruccion2)
+      if (echocodigo == 1) logger(instruccion2)
+      doItAndPrint(".porcentajes  # Porcentajes respecto al total")
+      if (echocodigo == 1) logger("remove(.porcentajes)")
+      if (creahtml == 1)
+      {
+        subtitulo <- "Tabla porcentajes respecto al total"      
+        HTML(subtitulo,file=.archivo)
+        HTML(.porcentajes,file=.archivo)
+      }
+      remove(.porcentajes, envir=.GlobalEnv)
+    }
+    if (esperadas == 1)
+    {
+      instruccion4 <- ".esperadas <- chisq.test(.Tabla, correct=FALSE)$expected"
+      justDoIt(instruccion4)
+      if (echocodigo == 1) logger(instruccion4)
+      doItAndPrint(".esperadas  # Frecuencias Esperadas")
+      mensAviso <- NULL
+      if (0 < (emq1 <- sum(.esperadas < 1))) mensAviso <- paste(emq1,
+                                                                gettextRcmdr("frecuencias esperadas menores que 1"))
+      if (0 < (emq5 <- sum(.esperadas < 5))) mensAviso <- paste(mensAviso, "\n", emq5,
+                                                                gettextRcmdr(" frecuencias esperadas menores que 5"), sep="")
+      if (!is.null(mensAviso)) Message(message=mensAviso,
+                                       type="warning")
+      if (echocodigo == 1) logger("remove(.esperadas)")
+      if (creahtml == 1)
+      {
+        subtitulo <- "Frecuencias Esperadas"      
+        HTML(subtitulo,file=.archivo)
+        HTML(.esperadas,file=.archivo)
+      }
+      remove(.esperadas, envir=.GlobalEnv)
+    }
+    if ( jicomponentes == 1 ||phival == 1 || contingval == 1 ||
+           sakodaval == 1 || chuprovval == 1 || VCramerval == 1 ) 
+      jicuadrado <- TRUE
+    i <- 0
+    j <- 0
+    if (jicuadrado == 1)
+    {
+      instruccion3 <- ".Jicuadrado <- chisq.test(.Tabla, correct=FALSE)$statistic"
+      if (echocodigo == 1) logger(instruccion3)
+      justDoIt(instruccion3)
+      justDoIt("names(.Jicuadrado)<-NULL")
+      doItAndPrint(".Jicuadrado # Estadistico Ji cuadrado de Pearson")
+      if (creahtml == 1)
+      {
+        i <- i+1
+        rownames(.TablaCoefAsoc)[i] <- "Ji Cuadrado"
+        .TablaCoefAsoc[i,1] <- .Jicuadrado
+      }
+    }
+    if (jicomponentes == 1)
+    {
+      instruccion5 <- ".Componentes <- round(chisq.test(.Tabla, correct=FALSE)$residuals^2,
+      2)"
+      if (echocodigo == 1) logger(instruccion5)
+      justDoIt(instruccion5)
+      doItAndPrint(".Componentes # Descomposicion del estadistico Ji cuadrado")
+      if (echocodigo == 1) logger("remove(.Componentes)")
+      if (creahtml == 1)
+      {
+        subtitulo <- "Descomposicion Ji Cuadrado de Pearson"      
+        HTML(subtitulo,file=.archivo)
+        HTML(.Componentes,file=.archivo)
+      }
+      remove(.Componentes, envir=.GlobalEnv)
+    }
+    if (phival == 1)
+    {
+      instruccion6 <- ".phi <- sqrt(.Jicuadrado/sum(.Tabla))"
+      if (echocodigo == 1) logger(instruccion6)
+      justDoIt(instruccion6)
+      doItAndPrint(".phi # Coeficiente Phi de Pearson")
+      if (echocodigo == 1) logger("remove(.phi)")
+      if (creahtml == 1)
+      {
+        i <- i+1
+        rownames(.TablaCoefAsoc)[i] <- "Phi Pearson"
+        .TablaCoefAsoc[i,1] <- .phi
+      }
+      remove(.phi, envir=.GlobalEnv)
+    }
+    if (contingval == 1)
+    {
+      instruccion7 <- ".Coef.Contingencia <- sqrt(.Jicuadrado/(sum(.Tabla)+.Jicuadrado))"
+      if (echocodigo == 1) logger(instruccion7)
+      justDoIt(instruccion7)
+      doItAndPrint(".Coef.Contingencia # Coeficiente Contingencia de Pearson")
+      if (echocodigo == 1) logger("remove(.Coef.Contingencia)")
+      if (creahtml == 1)
+      {
+        i <- i+1
+        rownames(.TablaCoefAsoc)[i] <- "Coeficiente Contingencia"
+        .TablaCoefAsoc[i,1] <- .Coef.Contingencia
+      }
+      remove(.Coef.Contingencia, envir=.GlobalEnv)
+    }
+    if (sakodaval == 1)
+    {
+      instruccion8 <- ".sakoda<- sqrt(min(dim(.Tabla))*.Jicuadrado/((min(dim(.Tabla))-1)*
+      (sum(.Tabla)+.Jicuadrado)))"
+      logger(instruccion8)
+      justDoIt(instruccion8)
+      doItAndPrint(".sakoda # Transformacion Sakoda ")
+      if (echocodigo == 1) logger("remove(.sakoda)")
+      if (creahtml == 1)
+      {
+        i <- i+1
+        rownames(.TablaCoefAsoc)[i] <- "Transf. Sakoda"
+        .TablaCoefAsoc[i,1] <- .sakoda
+      }
+      remove(.sakoda, envir=.GlobalEnv)
+    }
+    if (chuprovval == 1)
+    {
+      instruccion9 <- ".chuprov <- sqrt(.Jicuadrado/(sum(.Tabla)*(dim(.Tabla)[1]-1)*
+      (dim(.Tabla)[2]-1)))"
+      if (echocodigo == 1) logger(instruccion7)
+      justDoIt(instruccion9)
+      doItAndPrint(".chuprov # Coeficiente Contingencia Chuprov")
+      if (echocodigo == 1) logger("remove(.chuprov)")
+      if (creahtml == 1)
+      {
+        i <- i+1
+        rownames(.TablaCoefAsoc)[i] <- "Coef. Contingencia Chuprov"
+        .TablaCoefAsoc[i,1] <- .chuprov
+      }
+      remove(.chuprov, envir=.GlobalEnv)
+    }
+    if (VCramerval == 1)
+    {
+      instruccion10 <- ".VCramer <- sqrt(.Jicuadrado/((min(dim(.Tabla))-1)*sum(.Tabla)))"
+      if (echocodigo == 1) logger(instruccion10)
+      justDoIt(instruccion10)
+      doItAndPrint(".VCramer # Coef. Contingencia Cramer ")
+      if (echocodigo == 1) logger("remove(.VCramer)")
+      if (creahtml == 1)
+      {
+        i <- i+1
+        rownames(.TablaCoefAsoc)[i] <- "Coef. Contingencia Cramer"
+        .TablaCoefAsoc[i,1] <- .VCramer
+      }
+      remove(.VCramer, envir=.GlobalEnv)
+    }
+    if (yuleval == 1)
+    {
+      if ( dim(.Tabla)[1] != 2 || dim(.Tabla)[2] != 2){
+        Message(message=gettextRcmdr("La tabla de contingencia no es de tamano 2x2: \n Indices de Yule no se calcularan"),
+                type="warning")
+      }
+      instruccion11 <- ".a <- .Tabla[1,1]"
+      if (echocodigo == 1) logger(instruccion11)
+      justDoIt(instruccion11)
+      instruccion12 <- ".b <- .Tabla[1,2]"
+      if (echocodigo == 1) logger(instruccion12)
+      justDoIt(instruccion12)
+      instruccion13 <- ".c <- .Tabla[2,1]"
+      if (echocodigo == 1) logger(instruccion13)
+      justDoIt(instruccion13)
+      instruccion14 <- ".d <- .Tabla[2,2]"
+      if (echocodigo == 1) logger(instruccion14)
+      justDoIt(instruccion14)
+      instruccion15 <- ".Q <- (.a*.d-.b*.c)/(.a*.d+.b*.c)"
+      if (echocodigo == 1) logger(instruccion15)
+      justDoIt(instruccion15)
+      doItAndPrint(".Q # Coef. Q de Yule ")
+      instruccion16 <- ".Y <- (sqrt(.a*.d)-sqrt(.b*.c))/(sqrt(.a*.d)+sqrt(.b*.c))"
+      if (echocodigo == 1) logger(instruccion16)
+      justDoIt(instruccion16)
+      doItAndPrint(".Y # Coef. Y de Yule ")
+      instruccion17 <- ".V <- (.a*.d-.b*.c)/((.a+.b)*(.a+.c)*(.b+.d)*(.c+.d))"
+      if (echocodigo == 1) logger(instruccion17)
+      justDoIt(instruccion17)
+      doItAndPrint(".V # Coef. V de Yule ")
+      if (echocodigo == 1) logger("remove(list=c('.a','.b','.c','.d','.Q','.Y','.V'))")
+      if (creahtml == 1)
+      {
+        i <- i+1
+        rownames(.TablaCoefAsoc)[i:(i+2)] <- paste("Coeficiente ",c("Q","Y","V")," de Yule",sep="")
+        .TablaCoefAsoc[i:(i+2),1] <- c(.Q,.Y,.V)
+      }
+      remove(list=c('.a','.b','.c','.d','.Q','.Y','.V'), envir=.GlobalEnv)
+    }
+    if (lambdaval == 1)
+    {
+      instruccion18 <- "lambda.a.b <- (sum(apply(.Tabla,2,max)/sum(.Tabla)) - 
+      max(rowSums(.Tabla))/sum(.Tabla))/(1 - 
+      max(rowSums(.Tabla))/sum(.Tabla))"
+      if (echocodigo == 1) logger(instruccion18)
+      justDoIt(instruccion18)
+      doItAndPrint(paste("lambda.a.b # Lambda de Goodman-Kruskal (",fila,
+                         " dependiente)",sep=""))
+      instruccion19 <- "lambda.b.a <- (sum(apply(.Tabla,1,max)/sum(.Tabla)) - 
+      max(colSums(.Tabla))/sum(.Tabla))/(1 - 
+      max(colSums(.Tabla))/sum(.Tabla))"
+      if (echocodigo == 1) logger(instruccion19)
+      justDoIt(instruccion19)
+      doItAndPrint(paste("lambda.b.a # Lambda de Goodman-Kruskal (",columna,
+                         " dependiente)",sep=""))
+      instruccion20 <- ".lambda <- (lambda.a.b + lambda.b.a)/2"
+      if (echocodigo == 1) logger(instruccion20)
+      justDoIt(instruccion20)
+      doItAndPrint(".lambda # Lambda de Goodman-Kruskal (simetrica) ")
+      if (echocodigo == 1) logger("remove(list=c('lambda.a.b','lambda.b.a','.lambda'))")
+      if (creahtml == 1)
+      {
+        j <- j+1
+        rownames(.TablaErrorPred)[j:(j+2)] <- paste("Coeficiente Lambda ",c("A/B","B/A","Simetrico")," Goodman-Kruskal",sep="")
+        .TablaErrorPred[j:(j+2),1] <- c(lambda.a.b,lambda.b.a,.lambda)
+        j <- j+2
+      }
+      remove(list=c('lambda.a.b','lambda.b.a','.lambda'), envir=.GlobalEnv)
+    }
+    if (tauval == 1)
+    {
+      instruccion21 <- "tau.a.b <- (sum((.Tabla/sum(.Tabla))^2/matrix(colSums(.Tabla)[col(.Tabla)]
+      /sum(.Tabla),nrow=nrow(.Tabla)))-sum((rowSums(.Tabla)/sum(.Tabla))^2))/
+      (1-sum((rowSums(.Tabla)/sum(.Tabla))^2))"
+      if (echocodigo == 1) logger(instruccion21)
+      justDoIt(instruccion21)
+      doItAndPrint(paste("tau.a.b # Tau de Goodman-Kruskal (",fila,
+                         " dependiente)",sep=""))
+      instruccion22 <- "tau.b.a <- (sum((.Tabla/sum(.Tabla))^2/matrix(rowSums(.Tabla)[row(.Tabla)]/
+      sum(.Tabla),nrow=nrow(.Tabla)))-sum((colSums(.Tabla)/sum(.Tabla))^2))/
+      (1-sum((colSums(.Tabla)/sum(.Tabla))^2))"
+      if (echocodigo == 1) logger(instruccion22)
+      justDoIt(instruccion22)
+      doItAndPrint(paste("tau.b.a # Tau de Goodman-Kruskal (",columna,
+                         " dependiente)",sep=""))
+      if (echocodigo == 1) logger("remove(list=c('tau.a.b','tau.b.a'))")
+      if (creahtml == 1)
+      {
+        j <- j+1
+        rownames(.TablaErrorPred)[j:(j+1)] <- paste("Coeficiente Tau ",c("A/B","B/A")," Goodman-Kruskal",sep="")
+        .TablaErrorPred[j:(j+1),1] <- c(tau.a.b,tau.b.a)
+        j <- j+1
+      }
+      remove(list=c('tau.a.b','tau.b.a'), envir=.GlobalEnv)
+    }
+    if (theilval == 1)
+    {
+      instruccion23 <- "H.a.b <- -sum(.Tabla/sum(.Tabla)*log(.Tabla/sum(.Tabla)),na.rm=TRUE)"
+      if (echocodigo == 1) logger(instruccion23)
+      justDoIt(instruccion23)
+      instruccion24 <- "H.a <- -sum(rowSums(.Tabla)/sum(.Tabla)*log(rowSums(.Tabla)/sum(.Tabla)),na.rm=TRUE)"
+      if (echocodigo == 1) logger(instruccion24)
+      justDoIt(instruccion24)
+      instruccion25 <- "H.b <- -sum(colSums(.Tabla)/sum(.Tabla)*log(colSums(.Tabla)/sum(.Tabla)),na.rm=TRUE)"
+      if (echocodigo == 1) logger(instruccion25)
+      justDoIt(instruccion25)
+      instruccion26 <- "theil.a.b <- (H.a + H.b - H.a.b)/H.a"
+      if (echocodigo == 1) logger(instruccion26)
+      justDoIt(instruccion26)
+      doItAndPrint(paste("theil.a.b # Coef. de Theil ( ",fila,
+                         " dependiente)",sep=""))
+      instruccion27 <- "theil.b.a <- (H.a + H.b - H.a.b)/H.b"
+      if (echocodigo == 1) logger(instruccion27)
+      justDoIt(instruccion27)
+      doItAndPrint(paste("theil.b.a # Coef. de Theil ( ",columna,
+                         " dependiente)",sep=""))
+      instruccion28 <- ".theil <- 2*(H.a + H.b - H.a.b)/(H.a+H.b)"
+      if (echocodigo == 1) logger(instruccion28)
+      justDoIt(instruccion28)
+      doItAndPrint(".theil # Coef. de Theil (simetrico) ")
+      if (echocodigo == 1) logger("remove(list=c('H.a','H.b','H.a.b',
+                                  'theil.a.b','theil.b.a','.theil'))")
+      if (creahtml == 1)
+      {
+        j <- j+1
+        rownames(.TablaErrorPred)[j:(j+2)] <- paste("Coef. Incertidumbre de Theil ",c("A/B","B/A","Simetrico"),sep="")
+        .TablaErrorPred[j:(j+2),1] <- c(theil.a.b,theil.b.a,.theil)
+        j <- j+2
+      }
+      remove(list=c('H.a','H.b','H.a.b','theil.a.b','theil.b.a','.theil'),
+             envir=.GlobalEnv)
+    }
+    if (echocodigo == 1)
+    {
+      logger("remove(.Tabla)")
+      if (jicuadrado == 1) logger("remove(.Jicuadrado)")
+    }
+    remove(.Tabla, envir=.GlobalEnv)
+    if (jicuadrado == 1) remove(.Jicuadrado, envir=.GlobalEnv)
+    tkfocus(CommanderWindow())
+    if (creahtml == 1)
+    {
+      if (selec > 0)
+      {
+        HTML("Coeficientes de Asociacion", file=.archivo)
+        HTML(.TablaCoefAsoc, file=.archivo)
+        .TablaCoefAsoc <- round(.TablaCoefAsoc,3)
+        remove(.TablaCoefAsoc, envir=.GlobalEnv)
+      }
+      HTMLhr(file = .archivo)
+    }
+    if (creahtml == 1)
+    {
+      if (selec2 > 0)
+      {
+        HTML("Medidas del error de prediccion", file=.archivo)
+        HTML(.TablaErrorPred, file=.archivo)
+        .TablaErrorPred <- round(.TablaErrorPred,3)
+        remove(.TablaErrorPred, envir=.GlobalEnv)
+      }
+      HTMLhr(file = .archivo)
+    }
+  }
+  OKCancelHelp(helpSubject="xtabs")
+  tkgrid(labelRcmdr(esperadasFrame,
+                    text=gettextRcmdr("Frecuencias Esperadas"), fg="blue"), columnspan=6, sticky="w")
+  tkgrid(labelRcmdr(esperadasFrame,text=gettextRcmdr("Calcular frecuencias esperadas ")), 
+         frecEspCheckBox, sticky="w")
+  tkgrid(labelRcmdr(descjiFrame,
+                    text=gettextRcmdr("Coeficientes de Asociacion"), fg="blue"), columnspan=6, sticky="w")
+  tkgrid(labelRcmdr(descjiFrame,text=gettextRcmdr("Ji Cuadrado ")), 
+         jicuadradoCheckBox, labelRcmdr(descjiFrame, 
+                                        text=gettextRcmdr("Descomposicion Ji cuadrado de Pearson ")), 
+         jiComponentesCheckBox,sticky="w")
+  tkgrid(labelRcmdr(descjiFrame,text=gettextRcmdr("Phi de Pearson ")), 
+         phiPearsonCheckBox, labelRcmdr(descjiFrame,
+                                        text=gettextRcmdr("Coef. Contingencia Pearson ")),contingPearsonCheckBox,
+         sticky="w")
+  tkgrid(labelRcmdr(descjiFrame,text=gettextRcmdr("Transformacion de Sakoda ")), 
+         sakodaCheckBox, labelRcmdr(descjiFrame,
+                                    text=gettextRcmdr("Coef. Contingencia Chuprov ")),chuprovCheckBox,
+         sticky="w")
+  tkgrid(labelRcmdr(descjiFrame,text=gettextRcmdr("Coef. Contingencia Cramer ")), 
+         VCramerCheckBox, labelRcmdr(descjiFrame,
+                                     text=gettextRcmdr("Coeficientes Yule (Tablas 2x2) ")),yuleCheckBox,
+         sticky="w")
+  tkgrid(labelRcmdr(errorpredFrame,
+                    text=gettextRcmdr("Medidas Error de Prediccion"), fg="blue"), columnspan=6, sticky="w")
+  tkgrid(labelRcmdr(errorpredFrame,text=gettextRcmdr("Lambda Goodman-Kruskal ")), 
+         lambdaCheckBox, labelRcmdr(errorpredFrame,text=gettextRcmdr("Tau Goodman-Kruskal ")), 
+         tauCheckBox, labelRcmdr(errorpredFrame,text=gettextRcmdr("Coef. Incertidumbre Theil ")), 
+         theilCheckBox,sticky="w")
+  tkgrid(labelRcmdr(opcionesFrame,
+                    text=gettextRcmdr("Opciones"), fg="blue"), sticky="w")
+  tkgrid(labelRcmdr(opcionesFrame, 
+                    text=gettextRcmdr("Mostrar en pantalla el codigo de R ejecutado ")), 
+         echoCheckBox, sticky="w")
+  tkgrid(labelRcmdr(opcionesFrame,
+                    text=gettextRcmdr("Generar informe de resultados ")),
+         htmlCheckBox,sticky="w")
+  tkgrid(getFrame(filaVar), labelRcmdr(variablesFrame, text="    "),
+         getFrame(columnaVar), sticky="nw")
+  tkgrid(variablesFrame, sticky="w")
+  tkgrid(porcentajesFrame, sticky="w")
+  tkgrid(esperadasFrame, sticky="w")
+  tkgrid(descjiFrame, sticky="w")
+  tkgrid(errorpredFrame, sticky="w")
+  tkgrid(subsetFrame, sticky="w")
+  tkgrid(opcionesFrame, sticky="w")
+  tkgrid(buttonsFrame, sticky="w")
+  dialogSuffix(rows=6, columns=1)
+  }
 
 barras.agrupadas <- function(){
-    .chequeando.paquetes()
-    require("abind")
-    initializeDialog(title=gettextRcmdr("Diagrama de barras agrupadas"))
-    opcionesFrame <- tkframe(top)
-    variablesFrame <- tkframe(top)
-    filaVar <- variableListBox(variablesFrame, Factors(), title=gettextRcmdr("Variable por filas (escoja una)"))
-    columnaVar <- variableListBox(variablesFrame, Factors(), title=gettextRcmdr("Variable por columnas (escoja una)"))
-    radioButtons(top, name="tabla", buttons=c("niBoton", "fiBoton"), values=c("ni", "fi"),
-    labels=gettextRcmdr(c("Frecuencias Absolutas", "Frecuencias Relativas")),
-    title=gettextRcmdr("Tablas basadas en:"))
-    echocodigoVariable <- tclVar("0")
-    echoCheckBox <- tkcheckbutton(opcionesFrame, variable=echocodigoVariable)
-    creahtmlVariable <- tclVar("0")
-    htmlCheckBox <- tkcheckbutton(opcionesFrame, variable=creahtmlVariable)
-    onOK <- function(){
-        fila <- getSelection(filaVar)
-        columna <- getSelection(columnaVar)
-        if (length(fila) == 0 || length(columna) == 0){
-            errorCondition(recall=barras.agrupadas, message=gettextRcmdr("Debe seleccionar dos variables."))
-            return()
-            }
-        if (fila == columna) {
-            errorCondition(recall=barras.agrupadas, message=gettextRcmdr("Debe seleccionar dos variables distintas."))
-            return()
-            }
-        tabVariable <- as.character(tclvalue(tablaVariable))
-        echocodigo <- tclvalue(echocodigoVariable)
-        creahtml <- tclvalue(creahtmlVariable)
-        if (creahtml == 1)
-        {
-         require(R2HTML)
-         if (!file.exists("Informe de Resultados.html"))
-           .archivo <- HTMLInitFile(file.path(getwd()),
-                       "Informe de Resultados", BackGroundColor="#FFFFCC")
-         else
-           .archivo <- file.path(getwd(), "Informe de Resultados.html")
-         titulo <- paste("Diagrama de barras agrupadas para : ",fila, 
-                   " y ", columna, sep="")
-         HTML(as.title(titulo),file=.archivo)
-        }
-        closeDialog()
-        instruccion <- paste("xtabs(~", fila, "+", columna, ", data=", ActiveDataSet(),
-                       ")", sep="")
-        assign(".Tabla", justDoIt(instruccion), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste(".Tabla <- ", instruccion, sep=""))
-        if (tabVariable == "fi")
-        {  
-          instruccion2 <- ".Tabla/sum(.Tabla)"
-          assign(".Tabla", justDoIt(instruccion2), envir=.GlobalEnv)
-          if (echocodigo == 1) logger(paste(".Tabla <- ", instruccion2, sep=""))
-        }
-        titulo <- paste("Barras agrupadas para ",fila," y ",columna, sep="")
-        tituloy <- if (tabVariable == "ni") "Frecuencias Absolutas"
-        else "Frecuencias Relativas"
-        instruccion3 <- paste("barplot(.Tabla,beside=TRUE,main='",titulo,
-        "',ylab='",tituloy,"',xlab='",columna,"',ylim=c(0,max(.Tabla)*1.05),",
-         "col=heat.colors(length(levels(",ActiveDataSet(),"$",fila,
-         "))),legend.text=TRUE,args.legend=list(x='topright',title='",fila,"'))",
-          sep="")
-        instruccion4 <- "box()"
-        justDoIt(instruccion3)
-        justDoIt(instruccion4)
-        if (echocodigo == 1)
-        {
-          logger(instruccion3)
-          logger(instruccion4)
-          logger("remove(.Tabla)")
-        }
-        remove(.Tabla, envir=.GlobalEnv)          
-        if (creahtml == 1)
-        {
-          nombre.archivo <- paste("BarrasAgrupadasR",gsub(":","",substr(Sys.time(),12,19)),
-          ".jpg",sep="")
-          dev.print(jpeg, filename=paste(getwd(),"/",nombre.archivo,sep=""),
-          width=500, height=500)
-          HTMLInsertGraph(nombre.archivo,file=.archivo,append=TRUE)
-          HTMLhr(file = .archivo)
-        }
-        closeDialog()        
-        tkfocus(CommanderWindow())
+  require("abind")
+  initializeDialog(title=gettextRcmdr("Diagrama de barras agrupadas"))
+  opcionesFrame <- tkframe(top)
+  variablesFrame <- tkframe(top)
+  filaVar <- variableListBox(variablesFrame, Factors(), title=gettextRcmdr("Variable por filas (escoja una)"))
+  columnaVar <- variableListBox(variablesFrame, Factors(), title=gettextRcmdr("Variable por columnas (escoja una)"))
+  radioButtons(top, name="tabla", buttons=c("niBoton", "fiBoton"), values=c("ni", "fi"),
+               labels=gettextRcmdr(c("Frecuencias Absolutas", "Frecuencias Relativas")),
+               title=gettextRcmdr("Tablas basadas en:"))
+  echocodigoVariable <- tclVar("0")
+  echoCheckBox <- tkcheckbutton(opcionesFrame, variable=echocodigoVariable)
+  creahtmlVariable <- tclVar("0")
+  htmlCheckBox <- tkcheckbutton(opcionesFrame, variable=creahtmlVariable)
+  onOK <- function(){
+    fila <- getSelection(filaVar)
+    columna <- getSelection(columnaVar)
+    if (length(fila) == 0 || length(columna) == 0){
+      errorCondition(recall=barras.agrupadas, message=gettextRcmdr("Debe seleccionar dos variables."))
+      return()
     }
-    OKCancelHelp(helpSubject="barplot")
-    tkgrid(labelRcmdr(opcionesFrame,
-    text=gettextRcmdr("Opciones"), fg="blue"), sticky="w")
-    tkgrid(labelRcmdr(opcionesFrame, 
-    text=gettextRcmdr("Mostrar en pantalla el codigo de R ejecutado ")), 
-    echoCheckBox, sticky="w")
-    tkgrid(labelRcmdr(opcionesFrame,
-    text=gettextRcmdr("Generar informe de resultados ")),
-    htmlCheckBox,sticky="w")
-    tkgrid(getFrame(filaVar), labelRcmdr(variablesFrame, text="    "),
-    getFrame(columnaVar), sticky="nw")
-    tkgrid(variablesFrame, sticky="w")
-    tkgrid(tablaFrame, sticky="w")
-    tkgrid(opcionesFrame, sticky="w")
-    tkgrid(buttonsFrame, sticky="w")
-    dialogSuffix(rows=6, columns=1)        
+    if (fila == columna) {
+      errorCondition(recall=barras.agrupadas, message=gettextRcmdr("Debe seleccionar dos variables distintas."))
+      return()
+    }
+    tabVariable <- as.character(tclvalue(tablaVariable))
+    echocodigo <- tclvalue(echocodigoVariable)
+    creahtml <- tclvalue(creahtmlVariable)
+    if (creahtml == 1)
+    {
+      require(R2HTML)
+      if (!file.exists("Informe de Resultados.html"))
+        .archivo <- HTMLInitFile(file.path(getwd()),
+                                 "Informe de Resultados", BackGroundColor="#FFFFCC")
+      else
+        .archivo <- file.path(getwd(), "Informe de Resultados.html")
+      titulo <- paste("Diagrama de barras agrupadas para : ",fila, 
+                      " y ", columna, sep="")
+      HTML(as.title(titulo),file=.archivo)
+    }
+    closeDialog()
+    instruccion <- paste(".Tabla <- xtabs(~", fila, "+", columna, ", data=", ActiveDataSet(),
+                         ")", sep="")
+    justDoIt(instruccion)
+    if (echocodigo == 1) logger(instruccion)
+    if (tabVariable == "fi")
+    {  
+      instruccion2 <- ".Tabla <- .Tabla/sum(.Tabla)"
+      justDoIt(instruccion2)
+      if (echocodigo == 1) logger(instruccion2)
+    }
+    titulo <- paste("Barras agrupadas para ",fila," y ",columna, sep="")
+    tituloy <- if (tabVariable == "ni") "Frecuencias Absolutas"
+    else "Frecuencias Relativas"
+    instruccion3 <- paste("barplot(.Tabla,beside=TRUE,main='",titulo,
+                          "',ylab='",tituloy,"',xlab='",columna,"',ylim=c(0,max(.Tabla)*1.05),",
+                          "col=heat.colors(length(levels(",ActiveDataSet(),"$",fila,
+                          "))),legend.text=TRUE,args.legend=list(x='topright',title='",fila,"'))",
+                          sep="")
+    instruccion4 <- "box()"
+    justDoIt(instruccion3)
+    justDoIt(instruccion4)
+    if (echocodigo == 1)
+    {
+      logger(instruccion3)
+      logger(instruccion4)
+      logger("remove(.Tabla)")
+    }
+    remove(.Tabla, envir=.GlobalEnv)          
+    if (creahtml == 1)
+    {
+      nombre.archivo <- paste("BarrasAgrupadasR",gsub(":","",substr(Sys.time(),12,19)),
+                              ".jpg",sep="")
+      dev.print(jpeg, filename=paste(getwd(),"/",nombre.archivo,sep=""),
+                width=500, height=500)
+      HTMLInsertGraph(nombre.archivo,file=.archivo,append=TRUE)
+      HTMLhr(file = .archivo)
+    }
+    closeDialog()        
+    tkfocus(CommanderWindow())
+  }
+  OKCancelHelp(helpSubject="barplot")
+  tkgrid(labelRcmdr(opcionesFrame,
+                    text=gettextRcmdr("Opciones"), fg="blue"), sticky="w")
+  tkgrid(labelRcmdr(opcionesFrame, 
+                    text=gettextRcmdr("Mostrar en pantalla el codigo de R ejecutado ")), 
+         echoCheckBox, sticky="w")
+  tkgrid(labelRcmdr(opcionesFrame,
+                    text=gettextRcmdr("Generar informe de resultados ")),
+         htmlCheckBox,sticky="w")
+  tkgrid(getFrame(filaVar), labelRcmdr(variablesFrame, text="    "),
+         getFrame(columnaVar), sticky="nw")
+  tkgrid(variablesFrame, sticky="w")
+  tkgrid(tablaFrame, sticky="w")
+  tkgrid(opcionesFrame, sticky="w")
+  tkgrid(buttonsFrame, sticky="w")
+  dialogSuffix(rows=6, columns=1)        
 }
 
 grafico.mosaico <- function(){
-    .chequeando.paquetes()
     require("abind")
     initializeDialog(title=gettextRcmdr("Grafico de Mosaico"))
     opcionesFrame <- tkframe(top)
@@ -3824,10 +3785,10 @@ grafico.mosaico <- function(){
          HTML(as.title(titulo),file=.archivo)
         }
         closeDialog()
-        instruccion <- paste("xtabs(~", fila, "+", columna, ", data=", ActiveDataSet(),
+        instruccion <- paste(".Tabla <- xtabs(~", fila, "+", columna, ", data=", ActiveDataSet(),
                        ")", sep="")
-        assign(".Tabla", justDoIt(instruccion), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste(".Tabla <- ", instruccion, sep=""))
+        justDoIt(instruccion)
+        if (echocodigo == 1) logger(instruccion)
         titulo <- paste("Grafico de mosaico para ",fila," y ",columna, sep="")
         instruccion2 <- paste("mosaicplot(.Tabla,main='",titulo,"',
         col=dim(.Tabla))",sep="")
@@ -3871,7 +3832,6 @@ grafico.mosaico <- function(){
 }
 
 bivariante.ordinales <- function(){
-    .chequeando.paquetes()
     require("abind")
     initializeDialog(title=gettextRcmdr("Descripcion bivariante datos ordinales"))
     opcionesFrame <- tkframe(top)
@@ -3909,10 +3869,10 @@ bivariante.ordinales <- function(){
             errorCondition(recall=bivariante.ordinales, message=gettextRcmdr("Debe seleccionar dos variables distintas."))
             return()
             }
-        assign("cond1", justDoIt(paste("!is.ordered(",paste(ActiveDataSet(),"$",fila,sep=""),")",sep="")), envir=.GlobalEnv)
-        assign("cond2", justDoIt(paste("!is.numeric(",paste(ActiveDataSet(),"$",fila,sep=""),")",sep="")), envir=.GlobalEnv)
-        assign("cond3", justDoIt(paste("!is.ordered(",paste(ActiveDataSet(),"$",columna,sep=""),")",sep="")), envir=.GlobalEnv)
-        assign("cond4",  justDoIt(paste("!is.numeric(",paste(ActiveDataSet(),"$",columna,sep=""),")",sep="")), envir=.GlobalEnv)        
+        justDoIt(paste("cond1 <- !is.ordered(",paste(ActiveDataSet(),"$",fila,sep=""),")",sep=""))
+        justDoIt(paste("cond2 <- !is.numeric(",paste(ActiveDataSet(),"$",fila,sep=""),")",sep=""))
+        justDoIt(paste("cond3 <- !is.ordered(",paste(ActiveDataSet(),"$",columna,sep=""),")",sep=""))
+        justDoIt(paste("cond4 <- !is.numeric(",paste(ActiveDataSet(),"$",columna,sep=""),")",sep=""))        
         if (cond1 && cond2 || cond3 && cond4){
             errorCondition(recall=bivariante.ordinales, message=gettextRcmdr("Escoja variables ordinales"))
             return()
@@ -3941,8 +3901,8 @@ bivariante.ordinales <- function(){
          if (selec > 0)
          {
            numfilas <- selec
-           instruccion <- paste("as.data.frame(matrix(nrow=",numfilas,",ncol=1))")
-           assign(".TablaCoefAsoc", justDoIt(instruccion), envir=.GlobalEnv)
+           instruccion <- paste(".TablaCoefAsoc <- as.data.frame(matrix(nrow=",numfilas,",ncol=1))")
+           justDoIt(instruccion)
            colnames(.TablaCoefAsoc) <- "Valores"
          }
          titulo <- paste("Descripcion bivariante de datos ordinales: ",fila, 
@@ -3950,10 +3910,10 @@ bivariante.ordinales <- function(){
          HTML(as.title(titulo),file=.archivo)
         }
         closeDialog()
-        instruccion <- paste("xtabs(~", fila, "+", columna, ", data=", ActiveDataSet(),
+        instruccion <- paste(".Tabla <- xtabs(~", fila, "+", columna, ", data=", ActiveDataSet(),
             subconjunto, ")", sep="")
-        assign(".Tabla", justDoIt(instruccion), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste(".Tabla <- ", instruccion, sep=""))
+        justDoIt(instruccion)
+        if (echocodigo == 1) logger(instruccion)
         doItAndPrint(paste(".Tabla  # Tabla de contingencia para ",
                      fila," y ",columna,sep=""))
         if (creahtml == 1)
@@ -3964,9 +3924,9 @@ bivariante.ordinales <- function(){
         }
         if (porcentajes == "fila")
         {
-          instruccion2 <- "rowPercents(.Tabla)"
-          assign(".porcentajes", justDoIt(instruccion2), envir=.GlobalEnv)
-          if (echocodigo == 1) logger(paste(".porcentajes <- ", instruccion2, sep=""))
+          instruccion2 <- ".porcentajes <- rowPercents(.Tabla)"
+          justDoIt(instruccion2)
+          if (echocodigo == 1) logger(instruccion2)
           doItAndPrint(".porcentajes  # Porcentajes respecto a marginales fila ")
           if (echocodigo == 1) logger("remove(.porcentajes)")
           if (creahtml == 1)
@@ -3979,9 +3939,9 @@ bivariante.ordinales <- function(){
         }
         if (porcentajes == "columna")
         {
-          instruccion2 <- "colPercents(.Tabla)"
-          assign(".porcentajes", justDoIt(instruccion2), envir=.GlobalEnv)
-          if (echocodigo == 1) logger(paste(".porcentajes <- ", instruccion2, sep=""))
+          instruccion2 <- ".porcentajes <- colPercents(.Tabla)"
+          justDoIt(instruccion2)
+          if (echocodigo == 1) logger(instruccion2)
           doItAndPrint(".porcentajes  # Porcentajes respecto a marginales columna ")
           if (echocodigo == 1) logger("remove(.porcentajes)")
           if (creahtml == 1)
@@ -3994,9 +3954,9 @@ bivariante.ordinales <- function(){
         }
         if (porcentajes == "total")
         {
-          instruccion2 <- "totPercents(.Tabla)"
-          assign(".porcentajes", justDoIt(instruccion2), envir=.GlobalEnv)
-          if (echocodigo == 1) logger(paste(".porcentajes <- ", instruccion2, sep=""))
+          instruccion2 <- "porcentajes <- totPercents(.Tabla)"
+          justDoIt(instruccion2)
+          if (echocodigo == 1) logger(instruccion2)
           doItAndPrint(".porcentajes  # Porcentajes respecto al total")
           if (echocodigo == 1) logger("remove(.porcentajes)")
           if (creahtml == 1)
@@ -4007,39 +3967,39 @@ bivariante.ordinales <- function(){
           }
           remove(.porcentajes, envir=.GlobalEnv)
         }
-        instruccion3 <- "row(.Tabla)"
-        assign("filas", justDoIt(instruccion3), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste("filas <- ", instruccion3, sep=""))
-        instruccion4 <- "col(.Tabla)"
-        assign("columnas", justDoIt(instruccion4), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste("columnas <- ", instruccion4, sep=""))
-        instruccion5 <- "sum(.Tabla)"
-        assign("n", justDoIt(instruccion5), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste("n <- ", instruccion5, sep=""))
-        instruccion6 <- "min(dim(.Tabla))"
-        assign("q", justDoIt(instruccion6), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste("q <- ", instruccion6, sep=""))
-        instruccion7 <- "sum(.Tabla * mapply(function(f, c){sum(.Tabla[(filas > f) &
+        instruccion3 <- "filas <- row(.Tabla)"
+        justDoIt(instruccion3)
+        if (echocodigo == 1) logger(instruccion3)
+        instruccion4 <- "columnas <- col(.Tabla)"
+        justDoIt(instruccion4)
+        if (echocodigo == 1) logger(instruccion4)
+        instruccion5 <- "n <- sum(.Tabla)"
+        justDoIt(instruccion5)
+        if (echocodigo == 1) logger(instruccion5)
+        instruccion6 <- "q <- min(dim(.Tabla))"
+        justDoIt(instruccion6)
+        if (echocodigo == 1) logger(instruccion6)
+        instruccion7 <- "C <- sum(.Tabla * mapply(function(f, c){sum(.Tabla[(filas > f) &
         (columnas > c)])}, f = filas, c = columnas))"
-        assign("C", justDoIt(instruccion7), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste("C <- ", instruccion7, sep=""))
+        justDoIt(instruccion7)
+        if (echocodigo == 1) logger(instruccion7)
         doItAndPrint("C  # Numero de pares concordantes")
-        instruccion8 <- "sum(.Tabla * mapply(function(f, c){sum(.Tabla[(filas > f) &
+        instruccion8 <- "D <- sum(.Tabla * mapply(function(f, c){sum(.Tabla[(filas > f) &
         (columnas < c)])}, f = filas, c = columnas))"
-        assign("D", justDoIt(instruccion8), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste("D <- ", instruccion8, sep=""))
+        justDoIt(instruccion8)
+        if (echocodigo == 1) logger(instruccion8)
         doItAndPrint("D  # Numero de pares discordantes")
-        instruccion9 <- "(sum(apply(.Tabla,1,sum)^2)-n)/2"
-        assign("E.X", justDoIt(instruccion9), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste("E.X <- ", instruccion9, sep=""))
+        instruccion9 <- "E.X <- (sum(apply(.Tabla,1,sum)^2)-n)/2"
+        justDoIt(instruccion9)
+        if (echocodigo == 1) logger(instruccion9)
         doItAndPrint(paste("E.X  # Numero de empates en ",fila,sep=""))
-        instruccion10 <- "(sum(apply(.Tabla,2,sum)^2)-n)/2"
-        assign("E.Y", justDoIt(instruccion10), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste("E.Y <- ", instruccion10, sep=""))
+        instruccion10 <- "E.Y <- (sum(apply(.Tabla,2,sum)^2)-n)/2"
+        justDoIt(instruccion10)
+        if (echocodigo == 1) logger(instruccion10)
         doItAndPrint(paste("E.Y  # Numero de empates en ",columna,sep=""))
-        instruccion11 <- "(sum(.Tabla^2)-n)/2"
-        assign("E.XY", justDoIt(instruccion11), envir=.GlobalEnv)
-        if (echocodigo == 1) logger(paste("E.XY <- ", instruccion11, sep=""))
+        instruccion11 <- "E.XY <- (sum(.Tabla^2)-n)/2"
+        justDoIt(instruccion11)
+        if (echocodigo == 1) logger(instruccion11)
         doItAndPrint(paste("E.XY  # Numero de empates en ",fila," y ",columna,sep=""))
         if (creahtml == 1)
         {
@@ -4054,9 +4014,9 @@ bivariante.ordinales <- function(){
         i <- 0
         if (gammaval == 1)
         {
-          instruccion12 <- "(C-D)/(C+D)"
-          if (echocodigo == 1) logger(paste("gammaGK <- ", instruccion12, sep=""))
-          assign("gammaGK", justDoIt(instruccion12), envir=.GlobalEnv)
+          instruccion12 <- "gammaGK <- (C-D)/(C+D)"
+          if (echocodigo == 1) logger(instruccion12)
+          justDoIt(instruccion12)
           doItAndPrint("gammaGK # Gamma de Goodman-Kruskal ")
           if (echocodigo == 1) logger("remove(gammaGK)")
           if (creahtml == 1)
@@ -4069,17 +4029,17 @@ bivariante.ordinales <- function(){
         }
         if (tauval == 1)
         {
-          instruccion13 <- "(C-D)/choose(n,2)"
-          if (echocodigo == 1) logger(paste("tau.a <- ", instruccion13, sep=""))
-          assign("tau.a", justDoIt(instruccion13), envir=.GlobalEnv)
+          instruccion13 <- "tau.a <- (C-D)/choose(n,2)"
+          if (echocodigo == 1) logger(instruccion13)
+          justDoIt(instruccion13)
           doItAndPrint("tau.a # Tau a de Kendall ")
-          instruccion14 <- "(C-D)/sqrt((C+D+E.X-E.XY)*(C+D+E.Y-E.XY))"
-          if (echocodigo == 1) logger(paste("tau.b <- ", instruccion14, sep=""))
-          assign("tau.b", justDoIt(instruccion14), envir=.GlobalEnv)
+          instruccion14 <- "tau.b <- (C-D)/sqrt((C+D+E.X-E.XY)*(C+D+E.Y-E.XY))"
+          if (echocodigo == 1) logger(instruccion14)
+          justDoIt(instruccion14)
           doItAndPrint("tau.b # Tau b de Kendall ")
-          instruccion15 <- "2*q*(C-D)/(n^2*(q-1))"
-          if (echocodigo == 1) logger(paste("tau.c <- ", instruccion15, sep=""))
-          assign("tau.c", justDoIt(instruccion15), envir=.GlobalEnv)
+          instruccion15 <- "tau.c <- 2*q*(C-D)/(n^2*(q-1))"
+          if (echocodigo == 1) logger(instruccion15)
+          justDoIt(instruccion15)
           doItAndPrint("tau.c # Tau c de Kendall ")
           if (echocodigo == 1) logger("remove(list=c('tau.a','tau.b','tau.c'))")
           if (creahtml == 1)
@@ -4093,19 +4053,19 @@ bivariante.ordinales <- function(){
         }
         if (sommersval == 1)
         {
-          instruccion16 <- "(C-D)/(C+D+E.X-E.XY)"
-          if (echocodigo == 1) logger(paste("sommers.x.y <- ", instruccion16, sep=""))
-          assign("sommers.x.y", justDoIt(instruccion16), envir=.GlobalEnv)
+          instruccion16 <- "sommers.x.y <- (C-D)/(C+D+E.X-E.XY)"
+          if (echocodigo == 1) logger(instruccion16)
+          justDoIt(instruccion16)
           doItAndPrint(paste("sommers.x.y # Coef. de Sommers ( ",fila,
                       " dependiente)",sep=""))
-          instruccion17 <- "(C-D)/(C+D+E.Y-E.XY)"
-          if (echocodigo == 1) logger(paste("sommers.y.x <- ", instruccion17, sep=""))
-          assign("sommers.y.x", justDoIt(instruccion17), envir=.GlobalEnv)
+          instruccion17 <- "sommers.y.x <- (C-D)/(C+D+E.Y-E.XY)"
+          if (echocodigo == 1) logger(instruccion17)
+          justDoIt(instruccion17)
           doItAndPrint(paste("sommers.y.x # Coef. de Sommers ( ",columna,
                       " dependiente)",sep=""))          
-          instruccion18 <- "(C-D)/(C+D+(E.X+E.Y)/2-E.XY)"
-          if (echocodigo == 1) logger(paste(".sommers <- ", instruccion18, sep=""))
-          assign(".sommers", justDoIt(instruccion18), envir=.GlobalEnv)
+          instruccion18 <- ".sommers <- (C-D)/(C+D+(E.X+E.Y)/2-E.XY)"
+          if (echocodigo == 1) logger(instruccion18)
+          justDoIt(instruccion18)
           doItAndPrint(".sommers # Coef. de Sommers (simetrico) ")
           if (echocodigo == 1) logger("remove(list=c('sommers.x.y','sommers.y.x',
                                       '.sommers'))")
@@ -4120,9 +4080,9 @@ bivariante.ordinales <- function(){
         }
         if (wilsonval == 1)
         {
-          instruccion19 <- "2*(C-D)/(choose(n,2)-E.XY)"
-          if (echocodigo == 1) logger(paste(".wilson <- ", instruccion19, sep=""))
-          assign(".wilson", justDoIt(instruccion19), envir=.GlobalEnv)
+          instruccion19 <- ".wilson <- 2*(C-D)/(choose(n,2)-E.XY)"
+          if (echocodigo == 1) logger(instruccion19)
+          justDoIt(instruccion19)
           doItAndPrint(".wilson # e de Wilson ")
           if (echocodigo == 1) logger("remove(.wilson)")
           if (creahtml == 1)
@@ -4184,7 +4144,6 @@ bivariante.ordinales <- function(){
     }
 
 dispersion.ordinales <- function(){
-    .chequeando.paquetes()
     require("reshape")
     initializeDialog(title=gettextRcmdr("Diagrama de puntos para datos ordinales"))
     opcionesFrame <- tkframe(top)
@@ -4206,8 +4165,8 @@ dispersion.ordinales <- function(){
             errorCondition(recall=dispersion.ordinales, message=gettextRcmdr("Debe seleccionar dos variables distintas."))
             return()
             }
-        assign("cond1", justDoIt(paste("!is.ordered(",paste(ActiveDataSet(),"$",fila,sep=""),")",sep="")), envir=.GlobalEnv)
-        assign("cond2", justDoIt(paste("!is.ordered(",paste(ActiveDataSet(),"$",columna,sep=""),")",sep="")), envir=.GlobalEnv)
+        justDoIt(paste("cond1 <- !is.ordered(",paste(ActiveDataSet(),"$",fila,sep=""),")",sep=""))
+        justDoIt(paste("cond2 <- !is.ordered(",paste(ActiveDataSet(),"$",columna,sep=""),")",sep=""))
         if (cond1 || cond2){
             errorCondition(recall=dispersion.ordinales, message=gettextRcmdr("Escoja variables ordinales"))
             return()
@@ -4227,33 +4186,33 @@ dispersion.ordinales <- function(){
                    " y ", columna, sep="")
          HTML(as.title(titulo),file=.archivo)
         }
-        instruccion <- "par(no.readonly = TRUE)"
-        assign("def.par", justDoIt(instruccion), envir=.GlobalEnv)
-        instruccion2 <- paste("max(c(table(",ActiveDataSet(),"$",fila,"),
+        instruccion <- "def.par <- par(no.readonly = TRUE)"
+        justDoIt(instruccion)
+        instruccion2 <- paste("sup <- max(c(table(",ActiveDataSet(),"$",fila,"),
         table(",ActiveDataSet(),"$",columna,")),na.rm=TRUE)",sep="")
-        assign("sup", justDoIt(instruccion2), envir=.GlobalEnv)
-        instruccion3 <- paste("c(min(as.numeric(",ActiveDataSet(),"$",fila,"),na.rm=TRUE),
+        justDoIt(instruccion2)
+        instruccion3 <- paste("rangox <- c(min(as.numeric(",ActiveDataSet(),"$",fila,"),na.rm=TRUE),
         max(as.numeric(",ActiveDataSet(),"$",fila,"),na.rm=TRUE))",sep="")
-        assign("rangox", justDoIt(instruccion3), envir=.GlobalEnv)
-        instruccion4 <- paste("c(min(as.numeric(",ActiveDataSet(),"$",columna,"),na.rm=TRUE),
+        justDoIt(instruccion3)
+        instruccion4 <- paste("rangoy <- c(min(as.numeric(",ActiveDataSet(),"$",columna,"),na.rm=TRUE),
         max(as.numeric(",ActiveDataSet(),"$",columna,"),na.rm=TRUE))",sep="")
-        assign("rangoy", justDoIt(instruccion4), envir=.GlobalEnv)
-        instruccion5 <- "layout(matrix(c(2,0,1,3),2,2,byrow=TRUE), c(3,1), c(1,3), TRUE)"
-        assign("nf", justDoIt(instruccion5), envir=.GlobalEnv)
+        justDoIt(instruccion4)
+        instruccion5 <- "nf <- layout(matrix(c(2,0,1,3),2,2,byrow=TRUE), c(3,1), c(1,3), TRUE)"
+        justDoIt(instruccion5)
         instruccion6 <- "par(mar=c(5,4,3,3))" 
         instruccion7 <-paste("plot(as.numeric(",ActiveDataSet(),"$",fila,"),
         as.numeric(",ActiveDataSet(),"$",columna,"),xlim=rangox,ylim=rangoy,
         xlab='",fila,"',ylab='",columna,"')",sep="") 
-        instruccion8 <- paste("with(",ActiveDataSet(),",merge(data.frame(",fila,",",
+        instruccion8 <- paste(z <- "with(",ActiveDataSet(),",merge(data.frame(",fila,",",
         columna,"),melt(table(",fila,",",columna,")),sort =F)$value)",sep="")
-        assign("z", justDoIt(instruccion8), envir=.GlobalEnv)
-        instruccion9 <- paste("1.5*z/length(",ActiveDataSet(),"$",fila,")",sep="")
-        assign("z", justDoIt(instruccion9), envir=.GlobalEnv)
+        justDoIt(instruccion8)
+        instruccion9 <- paste("z <- 1.5*z/length(",ActiveDataSet(),"$",fila,")",sep="")
+        justDoIt(instruccion9)
         instruccion10 <- paste("symbols(na.omit(data.frame(",ActiveDataSet(),"$",fila,
         ",",ActiveDataSet(),"$",columna,")),circles=z,inches=F, bg='grey',fg=NA,add=T)",sep="")
-        instruccion11 <- paste("is.finite(",ActiveDataSet(),"$",fila,") & is.finite(",
+        instruccion11 <- paste("ok <- is.finite(",ActiveDataSet(),"$",fila,") & is.finite(",
         ActiveDataSet(),"$",columna,")",sep="")
-        assign("ok", justDoIt(instruccion11), envir=.GlobalEnv)
+        justDoIt(instruccion11)
         if (any(ok)) 
         instruccion12<- paste("lines(stats::lowess(",ActiveDataSet(),"$",fila,"[ok],",
         ActiveDataSet(),"$",columna,"[ok], f = 2/3, iter = 3), col = 'red')",sep="")
@@ -4266,15 +4225,15 @@ dispersion.ordinales <- function(){
         instruccion19 <- "par(def.par)"
         if (echocodigo == 1)
         {
-          logger(paste("def.par <-", instruccion)) 
-          logger(paste("sup <-", instruccion2))
-          logger(paste("rangox <-", instruccion3))
-          logger(paste("rangoy <-", instruccion4))
+          logger(instruccion) 
+          logger(instruccion2)
+          logger(instruccion3)
+          logger(instruccion4)
           doItAndPrint(instruccion5)
           doItAndPrint(instruccion6)
           doItAndPrint(instruccion7)
-          logger(paste("z <-", instruccion8))
-          logger(paste("z <-", instruccion9))
+          logger(instruccion8)
+          logger(instruccion9)
           doItAndPrint(instruccion10)
           logger(paste("ok <-", instruccion11))
           doItAndPrint(instruccion12)
@@ -4333,7 +4292,6 @@ dispersion.ordinales <- function(){
     }
 
 bivariante.numericas <- function(){
-    .chequeando.paquetes()
     initializeDialog(title=gettextRcmdr("Descripcion bivariante datos cuantitativos"))
     opcionesFrame <- tkframe(top)
     variablesFrame <- tkframe(top)
@@ -4396,8 +4354,8 @@ bivariante.numericas <- function(){
          if (selec > 0)
          {
            numfilas <- selec
-           instruccion <- paste("as.data.frame(matrix(nrow=",numfilas,",ncol=1))")
-           assign(".TablaCoefAsoc", justDoIt(instruccion), envir=.GlobalEnv)
+           instruccion <- paste(".TablaCoefAsoc <- as.data.frame(matrix(nrow=",numfilas,",ncol=1))")
+           justDoIt(instruccion)
            colnames(.TablaCoefAsoc) <- "Valores"
          }
          titulo <- paste("Descripcion bivariante de datos cuantitativos: ",var1, 
@@ -4408,10 +4366,10 @@ bivariante.numericas <- function(){
         i <- 0
         if (Covval == 1)
         {
-          instruccion <- paste("cov(",.BaseDatosActiva,"$",var1,",",
+          instruccion <- paste("covariancia <- cov(",.BaseDatosActiva,"$",var1,",",
                          .BaseDatosActiva,"$",var2,",use='na.or.complete')",sep="")
-          if (echocodigo == 1) logger(paste("covariancia <- ", instruccion, sep=""))
-          assign("covariancia", justDoIt(instruccion), envir=.GlobalEnv)
+          if (echocodigo == 1) logger(instruccion)
+          justDoIt(instruccion)
           doItAndPrint(paste("covariancia # Coeficiente de covariancia entre ",
                              var1," y ",var2,sep=""))
           if (echocodigo == 1) logger("remove(covariancia)")
@@ -4425,10 +4383,10 @@ bivariante.numericas <- function(){
         }
         if (pearsonval == 1)
         {
-          instruccion2 <- paste("cor(",.BaseDatosActiva,"$",var1,",",
+          instruccion2 <- paste("correlacion <- cor(",.BaseDatosActiva,"$",var1,",",
                          .BaseDatosActiva,"$",var2,",method='pearson',use='na.or.complete')",sep="")
-          if (echocodigo == 1) logger(paste("correlacion <- ", instruccion2, sep=""))
-          assign("correlacion", justDoIt(instruccion2), envir=.GlobalEnv)
+          if (echocodigo == 1) logger(instruccion2)
+          justDoIt(instruccion2)
           doItAndPrint(paste("correlacion # Correlacion de Pearson entre ",
                              var1," y ",var2,sep=""))
           if (echocodigo == 1) logger("remove(correlacion)")
@@ -4440,9 +4398,9 @@ bivariante.numericas <- function(){
           }
           if (determval == 1)
           {
-            instruccion <- "correlacion^2"
-            assign("R2pearson", justDoIt(instruccion), envir=.GlobalEnv)
-            if (echocodigo == 1) logger(paste("R2pearson <- ", instruccion, sep=""))
+            instruccion <- "R2pearson <- correlacion^2"
+            justDoIt(instruccion)
+            if (echocodigo == 1) logger(instruccion)
             doItAndPrint(paste("R2pearson # Coef. determinacion (Pearson) entre ",
             var1," y ",var2,sep=""))
             if (creahtml == 1)
@@ -4458,10 +4416,10 @@ bivariante.numericas <- function(){
         }
         if (spearmanval == 1)
         {
-          instruccion3 <- paste("cor(",.BaseDatosActiva,"$",var1,",",
+          instruccion3 <- paste("correlacion <- cor(",.BaseDatosActiva,"$",var1,",",
                          .BaseDatosActiva,"$",var2,",method='spearman',use='na.or.complete')",sep="")
-          if (echocodigo == 1) logger(paste("correlacion <- ", instruccion3, sep=""))
-          assign("correlacion", justDoIt(instruccion3), envir=.GlobalEnv)
+          if (echocodigo == 1) logger(instruccion3)
+          justDoIt(instruccion3)
           doItAndPrint(paste("correlacion # Correlacion de Spearman entre ",
                              var1," y ",var2,sep=""))
           if (echocodigo == 1) logger("remove(correlacion)")
@@ -4473,9 +4431,9 @@ bivariante.numericas <- function(){
           }
           if (determval == 1)
           {
-            instruccion2 <- "correlacion^2"
-            assign("R2spearman", justDoIt(instruccion2), envir=.GlobalEnv)
-            if (echocodigo == 1) logger(paste("R2spearman <- ", instruccion2, sep=""))
+            instruccion2 <- "R2spearman <- correlacion^2"
+            justDoIt(instruccion2)
+            if (echocodigo == 1) logger(instruccion2)
             doItAndPrint(paste("R2spearman # Coef. determinacion (Spearman) entre ",
             var1," y ",var2,sep=""))
             if (creahtml == 1)
@@ -4491,10 +4449,10 @@ bivariante.numericas <- function(){
         }
         if (kendallval == 1)
         {
-          instruccion4 <- paste("cor(",.BaseDatosActiva,"$",var1,",",
+          instruccion4 <- paste("correlacion <- cor(",.BaseDatosActiva,"$",var1,",",
                          .BaseDatosActiva,"$",var2,",method='kendall',use='na.or.complete')",sep="")
-          if (echocodigo == 1) logger(paste("correlacion <- ", instruccion4, sep=""))
-          assign("correlacion", justDoIt(instruccion4), envir=.GlobalEnv)
+          if (echocodigo == 1) logger(instruccion4)
+          justDoIt(instruccion4)
           doItAndPrint(paste("correlacion # Correlacion de Kendall entre ",
                              var1," y ",var2,sep=""))
           if (echocodigo == 1) logger("remove(correlacion)")
@@ -4506,9 +4464,9 @@ bivariante.numericas <- function(){
           }
           if (determval == 1)
           {
-            instruccion3 <- "correlacion^2"
-            assign("R2kendall", justDoIt(instruccion3), envir=.GlobalEnv)
-            if (echocodigo == 1) logger(paste("R2kendall <- ", instruccion3, sep=""))
+            instruccion3 <- "R2kendall <- correlacion^2"
+            justDoIt(instruccion3)
+            if (echocodigo == 1) logger(instruccion3)
             doItAndPrint(paste("R2kendall # Coef. determinacion (Kendall) entre ",
             var1," y ",var2,sep=""))
             if (creahtml == 1)
@@ -4564,7 +4522,6 @@ bivariante.numericas <- function(){
     }
 
 dispersion.numericas <- function(){
-    .chequeando.paquetes()
     initializeDialog(title=gettextRcmdr("Diagrama de dispersion para variables cuantitativas"))
     opcionesFrame <- tkframe(top)
     variablesFrame <- tkframe(top)
@@ -4604,22 +4561,22 @@ dispersion.numericas <- function(){
         subconjunto <- if (trim.blanks(subconjunto) == gettextRcmdr("<all valid cases>")) ""
             else paste(", subset=", subconjunto, sep="")
         .BaseDatosActiva <- paste("subset(",ActiveDataSet(),subconjunto,")",sep="")
-        instruccion <- "par(no.readonly = TRUE)"
-        assign("def.par", justDoIt(instruccion), envir=.GlobalEnv)
-        instruccion2 <- paste("hist(",.BaseDatosActiva,"$",var1,",plot=FALSE)",sep="")
-        assign("xhist", justDoIt(instruccion2), envir=.GlobalEnv)
-        instruccion3 <- paste("hist(",.BaseDatosActiva,"$",var2,",plot=FALSE)",sep="")
-        assign("yhist", justDoIt(instruccion3), envir=.GlobalEnv)
-        instruccion4 <- "max(c(xhist$counts,yhist$counts))"
-        assign("sup", justDoIt(instruccion4), envir=.GlobalEnv)      
-        instruccion5 <- paste("c(min(",.BaseDatosActiva,"$",var1,",na.rm=TRUE),
+        instruccion <- "def.par <- par(no.readonly = TRUE)"
+        justDoIt(instruccion)
+        instruccion2 <- paste("xhist <- hist(",.BaseDatosActiva,"$",var1,",plot=FALSE)",sep="")
+        justDoIt(instruccion2)
+        instruccion3 <- paste("yhist <- hist(",.BaseDatosActiva,"$",var2,",plot=FALSE)",sep="")
+        justDoIt(instruccion3)
+        instruccion4 <- "sup <- max(c(xhist$counts,yhist$counts))"
+        justDoIt(instruccion4)      
+        instruccion5 <- paste("rangox <- c(min(",.BaseDatosActiva,"$",var1,",na.rm=TRUE),
         max(",.BaseDatosActiva,"$",var1,",na.rm=TRUE))",sep="")
-        assign("rangox", justDoIt(instruccion5), envir=.GlobalEnv)
-        instruccion6 <- paste("c(min(",.BaseDatosActiva,"$",var2,",na.rm=TRUE),
+        justDoIt(instruccion5)
+        instruccion6 <- paste("rangoy <- c(min(",.BaseDatosActiva,"$",var2,",na.rm=TRUE),
         max(",.BaseDatosActiva,"$",var2,",na.rm=TRUE))",sep="")
-        assign("rangoy", justDoIt(instruccion6), envir=.GlobalEnv)
-        instruccion7 <- "layout(matrix(c(2,0,1,3),2,2,byrow=TRUE), c(3,1), c(1,3), TRUE)"
-        assign("nf", justDoIt(instruccion7), envir=.GlobalEnv)
+        justDoIt(instruccion6)
+        instruccion7 <- "nf <- layout(matrix(c(2,0,1,3),2,2,byrow=TRUE), c(3,1), c(1,3), TRUE)"
+        justDoIt(instruccion7)
         instruccion8 <- "par(mar=c(5,4,3,3))" 
         instruccion9 <-paste("plot(",.BaseDatosActiva,"$",var1,",",.BaseDatosActiva,
         "$",var2,",xlim=rangox,ylim=rangoy,xlab='",var1,"',ylab='",var2,"')",sep="") 
@@ -4633,12 +4590,12 @@ dispersion.numericas <- function(){
         instruccion16 <- "par(def.par)"
         if (echocodigo == 1)
         {
-          logger(paste("def.par <-", instruccion))
-          logger(paste("xhist <-", instruccion2))
-          logger(paste("yhist <-", instruccion3))
-          logger(paste("sup <-", instruccion4))
-          logger(paste("rangox <-", instruccion5))
-          logger(paste("rangoy <-", instruccion6))
+          logger(instruccion)
+          logger(instruccion2)
+          logger(instruccion3)
+          logger(instruccion4)
+          logger(instruccion5)
+          logger(instruccion6)
           doItAndPrint(instruccion7)
           doItAndPrint(instruccion8)
           doItAndPrint(instruccion9)
@@ -4751,7 +4708,6 @@ print.yuen <- function (x,digits = max(4,getOption("digits") - 4),...)
 }
 
 yuenWelch.tTest <- function(){
-    .chequeando.paquetes()
     initializeDialog(title=gettextRcmdr("Prueba t de Yuen-Welch"))
     opcionesFrame <- tkframe(top)
     variablesFrame <- tkframe(top)
@@ -4808,14 +4764,14 @@ yuenWelch.tTest <- function(){
         }
         nivel <- tclvalue(nivelconf)
         closeDialog()
-        instruccion1 <- paste(ActiveDataSet(),"$",varresp,"[",ActiveDataSet(),"$",grupo,
+        instruccion1 <- paste("x <-", ActiveDataSet(),"$",varresp,"[",ActiveDataSet(),"$",grupo,
                         "==levels(",ActiveDataSet(),"$",grupo,")[1]]",sep="")
-        assign("x", justDoIt(instruccion1), envir=.GlobalEnv)
-        instruccion2 <- paste(ActiveDataSet(),"$",varresp,"[",ActiveDataSet(),"$",grupo,
+        justDoIt(instruccion1)
+        instruccion2 <- paste("y <- ", ActiveDataSet(),"$",varresp,"[",ActiveDataSet(),"$",grupo,
                         "==levels(",ActiveDataSet(),"$",grupo,")[2]]",sep="")
-        assign("y", justDoIt(instruccion2), envir=.GlobalEnv)
-        instruccion3 <- paste("yuen.test(x,y,tr=",rec,",alpha=1-",ic,")",sep="")
-        assign("ywttest", justDoIt(instruccion3), envir=.GlobalEnv)   
+        justDoIt(instruccion2)
+        instruccion3 <- paste("ywttest <- yuen.test(x,y,tr=",rec,",alpha=1-",ic,")",sep="")
+        justDoIt(instruccion3)   
         if (echocodigo == 1)
         {
           logger(paste("x <-", instruccion1))
@@ -4870,7 +4826,6 @@ yuenWelch.tTest <- function(){
 # Funcion adaptada de twoSampleWilcoxonTest de J. Fox #
 
 U.Mann.Whitney <- function(){
-    .chequeando.paquetes()
     initializeDialog(title=gettextRcmdr("Prueba U de Mann-Whitney"))
     opcionesFrame <- tkframe(top,width=90)
     variablesFrame <- tkframe(top,width=60)
@@ -4925,45 +4880,45 @@ U.Mann.Whitney <- function(){
         prueba <- as.character(tclvalue(pruebaVariable))
         closeDialog()
         .baseDatosActiva <- ActiveDataSet()
-        instruccion <- paste("tapply(",.baseDatosActiva,"$", varresp,",",.baseDatosActiva,"$",grupo,
+        instruccion <- paste("meds <- tapply(",.baseDatosActiva,"$", varresp,",",.baseDatosActiva,"$",grupo,
         ", median, na.rm=TRUE)", sep="")
-        assign("meds", justDoIt(instruccion), envir=.GlobalEnv)        
-        if (echocodigo==1) logger(paste("meds <-", instruccion))
+        justDoIt(instruccion)        
+        if (echocodigo==1) logger(instruccion)
         doItAndPrint(paste("meds # Medianas para ", varresp," segun ",grupo,sep=""))        
-        instruccion2 <- paste("with(",.baseDatosActiva,",",varresp,"[as.numeric(factor(",grupo,"))==1])",sep="")
-        assign("g1",justDoIt(instruccion2), envir=.GlobalEnv)
-        if (echocodigo==1) logger(paste("g1 <-", instruccion2))
-        instruccion3 <- paste("with(",.baseDatosActiva,",",varresp,"[as.numeric(factor(",grupo,"))==2])",sep="")
-        assign("g2",justDoIt(instruccion3), envir=.GlobalEnv)
-        if (echocodigo==1) logger(paste("g2 <-", instruccion3))
-        instruccion4 <- "rank(c(na.omit(g1),na.omit(g2)))"
-        assign("rangos", justDoIt(instruccion4), envir=.GlobalEnv)
-        if (echocodigo==1) logger(paste("rangos <-", instruccion4))
-        instruccion5 <- "sum(rangos[1:length(g1)])"
-        assign("R1", justDoIt(instruccion5), envir=.GlobalEnv)
-        if (echocodigo==1) logger(paste("R1 <-", instruccion5))
-        instruccion6 <- "sum(rangos[(length(na.omit(g1))+1):length(rangos)])"
-        assign("R2", justDoIt(instruccion6), envir=.GlobalEnv)
-        if (echocodigo==1) logger(paste("R2 <-", instruccion6))
-        instruccion7 <-paste("matrix(round(c(R1/length(na.omit(g1)),R1,R2/length(na.omit(g2)),R2),2),nrow=2,byrow=T,
+        instruccion2 <- paste("g1 <- with(",.baseDatosActiva,",",varresp,"[as.numeric(factor(",grupo,"))==1])",sep="")
+        justDoIt(instruccion2)
+        if (echocodigo==1) logger(instruccion2)
+        instruccion3 <- paste("g2 <- with(",.baseDatosActiva,",",varresp,"[as.numeric(factor(",grupo,"))==2])",sep="")
+        justDoIt(instruccion3)
+        if (echocodigo==1) logger(instruccion3)
+        instruccion4 <- "rangos <- rank(c(na.omit(g1),na.omit(g2)))"
+        justDoIt(instruccion4)
+        if (echocodigo==1) logger(instruccion4)
+        instruccion5 <- "R1 <- sum(rangos[1:length(g1)])"
+        justDoIt(instruccion5)
+        if (echocodigo==1) logger(instruccion5)
+        instruccion6 <- "R2 <- sum(rangos[(length(na.omit(g1))+1):length(rangos)])"
+        justDoIt(instruccion6)
+        if (echocodigo==1) logger(instruccion6)
+        instruccion7 <-paste("Rangos <- matrix(round(c(R1/length(na.omit(g1)),R1,R2/length(na.omit(g2)),R2),2),nrow=2,byrow=T,
         dimnames=list(levels(",.baseDatosActiva,"$",grupo,"),c('Rango promedio','Suma Rangos')))",sep="")
-        assign("Rangos",justDoIt(instruccion7),envir=.GlobalEnv)
-        if (echocodigo==1) logger(paste("Rangos <-", instruccion7))        
+        justDoIt(instruccion7)
+        if (echocodigo==1) logger(instruccion7)        
         doItAndPrint(paste("Rangos # Resumen descriptivo para ", varresp," segun ",grupo,sep=""))
         if (prueba == "default"){
-            instruccion8 <- paste("wilcox.test(", varresp, " ~ ", grupo, ', alternative="', 
+            instruccion8 <- paste("UMW <- wilcox.test(", varresp, " ~ ", grupo, ', alternative="', 
             alternativa, '",conf.int=TRUE,conf.level=',ic,",data=", .baseDatosActiva, ")", sep="")
-        assign("UMW", justDoIt(instruccion8), envir=.GlobalEnv)        
-        if (echocodigo==1) logger(paste("UMW <-", instruccion2))
+        justDoIt(instruccion8)        
+        if (echocodigo==1) logger(instruccion2)
         doItAndPrint(paste("UMW # Prueba U de Mann-Whitney para ", varresp," segun ",grupo,sep=""))
             }
         else {
-          instruccion8 <- paste("wilcox.test(", varresp, " ~ ", grupo, ", alternative='", 
+          instruccion8 <- paste("UMW <- wilcox.test(", varresp, " ~ ", grupo, ", alternative='", 
             alternativa, "', exact=", prueba=="exact", 
             ", correct=", prueba=="correct",", conf.int=TRUE, conf.level=",ic,", data=",
             .baseDatosActiva, ")", sep="")
-        assign("UMW", justDoIt(instruccion8), envir=.GlobalEnv)        
-        if (echocodigo==1) logger(paste("UMW <-", instruccion3))
+        justDoIt(instruccion8)        
+        if (echocodigo==1) logger(instruccion3)
         doItAndPrint(paste("UMW # Prueba U de Mann-Whitney para ", varresp," segun ",grupo,sep=""))
         }
         if (creahtml == 1)
@@ -5016,7 +4971,6 @@ U.Mann.Whitney <- function(){
     }
 
 pruebaT.Wilcoxon <- function(){
-    .chequeando.paquetes()
     initializeDialog(title=gettextRcmdr("Prueba T de Wilcoxon"))
     opcionesFrame <- tkframe(top,width=90)
     variablesFrame <- tkframe(top,width=60)
@@ -5071,64 +5025,64 @@ pruebaT.Wilcoxon <- function(){
         }
         closeDialog()
         .baseDatosActiva <- ActiveDataSet()
-        instruccion <- paste("median(", .baseDatosActiva, "$", var1, " - ", .baseDatosActiva, "$", var2, 
+        instruccion <- paste("meddif <- median(", .baseDatosActiva, "$", var1, " - ", .baseDatosActiva, "$", var2, 
             ", na.rm=TRUE)", sep="")
-        assign("meddif", justDoIt(instruccion), envir=.GlobalEnv)        
-        if (echocodigo==1) logger(paste("meddif <-", instruccion))
+        justDoIt(instruccion)        
+        if (echocodigo==1) logger(instruccion)
         doItAndPrint(paste("meddif # Diferencia de medianas entre ", var1," y ",var2,sep=""))
-        instruccion2 <- paste(.baseDatosActiva,"$",var1,sep="")
-        assign("m1",justDoIt(instruccion2), envir=.GlobalEnv)
-        if (echocodigo==1) logger(paste("m1 <-", instruccion2))
-        instruccion3 <- paste(.baseDatosActiva,"$",var2,sep="")
-        assign("m2",justDoIt(instruccion3), envir=.GlobalEnv)
-        if (echocodigo==1) logger(paste("m2 <-", instruccion3))
-        instruccion4 <- "na.omit((m1-m2)[(m1-m2)!=0])"
-        assign("difs", justDoIt(instruccion4), envir=.GlobalEnv)
-        if (echocodigo==1) logger(paste("difs <-", instruccion4))
-        instruccion5 <- "sum(rank(abs(difs))[difs>0])"
-        instruccion6 <- "sum(difs>0)"
-        assign("Rpos", justDoIt(instruccion5), envir=.GlobalEnv)
-        assign("difpos", justDoIt(instruccion6), envir=.GlobalEnv)        
-        if (echocodigo==1) logger(paste("Rpos <-", instruccion5))
-        if (echocodigo==1) logger(paste("difpos <-", instruccion6))        
-        instruccion7 <- "sum(rank(abs(difs))[difs<0])"
-        instruccion8 <- "sum(difs<0)"
-        assign("Rneg", justDoIt(instruccion7), envir=.GlobalEnv)
-        assign("difneg", justDoIt(instruccion8), envir=.GlobalEnv) 
-        if (echocodigo==1) logger(paste("Rneg <-", instruccion7))
-        if (echocodigo==1) logger(paste("difneg <-", instruccion8))
-        instruccion9 <- "sum(difs==0)"
-        assign("empates", justDoIt(instruccion9), envir=.GlobalEnv) 
-        if (echocodigo==1) logger(paste("empates <-", instruccion9))
-        instruccion10 <-"matrix(round(c(difpos,if (difpos !=0) Rpos/difpos else 0,
+        instruccion2 <- paste("m1 <- ",.baseDatosActiva,"$",var1,sep="")
+        justDoIt(instruccion2)
+        if (echocodigo==1) logger(instruccion2)
+        instruccion3 <- paste("m2 <- ",.baseDatosActiva,"$",var2,sep="")
+        justDoIt(instruccion3)
+        if (echocodigo==1) logger(instruccion3)
+        instruccion4 <- "difs <- na.omit((m1-m2)[(m1-m2)!=0])"
+        justDoIt(instruccion4)
+        if (echocodigo==1) logger(instruccion4)
+        instruccion5 <- "Rpos <- sum(rank(abs(difs))[difs>0])"
+        instruccion6 <- "difpos <- sum(difs>0)"
+        justDoIt(instruccion5)
+        justDoIt(instruccion6)        
+        if (echocodigo==1) logger(instruccion5)
+        if (echocodigo==1) logger(instruccion6)        
+        instruccion7 <- "Rneg <- sum(rank(abs(difs))[difs<0])"
+        instruccion8 <- "difneg <- sum(difs<0)"
+        justDoIt(instruccion7)
+        justDoIt(instruccion8) 
+        if (echocodigo==1) logger(instruccion7)
+        if (echocodigo==1) logger(instruccion8)
+        instruccion9 <- "empates <- sum((m1-m2)==0)"
+        justDoIt(instruccion9) 
+        if (echocodigo==1) logger(instruccion9)
+        instruccion10 <-"Rangos <- matrix(round(c(difpos,if (difpos !=0) Rpos/difpos else 0,
         Rpos,difneg,if (difneg !=0) Rneg/difneg else 0,Rneg,empates,0,0),2),nrow=3,byrow=T,
         dimnames=list(c('Rangos positivos','Rangos negativos','Empates'),c('Frecuencia','Rango promedio','Suma Rangos')))"
-        assign("Rangos",justDoIt(instruccion10),envir=.GlobalEnv)
-        if (echocodigo==1) logger(paste("Rangos <-", instruccion10))        
+        justDoIt(instruccion10)
+        if (echocodigo==1) logger(instruccion10)        
         doItAndPrint(paste("Rangos # Resumen descriptivo para ", var1," - ",var2,sep=""))
         if (prueba == "default"){
-             instruccion11 <- paste("wilcox.test(", .baseDatosActiva, "$", var1, ", ", 
+             instruccion11 <- paste("TWilcoxon <- wilcox.test(", .baseDatosActiva, "$", var1, ", ", 
                 .baseDatosActiva, "$", var2,", alternative='", alternativa,
                 "',conf.int=TRUE, conf.level=",ic,", paired=TRUE)", sep="")
-        assign("TWilcoxon", justDoIt(instruccion11), envir=.GlobalEnv)        
-        if (echocodigo==1) logger(paste("TWilcoxon <-", instruccion11))
+        justDoIt(instruccion11)        
+        if (echocodigo==1) logger(instruccion11)
         doItAndPrint(paste("TWilcoxon # Prueba T de Wilcoxon para ", var1," y ", var2,sep=""))
             }
         else if (prueba == "exact"){
-            instruccion11 <- paste("wilcox.test(", .baseDatosActiva, "$", var1, ", ", 
+            instruccion11 <- paste("TWilcoxon <- wilcox.test(", .baseDatosActiva, "$", var1, ", ", 
             .baseDatosActiva, "$", var2,", alternative='", alternativa,
             "',conf.int=TRUE, conf.level=",ic,", exact=TRUE,paired=TRUE)", sep="")
-        assign("TWilcoxon", justDoIt(instruccion11), envir=.GlobalEnv)        
-        if (echocodigo==1) logger(paste("TWilcoxon <-", instruccion11))
+        justDoIt(instruccion11)        
+        if (echocodigo==1) logger(instruccion11)
         doItAndPrint(paste("TWilcoxon # Prueba T de Wilcoxon para ", var1," y ", var2,sep=""))
         }
         else {
-            instruccion11 <- paste("wilcox.test(", .baseDatosActiva, "$", var1, ", ", 
+            instruccion11 <- paste("TWilcoxon <- wilcox.test(", .baseDatosActiva, "$", var1, ", ", 
             .baseDatosActiva, "$", var2,", alternative='", alternativa, 
             "', correct=", prueba=="correct",",conf.int=TRUE, conf.level=",ic,
             ", exact=FALSE, paired=TRUE)", sep="")
-        assign("TWilcoxon", justDoIt(instruccion11), envir=.GlobalEnv)        
-        if (echocodigo==1) logger(paste("TWilcoxon <-", instruccion11))
+        justDoIt(instruccion11)        
+        if (echocodigo==1) logger(instruccion11)
         doItAndPrint(paste("TWilcoxon # Prueba T de Wilcoxon para ", var1," y ", var2,sep=""))
         }
         if (creahtml == 1)
@@ -5180,7 +5134,6 @@ pruebaT.Wilcoxon <- function(){
 }
 
 prueba.conformidad.forma <- function(){
-    .chequeando.paquetes()
     initializeDialog(title=gettextRcmdr("Prueba conformidad parametro de forma"))
     opcionesFrame <- tkframe(top,width=90)
     variablesFrame <- tkframe(top,width=60)
@@ -5211,23 +5164,23 @@ prueba.conformidad.forma <- function(){
         }
         closeDialog()
         .baseDatosActiva <- ActiveDataSet()
-        instruccion <- paste("length(na.omit(",.baseDatosActiva,"$",var,"))",sep="")
-        assign("n", justDoIt(instruccion), envir=.GlobalEnv)
-        if (echocodigo==1) logger(paste("n <-", instruccion))
-        instruccion2 <- paste("(n*sum((",.baseDatosActiva,"$",var,"-mean(",.baseDatosActiva,"$",var,
+        instruccion <- paste("n <- length(na.omit(",.baseDatosActiva,"$",var,"))",sep="")
+        justDoIt(instruccion)
+        if (echocodigo==1) logger(instruccion)
+        instruccion2 <- paste("sesgo <- (n*sum((",.baseDatosActiva,"$",var,"-mean(",.baseDatosActiva,"$",var,
         ",na.rm=TRUE))^3,na.rm=TRUE))/((n-1)*(n-2))/(sd(",.baseDatosActiva,"$",var,",na.rm=TRUE)^3)",sep="")
-        assign("sesgo", justDoIt(instruccion2), envir=.GlobalEnv)
-        if (echocodigo==1) logger(paste("sesgo <-", instruccion2))
-        instruccion3 <- "sqrt((6*n*(n-1))/((n-2)*(n+1)*(n+3)))"
-        assign("error.simetria", justDoIt(instruccion3), envir=.GlobalEnv)
-        if (echocodigo==1) logger(paste("error.simetria <-", instruccion3))
-        instruccion4 <- "sesgo/error.simetria"
-        assign("sim.estandar", justDoIt(instruccion4), envir= .GlobalEnv)
-        if (echocodigo==1) logger(paste("sim.estandar <-", instruccion4))
-        if (sign(sim.estandar) > 0) instruccion5 <- "2*pnorm(sim.estandar,lower.tail=FALSE)"
-        else instruccion5 <- "2*pnorm(sim.estandar)"
-        assign("valor.p", justDoIt(instruccion5), envir=.GlobalEnv)
-        if (echocodigo==1) logger(paste("valor.p <-", instruccion5))
+        justDoIt(instruccion2)
+        if (echocodigo==1) logger(instruccion2)
+        instruccion3 <- "error.simetria <- sqrt((6*n*(n-1))/((n-2)*(n+1)*(n+3)))"
+        justDoIt(instruccion3)
+        if (echocodigo==1) logger(instruccion3)
+        instruccion4 <- "sim.estandar <- sesgo/error.simetria"
+        justDoIt(instruccion4)
+        if (echocodigo==1) logger(instruccion4)
+        if (sign(sim.estandar) > 0) instruccion5 <- "valor.p <- 2*pnorm(sim.estandar,lower.tail=FALSE)"
+        else instruccion5 <- "valor.p <- 2*pnorm(sim.estandar)"
+        justDoIt(instruccion5)
+        if (echocodigo==1) logger(instruccion5)
         doItAndPrint(paste("sesgo # Coeficiente de simetria para ", var,sep=""))
         doItAndPrint(paste("error.simetria # Error tipico del coeficiente de simetria para ", var,sep=""))
         doItAndPrint(paste("sim.estandar # Coeficiente de simetria estandarizado para ", var,sep=""))
@@ -5266,7 +5219,6 @@ prueba.conformidad.forma <- function(){
 }
 
 prueba.conformidad.apuntamiento <- function(){
-    .chequeando.paquetes()
     initializeDialog(title=gettextRcmdr("Prueba conformidad parametro de apuntamiento"))
     opcionesFrame <- tkframe(top,width=90)
     variablesFrame <- tkframe(top,width=60)
@@ -5297,24 +5249,24 @@ prueba.conformidad.apuntamiento <- function(){
         }
         closeDialog()
         .baseDatosActiva <- ActiveDataSet()
-        instruccion <- paste("length(na.omit(",.baseDatosActiva,"$",var,"))",sep="")
-        assign("n", justDoIt(instruccion), envir=.GlobalEnv)
-        if (echocodigo==1) logger(paste("n <-", instruccion))
-        instruccion2 <- paste("(n*(n+1)*sum((",.baseDatosActiva,"$",var,"-mean(",.baseDatosActiva,"$",var,
+        instruccion <- paste("n <- length(na.omit(",.baseDatosActiva,"$",var,"))",sep="")
+        justDoIt(instruccion)
+        if (echocodigo==1) logger(instruccion)
+        instruccion2 <- paste("curtosis <-c(n*(n+1)*sum((",.baseDatosActiva,"$",var,"-mean(",.baseDatosActiva,"$",var,
         ",na.rm=TRUE))^4,na.rm=TRUE)/((n-1)*(n-2)*(n-3))-3*sum((",.baseDatosActiva,"$",var,"-mean(",.baseDatosActiva,"$",var,
         ",na.rm=TRUE))^2,na.rm=TRUE)^2/((n-2)*(n-3)))/(sd(",.baseDatosActiva,"$",var,",na.rm=TRUE)^4)",sep="")
-        assign("curtosis", justDoIt(instruccion2), envir=.GlobalEnv)
-        if (echocodigo==1) logger(paste("curtosis <-", instruccion2))
-        instruccion3 <- "sqrt((24*n*(n-1)^2)/((n-3)*(n-2)*(n+3)*(n+5)))"
-        assign("error.curtosis", justDoIt(instruccion3), envir=.GlobalEnv)
-        if (echocodigo==1) logger(paste("error.curtosis <-", instruccion3))
-        instruccion4 <- "curtosis/error.curtosis"
-        assign("curtosis.estandar", justDoIt(instruccion4), envir= .GlobalEnv)
-        if (echocodigo==1) logger(paste("curtosis.estandar <-", instruccion4))
-        if (sign(curtosis.estandar) > 0) instruccion5 <- "2*pnorm(curtosis.estandar,lower.tail=FALSE)"
-        else instruccion5 <- "2*pnorm(curtosis.estandar)"
-        assign("valor.p", justDoIt(instruccion5), envir=.GlobalEnv)
-        if (echocodigo==1) logger(paste("valor.p <-", instruccion5))
+        justDoIt(instruccion2)
+        if (echocodigo==1) logger(instruccion2)
+        instruccion3 <- "error.curtosis <- sqrt((24*n*(n-1)^2)/((n-3)*(n-2)*(n+3)*(n+5)))"
+        justDoIt(instruccion3)
+        if (echocodigo==1) logger(instruccion3)
+        instruccion4 <- "curtosis.estandar <- curtosis/error.curtosis"
+        justDoIt(instruccion4)
+        if (echocodigo==1) logger(instruccion4)
+        if (sign(curtosis.estandar) > 0) instruccion5 <- "valor.p <- 2*pnorm(curtosis.estandar,lower.tail=FALSE)"
+        else instruccion5 <- "valor.p <- 2*pnorm(curtosis.estandar)"
+        justDoIt(instruccion5)
+        if (echocodigo==1) logger(instruccion5)
         doItAndPrint(paste("curtosis # Coeficiente de apuntamiento para ", var,sep=""))
         doItAndPrint(paste("error.curtosis # Error tipico del coeficiente de apuntamiento para ", var,sep=""))
         doItAndPrint(paste("curtosis.estandar # Coeficiente de apuntamiento estandarizado para ", var,sep=""))
@@ -5398,7 +5350,6 @@ print.tmuestra <- function (x,digits = max(4,getOption("digits") - 4),...)
 }
 
 determ.tam.proporcion <- function(){
-    .chequeando.paquetes()
     initializeDialog(title=gettextRcmdr("Determinacion tamano muestra: proporciones"))
     opcionesFrame <- tkframe(top,width=90)
     propFrame <- tkframe(top)
@@ -5465,10 +5416,10 @@ determ.tam.proporcion <- function(){
         instruccion <- paste("tam.muestra(conf=",confianza,",e=",precision,",est='proporcion'",
         ",inf=FALSE,N=",N,",pi=",proporcion,")",sep="")        
         else
-        instruccion <- paste("tam.muestra(conf=",confianza,",e=",precision,",est='proporcion'",
+        instruccion <- paste("dtm <- tam.muestra(conf=",confianza,",e=",precision,",est='proporcion'",
         ",inf=TRUE,N=NULL,pi=",proporcion,")",sep="")                
-        assign ("dtm",justDoIt(instruccion),envir=.GlobalEnv)
-        if (echocodigo==1) logger(paste("dtm <-", instruccion))
+        justDoIt(instruccion)
+        if (echocodigo==1) logger(instruccion)
         doItAndPrint("dtm # Determinacion tamano de la muestra: proporcion ")        
         if (creahtml == 1)
         {
@@ -5511,7 +5462,6 @@ determ.tam.proporcion <- function(){
 }
 
 determ.tam.media <- function(){
-    .chequeando.paquetes()
     initializeDialog(title=gettextRcmdr("Determinacion tamano muestra: medias"))
     opcionesFrame <- tkframe(top,width=90)
     sigmaFrame <- tkframe(top)
@@ -5575,13 +5525,13 @@ determ.tam.media <- function(){
         }
         closeDialog()
         if (is.numeric(N))
-        instruccion <- paste("tam.muestra(conf=",confianza,",e=",precision,",est='media'",
+        instruccion <- paste("dtm <- tam.muestra(conf=",confianza,",e=",precision,",est='media'",
         ",inf=FALSE,N=",N,",sigma=",sigma,")",sep="")        
         else
-        instruccion <- paste("tam.muestra(conf=",confianza,",e=",precision,",est='media'",
+        instruccion <- paste("dtm <- tam.muestra(conf=",confianza,",e=",precision,",est='media'",
         ",inf=TRUE,N=NULL,sigma=",sigma,")",sep="")                
-        assign ("dtm",justDoIt(instruccion),envir=.GlobalEnv)
-        if (echocodigo==1) logger(paste("dtm <-", instruccion))
+        justDoIt(instruccion)
+        if (echocodigo==1) logger(instruccion)
         doItAndPrint("dtm # Determinacion tamano de la muestra: media ")        
         if (creahtml == 1)
         {
@@ -5624,7 +5574,6 @@ determ.tam.media <- function(){
 }
 
 pruebas.normalidad <- function(){
-    .chequeando.paquetes()
     require(nortest)
     initializeDialog(title=gettextRcmdr("Pruebas de Ajuste Distribucion Normal"))
     opcionesFrame <- tkframe(top,width=90)
@@ -5687,14 +5636,14 @@ pruebas.normalidad <- function(){
           if (pearsonval == 1)
           { 
             if (.groups != FALSE)
-            instruccion <- paste("by(",.baseDatosActiva,"$",var,",",grupos,",pearson.test)",sep="")
+            instruccion <- paste(".prueba.pearson <- by(",.baseDatosActiva,"$",var,",",grupos,",pearson.test)",sep="")
             else
-              instruccion <- paste("pearson.test(",.baseDatosActiva,"$",var,")",sep="")
+              instruccion <- paste(".prueba.pearson <- pearson.test(",.baseDatosActiva,"$",var,")",sep="")
             if (echocodigo == 1)
             {
-              logger(paste(".prueba.pearson <-", instruccion))
+              logger(instruccion)
             }       
-            assign(".prueba.pearson", justDoIt(instruccion), envir=.GlobalEnv)
+            justDoIt(instruccion)
             if (.groups != FALSE){                   
                 for (i in 1:dim(.prueba.pearson))
                  .prueba.pearson[[i]]$data.name <- paste(.baseDatosActiva,"$",var,sep="")
@@ -5729,18 +5678,18 @@ pruebas.normalidad <- function(){
           if (ksval == 1)
           { 
             if (.groups == FALSE)
-            instruccion <-paste("ks.test(",.baseDatosActiva,"$",var,",'pnorm',mean(",
+            instruccion <-paste(".prueba.KS <- ks.test(",.baseDatosActiva,"$",var,",'pnorm',mean(",
             .baseDatosActiva,"$",var,"),sd(",.baseDatosActiva,"$",var,"))",sep="")
             else
-              instruccion <- paste("by(",.baseDatosActiva,"$",var,","
+              instruccion <- paste(".prueba.KS <- by(",.baseDatosActiva,"$",var,","
               ,grupos,",function(x)ks.test(x,'pnorm',mean(x),sd(x)))"
               ,sep="")
             if (echocodigo == 1)
             {
-              logger(paste(".prueba.KS <-", instruccion))
+              logger(instruccion)
             }    
             opts <- options(warn=-1)
-            assign(".prueba.KS", justDoIt(instruccion), envir=.GlobalEnv)
+            justDoIt(instruccion)
             if (.groups != FALSE){                   
                 for (i in 1:dim(.prueba.KS))
                  .prueba.KS[[i]]$data.name <- paste(.baseDatosActiva,"$",var,sep="")
@@ -5775,14 +5724,14 @@ pruebas.normalidad <- function(){
           if (adval == 1)
           { 
             if (.groups != FALSE)
-            instruccion <- paste("by(",.baseDatosActiva,"$",var,",",grupos,",ad.test)",sep="")
+            instruccion <- paste(".prueba.AD <- by(",.baseDatosActiva,"$",var,",",grupos,",ad.test)",sep="")
             else
-              instruccion <- paste("ad.test(",.baseDatosActiva,"$",var,")",sep="")
+              instruccion <- paste(".prueba.AD <- ad.test(",.baseDatosActiva,"$",var,")",sep="")
             if (echocodigo == 1)
             {
-              logger(paste(".prueba.AD <-", instruccion))
+              logger(instruccion)
             }       
-            assign(".prueba.AD", justDoIt(instruccion), envir=.GlobalEnv)
+            justDoIt(instruccion)
             if (.groups != FALSE){                   
                 for (i in 1:dim(.prueba.AD))
                  .prueba.AD[[i]]$data.name <- paste(.baseDatosActiva,"$",var,sep="")
@@ -5817,14 +5766,14 @@ pruebas.normalidad <- function(){
           if (shapiroval == 1)
           { 
             if (.groups != FALSE)
-            instruccion <- paste("by(",.baseDatosActiva,"$",var,",",grupos,",shapiro.test)",sep="")
+            instruccion <- paste(".prueba.shapiro <- by(",.baseDatosActiva,"$",var,",",grupos,",shapiro.test)",sep="")
             else
-              instruccion <- paste("shapiro.test(",.baseDatosActiva,"$",var,")",sep="")
+              instruccion <- paste(".prueba.shapiro <- shapiro.test(",.baseDatosActiva,"$",var,")",sep="")
             if (echocodigo == 1)
             {
-              logger(paste(".prueba.shapiro <-", instruccion))
+              logger(instruccion)
             }       
-            assign(".prueba.shapiro", justDoIt(instruccion), envir=.GlobalEnv)
+            justDoIt(instruccion)
             if (.groups != FALSE){                   
                 for (i in 1:dim(.prueba.shapiro))
                  .prueba.shapiro[[i]]$data.name <- paste(.baseDatosActiva,"$",var,sep="")
@@ -5867,9 +5816,9 @@ pruebas.normalidad <- function(){
             instruccion2 <- paste("plot(density(",.baseDatosActiva,"$",var,"),
             main='",paste('Densidad suavizada para ',var,sep=""),"',ylab='Densidades')",sep="")
             instruccion3 <-"box()"
-            assign('x',justDoIt(paste(.baseDatosActiva,"$",var,sep="")),envir=.GlobalEnv)
-            instruccion4 <- paste("hist(",.baseDatosActiva,"$",var,",freq=TRUE)",sep="")
-            assign('h',justDoIt(instruccion4),envir=.GlobalEnv)
+            justDoIt(paste("x <- ",.baseDatosActiva,"$",var,sep=""))
+            instruccion4 <- paste("h <- hist(",.baseDatosActiva,"$",var,",freq=TRUE)",sep="")
+            justDoIt(instruccion4)
             instruccion5 <-paste("plot(h,col='red', xlab='Intervalos', ylab='Frecuencias',main='",
             paste('Histograma para ',var,sep=""),"')",sep="")
             instruccion6 <- "xfit<-seq(min(x),max(x),length=1000)"
@@ -5877,8 +5826,8 @@ pruebas.normalidad <- function(){
             instruccion8 <- "yfit<-yfit*diff(h$mids[1:2])*length(x)"
             instruccion9 <- "lines(xfit, yfit, col='blue', lwd=2)"
             instruccion10 <-"box()"
-            instruccion11 <- "as.numeric(scale(x))"
-            assign('z',justDoIt(instruccion11),envir=.GlobalEnv)
+            instruccion11 <- "z <- as.numeric(scale(x))"
+            justDoIt(instruccion11)
             instruccion12 <- paste("qqnorm(z,xlab='Cuantilas teoricas',ylab='Cuantilas empiricas',
             main='",paste('Grafico QQ para ',var,sep=""),"')",sep="")
             instruccion13 <- "abline(0,1)"
@@ -5894,14 +5843,14 @@ pruebas.normalidad <- function(){
             doItAndPrint(instruccion2)
             doItAndPrint(instruccion3)
             logger(paste("x <-", paste(.baseDatosActiva,"$",var,sep="")))
-            logger(paste("h <-", instruccion4))  
+            logger(instruccion4) 
             doItAndPrint(instruccion5)          
             doItAndPrint(instruccion6)
             doItAndPrint(instruccion7)
             doItAndPrint(instruccion8)
             doItAndPrint(instruccion9)
             doItAndPrint(instruccion10)         
-            logger(paste("z <-", instruccion11))
+            logger(instruccion11)
             doItAndPrint(instruccion12)
             doItAndPrint(instruccion13)
             doItAndPrint(instruccion14)
@@ -5978,201 +5927,207 @@ pruebas.normalidad <- function(){
 }
 
 avar.MR<- function(){
-    .chequeando.paquetes()
-    require(ez)
-    initializeDialog(title=gettextRcmdr("ANOVA Medidas Repetidas"))
-    opcionesFrame <- tkframe(top,width=90)
-    variablesFrame <- tkframe(top,width=60)
-    SCuadradosFrame <- tkframe(top,width=60)
-    pruebasFrame <- tkframe(top,width=60)
-    variableVar <- variableListBox(variablesFrame, Numeric(), selectmode="multiple", title=gettextRcmdr("Medidas repetidas (escoja dos mas)"))
-    IDVar <- variableListBox(variablesFrame, selectmode="multiple", title=gettextRcmdr("Variable de identificacion (Opcional)"))
-    factor.intra <- tclVar(gettextRcmdr("f.intrasujeto"))
-    factorField <- ttkentry(variablesFrame, width="14", textvariable=factor.intra)
-    med.rep <- tclVar(gettextRcmdr("medida.rep"))
-    repField <- ttkentry(variablesFrame, width="14", textvariable=med.rep)
-    radioButtons(top, name="SCuadrados", buttons=c("SC1Boton", "SC2Boton","SC3Boton"),
-    values=c(1,2,3),labels=gettextRcmdr(c("Tipo I", "Tipo II", "Tipo III")),
-    title=gettextRcmdr("Suma de Cuadrados:"),initialValue=..values[3])
-    descripVariable <- tclVar("0")
-    descripCheckBox <- tkcheckbutton(pruebasFrame, variable=descripVariable)
-    graficosVariable <- tclVar("0")
-    graficosCheckBox <- tkcheckbutton(pruebasFrame, variable=graficosVariable)    
-    echocodigoVariable <- tclVar("0")
-    echoCheckBox <- tkcheckbutton(opcionesFrame, variable=echocodigoVariable)
-    creahtmlVariable <- tclVar("0")
-    htmlCheckBox <- tkcheckbutton(opcionesFrame, variable=creahtmlVariable)
-    onOK <- function(){
-        var <- getSelection(variableVar)
-        if (length(var) < 2) {
-            errorCondition(recall=avar.MR, message=gettextRcmdr("Debe seleccionar 2 variables como minimo."))
-            return()
-            }
-        idvar <-getSelection(IDVar)
-        if (length(idvar)==0)
-        var <- paste('"', var, '"', sep="")
-        else
-        {
-          var <- paste('"', c(idvar,var), '"', sep="")          
-        }       
-        echocodigo <- tclvalue(echocodigoVariable)
-        creahtml <- tclvalue(creahtmlVariable)
-        descripval <- tclvalue(descripVariable)
-        grafval <- tclvalue(graficosVariable)
-        intra <- tclvalue(factor.intra)
-        mr <- tclvalue(med.rep)
-        sctype <- as.numeric(tclvalue(SCuadradosVariable))
-        if (creahtml == 1)
-        {
-         require(R2HTML)
-         if (!file.exists("Informe de Resultados.html"))
-           .archivo <- HTMLInitFile(file.path(getwd()),
-                       "Informe de Resultados", BackGroundColor="#FFFFCC")
-         else
-           .archivo <- file.path(getwd(), "Informe de Resultados.html")
-         titulo <- "ANOVA de Medidas Repetidas"
-         HTML(as.title(titulo),file=.archivo)
-        }
-        closeDialog()
-        if (length(idvar) == 0){
-          instruccion <- paste("na.omit(",ActiveDataSet(),"[,c(", paste(var, collapse=","),")])",sep="")
-          assign('.baseDatosActiva',justDoIt(instruccion),envir=.GlobalEnv)
-          instruccion2 <- "as.factor(1:nrow(.baseDatosActiva))"
-          assign('ObsNumero',justDoIt(instruccion2),envir=.GlobalEnv)
-          instruccion3 <- "cbind(.baseDatosActiva,ObsNumero)"
-          assign('.baseDatosActiva',justDoIt(instruccion3),envir=.GlobalEnv)
-          instruccion4 <- paste("reshape2:::melt.data.frame(.baseDatosActiva, id=c('ObsNumero'), variable.name='",
-          intra,"', value.name='",mr,"')",sep='')
-          assign('.baseDatosActiva',justDoIt(instruccion4),envir=.GlobalEnv)
-          idvar <- "ObsNumero"
-          if (echocodigo == 1)
-          {
-            logger(paste(".baseDatosActiva <-", instruccion))
-            logger(paste("ObsNumero <-", instruccion2))
-            logger(paste(".baseDatosActiva <-", instruccion3))
-            logger(paste(".baseDatosActiva <-", instruccion4))            
-          }          
-        }
-        else{
-          instruccion <- paste("na.omit(",ActiveDataSet(),"[,c(", paste(var, collapse=","),")])",sep="")
-          assign('.baseDatosActiva',justDoIt(instruccion),envir=.GlobalEnv)
-          instruccion2 <- paste("reshape2:::melt.data.frame(.baseDatosActiva, id='",idvar,
-          "',variable.name='",intra,"',value.name='",mr,"')",sep='')
-          assign('.baseDatosActiva',justDoIt(instruccion2),envir=.GlobalEnv)
-          if (echocodigo == 1)
-          {
-            logger(paste(".baseDatosActiva <-", instruccion))
-            logger(paste(".baseDatosActiva <-", instruccion2))            
-          }          
-        }
-
-        instruccion <- paste("ezANOVA(.baseDatosActiva,dv=.(",noquote(mr),"),wid=.(",noquote(idvar),"),
-        within=.(",noquote(intra),"),type=",sctype,",detailed=TRUE)",sep='')
-        assign('datos.ANOVAMR',justDoIt(instruccion),envir=.GlobalEnv)
-        instruccion2 <- "print(datos.ANOVAMR)"
-        if (echocodigo == 1)
-        {
-          logger(paste("datos.ANOVAMR <-", instruccion))
-          doItAndPrint(instruccion2)
-        }
-        else
-        {
-            justDoIt(instruccion2)
-        }        
-        
-        if (descripval == 1)
-        {
-          instruccion <- paste("ezStats(.baseDatosActiva,dv=.(",noquote(mr),"),
-          wid=.(",noquote(idvar),"),within=.(",noquote(intra),"))",sep="")
-          assign('descriptivo.ANOVAMR',justDoIt(instruccion),envir=.GlobalEnv)
-          instruccion2 <- "print(descriptivo.ANOVAMR)"
-          if (echocodigo == 1)
-          {
-            logger(paste("descriptivo.ANOVAMR <-", instruccion))
-            doItAndPrint(instruccion2)
-          }
-          else
-          {
-            justDoIt(instruccion2)
-          }          
-        }
-
-        if (grafval ==1)
-        {
-          instruccion <- paste("ezPlot(.baseDatosActiva,dv=.(",noquote(mr),"),
-          wid=.(",noquote(idvar),"),within=.(",noquote(intra),"),
-          x = .(",noquote(intra),"), do_lines = FALSE,x_lab = '",intra,
-          "',y_lab = '",mr,"')",sep="")
-          assign('grafico.Medias',justDoIt(instruccion),envir=.GlobalEnv)
-          instruccion2 <- "print(grafico.Medias)"
-          if (echocodigo == 1)
-          {
-            logger(paste("grafico.Medias <-", instruccion))
-            doItAndPrint(instruccion2)
-          }
-          else
-          {
-            justDoIt(instruccion2)
-          }          
-        }
-        if (creahtml == 1)
-        {
-          HTML("Resumen ANOVA",file=.archivo)
-          HTML(as.data.frame(datos.ANOVAMR[[1]]),file=.archivo)
-          HTML("Prueba Esfericidad de Mauchly",file=.archivo)
-          HTML(as.data.frame(datos.ANOVAMR[[2]]),file=.archivo)
-          HTML("Correcciones Esfericidad",file=.archivo)
-          HTML(as.data.frame(datos.ANOVAMR[[3]]),file=.archivo)
-          if (descripval == 1)
-          {
-            HTML("Descripcion ANOVA",file=.archivo)
-            HTML(as.data.frame(descriptivo.ANOVAMR),file=.archivo)
-          }
-          if (grafval == 1)
-          {
-            HTML("Grafica de medias ",file=.archivo)
-            nombre.archivo <- paste("GraficaMediasANOVAMR",gsub(":","",substr(Sys.time(),12,19)),
-            ".jpg",sep="")
-            dev.print(jpeg, filename=paste(getwd(),"/",nombre.archivo,sep=""),
-            width=500, height=500)
-            HTMLInsertGraph(nombre.archivo,file=.archivo,append=TRUE)
-            HTMLhr(file = .archivo)
-          }
-         if (grafval != 1) HTMLhr(file = .archivo)          
-        }         
-        tkfocus(CommanderWindow())
+  require(ez)
+  require(reshape)
+  initializeDialog(title=gettextRcmdr("ANOVA Medidas Repetidas"))
+  opcionesFrame <- tkframe(top,width=90)
+  variablesFrame <- tkframe(top,width=60)
+  SCuadradosFrame <- tkframe(top,width=60)
+  pruebasFrame <- tkframe(top,width=60)
+  variableVar <- variableListBox(variablesFrame, Numeric(), selectmode="multiple", title=gettextRcmdr("Medidas repetidas (escoja dos o mas)"))
+  IDVar <- variableListBox(variablesFrame, selectmode="multiple", title=gettextRcmdr("Variable de identificacion (Opcional)"))
+  factor.intra <- tclVar(gettextRcmdr("f.intrasujeto"))
+  factorField <- ttkentry(variablesFrame, width="14", textvariable=factor.intra)
+  med.rep <- tclVar(gettextRcmdr("medida.rep"))
+  repField <- ttkentry(variablesFrame, width="14", textvariable=med.rep)
+  radioButtons(top, name="SCuadrados", buttons=c("SC1Boton", "SC2Boton","SC3Boton"),
+               values=c(1,2,3),labels=gettextRcmdr(c("Tipo I", "Tipo II", "Tipo III")),
+               title=gettextRcmdr("Suma de Cuadrados:"),initialValue=..values[3])
+  descripVariable <- tclVar("0")
+  descripCheckBox <- tkcheckbutton(pruebasFrame, variable=descripVariable)
+  graficosVariable <- tclVar("0")
+  graficosCheckBox <- tkcheckbutton(pruebasFrame, variable=graficosVariable)    
+  echocodigoVariable <- tclVar("0")
+  echoCheckBox <- tkcheckbutton(opcionesFrame, variable=echocodigoVariable)
+  creahtmlVariable <- tclVar("0")
+  htmlCheckBox <- tkcheckbutton(opcionesFrame, variable=creahtmlVariable)
+  onOK <- function(){
+    var <- getSelection(variableVar)
+    if (length(var) < 2) {
+      errorCondition(recall=avar.MR, message=gettextRcmdr("Debe seleccionar 2 variables como minimo."))
+      return()
     }
-    OKCancelHelp(helpSubject="RcmdrPlugin.EACSPIR")
-    tkgrid(getFrame(variableVar), labelRcmdr(variablesFrame, text="    "),
-    getFrame(IDVar), sticky="nw")
-    tkgrid(labelRcmdr(variablesFrame, 
-    text=gettextRcmdr("Nombre del factor Intrasujetos ")), 
-    factorField,sticky="nw")
-    tkgrid(labelRcmdr(variablesFrame,     
-    text=gettextRcmdr("Nombre de la variable cuantitativa ")),
-    repField,sticky="nw")
-    tkgrid(variablesFrame, sticky="nw") 
-    tkgrid(SCuadradosFrame, sticky="nw")  
-    tkgrid(pruebasFrame, sticky="nw")
-    tkgrid(labelRcmdr(pruebasFrame,
-    text=gettextRcmdr("Pruebas Descriptivas"), fg="blue"), sticky="nw")
-    tkgrid(labelRcmdr(pruebasFrame, 
-    text=gettextRcmdr("Mostrar descriptivos del ANOVA ")), 
-    descripCheckBox, sticky="nw")
-    tkgrid(labelRcmdr(pruebasFrame, 
-    text=gettextRcmdr("Mostrar grafico de medias ")), 
-    graficosCheckBox, sticky="nw")
-    tkgrid(labelRcmdr(opcionesFrame,
-    text=gettextRcmdr("Opciones"), fg="blue"), sticky="nw")
-    tkgrid(labelRcmdr(opcionesFrame, 
-    text=gettextRcmdr("Mostrar en pantalla el codigo de R ejecutado ")), 
-    echoCheckBox, sticky="nw")
-    tkgrid(labelRcmdr(opcionesFrame,
-    text=gettextRcmdr("Generar informe de resultados ")),
-    htmlCheckBox,sticky="nw")
-    tkgrid(opcionesFrame, sticky="nw")
-    tkgrid(buttonsFrame, sticky="nw")
-    dialogSuffix(rows=4, columns=1)
+    idvar <-getSelection(IDVar)
+    if (length(idvar)==0)
+      var <- paste('"', var, '"', sep="")
+    else
+    {
+      var <- paste('"', c(idvar,var), '"', sep="")          
+    }       
+    echocodigo <- tclvalue(echocodigoVariable)
+    creahtml <- tclvalue(creahtmlVariable)
+    descripval <- tclvalue(descripVariable)
+    grafval <- tclvalue(graficosVariable)
+    intra <- tclvalue(factor.intra)
+    mr <- tclvalue(med.rep)
+    sctype <- as.numeric(tclvalue(SCuadradosVariable))
+    if (creahtml == 1)
+    {
+      require(R2HTML)
+      if (!file.exists("Informe de Resultados.html"))
+        .archivo <- HTMLInitFile(file.path(getwd()),
+                                 "Informe de Resultados", BackGroundColor="#FFFFCC")
+      else
+        .archivo <- file.path(getwd(), "Informe de Resultados.html")
+      titulo <- "ANOVA de Medidas Repetidas"
+      HTML(as.title(titulo),file=.archivo)
+    }
+    closeDialog()
+    if (length(idvar) == 0){
+      instruccion <- paste(".baseDatosActiva <- na.omit(",ActiveDataSet(),"[,c(", paste(var, collapse=","),")])",sep="")
+      justDoIt(instruccion)
+      instruccion2 <- "ObsNumero <- as.factor(1:nrow(.baseDatosActiva))"
+      justDoIt(instruccion2)
+      instruccion3 <- ".baseDatosActiva <- cbind(.baseDatosActiva,ObsNumero)"
+      justDoIt(instruccion3)
+      instruccion4 <- paste(".baseDatosActiva <- melt.data.frame(.baseDatosActiva, id.vars=c('ObsNumero'), variable_name='",
+                            intra,"')",sep='')
+      justDoIt(instruccion4)
+      idvar <- "ObsNumero"
+      justDoIt(paste("colnames(.baseDatosActiva)[3] <- '",mr,"'",sep=''))
+      if (echocodigo == 1)
+      {
+        logger(instruccion)
+        logger(instruccion2)
+        logger(instruccion3)
+        logger(instruccion4)            
+      }          
+    }
+    else{
+      instruccion <- paste(".baseDatosActiva <- na.omit(",ActiveDataSet(),"[,c(", paste(var, collapse=","),")])",sep="")
+      justDoIt(instruccion)
+      instruccion2 <- paste(".baseDatosActiva <- melt.data.frame(.baseDatosActiva, id.vars='",idvar,"',variable_name='",
+                            intra,"')",sep='')
+      justDoIt(instruccion2)
+      justDoIt(paste("colnames(.baseDatosActiva)[3] <- '",mr,"'",sep=''))
+      if (echocodigo == 1)
+      {
+        logger(instruccion)
+        logger(instruccion2)            
+      }          
+    }
+    
+    instruccion <- paste("datos.ANOVAMR <- ezANOVA(.baseDatosActiva,dv=.(",noquote(mr),"),wid=.(",noquote(idvar),"),
+                         within=.(",noquote(intra),"),type=",sctype,",detailed=TRUE)",sep='')
+    justDoIt(instruccion)
+    instruccion2 <- "print(datos.ANOVAMR)"
+    if (echocodigo == 1)
+    {
+      logger(instruccion)
+      doItAndPrint(instruccion2)
+    }
+    else
+    {
+      doItAndPrint(instruccion2)
+    }        
+    
+    if (descripval == 1)
+    {
+      instruccion <- paste("descriptivo.ANOVAMR <- ezStats(.baseDatosActiva,dv=.(",noquote(mr),"),
+                           wid=.(",noquote(idvar),"),within=.(",noquote(intra),"))",sep="")
+      justDoIt(instruccion)
+      instruccion2 <- "print(descriptivo.ANOVAMR)"
+      if (echocodigo == 1)
+      {
+        logger(instruccion)
+        doItAndPrint(instruccion2)
+      }
+      else
+      {
+        doItAndPrint(instruccion2)
+      }          
+    }
+    
+    if (grafval ==1)
+    {
+      instruccion <- paste("grafico.Medias <- ezPlot(.baseDatosActiva,dv=.(",noquote(mr),"),
+                           wid=.(",noquote(idvar),"),within=.(",noquote(intra),"),
+                           x = .(",noquote(intra),"), do_lines = FALSE,x_lab = '",intra,
+                           "',y_lab = '",mr,"')",sep="")
+      justDoIt(instruccion)
+      instruccion2 <- "print(grafico.Medias)"
+      if (echocodigo == 1)
+      {
+        logger(instruccion)
+        doItAndPrint(instruccion2)
+        logger("remove(list=c('datos.ANOVAMR','ObsNumero','descriptivo.ANOVAMR','grafico.Medias'))")            
+        remove(list=c('.baseDatosActiva','datos.ANOVAMR','ObsNumero','descriptivo.ANOVAMR','grafico.Medias'), envir=.GlobalEnv)
+      }
+      else
+      {
+        doItAndPrint(instruccion2)
+        remove(list=c('.baseDatosActiva','datos.ANOVAMR','descriptivo.ANOVAMR',
+                      'grafico.Medias'), envir=.GlobalEnv)
+      }          
+    }
+    if (creahtml == 1)
+    {
+      HTML("Resumen ANOVA",file=.archivo)
+      HTML(as.data.frame(datos.ANOVAMR[[1]]),file=.archivo)
+      HTML("Prueba Esfericidad de Mauchly",file=.archivo)
+      HTML(as.data.frame(datos.ANOVAMR[[2]]),file=.archivo)
+      HTML("Correcciones Esfericidad",file=.archivo)
+      HTML(as.data.frame(datos.ANOVAMR[[3]]),file=.archivo)
+      if (descripval == 1)
+      {
+        HTML("Descripcion ANOVA",file=.archivo)
+        HTML(as.data.frame(descriptivo.ANOVAMR),file=.archivo)
+      }
+      if (grafval == 1)
+      {
+        HTML("Grafica de medias ",file=.archivo)
+        nombre.archivo <- paste("GraficaMediasANOVAMR",gsub(":","",substr(Sys.time(),12,19)),
+                                ".jpg",sep="")
+        dev.print(jpeg, filename=paste(getwd(),"/",nombre.archivo,sep=""),
+                  width=500, height=500)
+        HTMLInsertGraph(nombre.archivo,file=.archivo,append=TRUE)
+        HTMLhr(file = .archivo)
+      }
+      if (grafval != 1) HTMLhr(file = .archivo)          
+    }         
+    tkfocus(CommanderWindow())
+  }
+  OKCancelHelp(helpSubject="RcmdrPlugin.EACSPIR")
+  tkgrid(getFrame(variableVar), labelRcmdr(variablesFrame, text="    "),
+         getFrame(IDVar), sticky="nw")
+  tkgrid(labelRcmdr(variablesFrame, 
+                    text=gettextRcmdr("Nombre del factor Intrasujetos ")), 
+         factorField,sticky="nw")
+  tkgrid(labelRcmdr(variablesFrame,     
+                    text=gettextRcmdr("Nombre de la variable cuantitativa ")),
+         repField,sticky="nw")
+  tkgrid(variablesFrame, sticky="nw") 
+  tkgrid(SCuadradosFrame, sticky="nw")  
+  tkgrid(pruebasFrame, sticky="nw")
+  tkgrid(labelRcmdr(pruebasFrame,
+                    text=gettextRcmdr("Pruebas Descriptivas"), fg="blue"), sticky="nw")
+  tkgrid(labelRcmdr(pruebasFrame, 
+                    text=gettextRcmdr("Mostrar descriptivos del ANOVA ")), 
+         descripCheckBox, sticky="nw")
+  tkgrid(labelRcmdr(pruebasFrame, 
+                    text=gettextRcmdr("Mostrar grafico de medias ")), 
+         graficosCheckBox, sticky="nw")
+  tkgrid(labelRcmdr(opcionesFrame,
+                    text=gettextRcmdr("Opciones"), fg="blue"), sticky="nw")
+  tkgrid(labelRcmdr(opcionesFrame, 
+                    text=gettextRcmdr("Mostrar en pantalla el codigo de R ejecutado ")), 
+         echoCheckBox, sticky="nw")
+  tkgrid(labelRcmdr(opcionesFrame,
+                    text=gettextRcmdr("Generar informe de resultados ")),
+         htmlCheckBox,sticky="nw")
+  tkgrid(opcionesFrame, sticky="nw")
+  tkgrid(buttonsFrame, sticky="nw")
+  dialogSuffix(rows=4, columns=1)
 }
 
 ayuda.RcmdrPlugin.EACSPIR <- function(){
