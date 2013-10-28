@@ -1,6 +1,6 @@
-e4429e4e55c27a2dcfe416df56a2d19d *DESCRIPTION
-cb69ded9694364be773cbec7b541a615 *NAMESPACE
-5386ea98b0da343931d00fe6ec34ea5a *R/RcmdrPlugin.EACSPIR.R
+e60d50b43f86709bdfd12453080b5ea6 *DESCRIPTION
+537068dfcdc8fec3036ab45897fb52ab *NAMESPACE
+4bd3c5b6508796b9638c481b897e1ec8 *R/RcmdrPlugin.EACSPIR.R
 e814c67f8384c461952df925901d7bc4 *data/alumnadoEST.RData
 cf654eefa0c35fb1068a97c2a395d202 *data/depresion.RData
 31b81b378b51d1544b958dd02765127a *data/evalBurnout.RData
@@ -10,8 +10,8 @@ cf654eefa0c35fb1068a97c2a395d202 *data/depresion.RData
 f0c33375701f526f40d9d406b55c0ff4 *data/prevencionRL.RData
 5be71bdbce2531f9ea3651ca15282c4d *data/riesgosPS.RData
 4188cef7e11698875edad1079f38bf6b *data/testBarcelona.RData
-30661082c90180022fa5962358c36da6 *inst/etc/menus.txt
-789729f6da89dbaabaa821476ca38e84 *man/RcmdrPlugin.EACSPIR-internal.Rd
+972c792ad7d0d622e082b661dbb5c176 *inst/etc/menus.txt
+3384ac1c8bba52cca2ae455837bc38b4 *man/RcmdrPlugin.EACSPIR-internal.Rd
 984a535934266c8e8e9f3597d7a56843 *man/RcmdrPlugin.EACSPIR-package.Rd
 0a0faa00cd071c58b73361fa7dcd951e *man/alumnadoEST.rd
 4ffffa4d2cb4a3dfc384dc4c84d9843c *man/depresion.Rd

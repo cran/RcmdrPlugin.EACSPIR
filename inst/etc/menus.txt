@@ -36,6 +36,7 @@ item           numericMenu    cascade                   "Descripción univariante
 item           numericMenu    cascade                   "Descripción bivariante"           binumericMenu                              ""                      ""
 item           binumericMenu    command                   "Desc. bivariante datos cuantitativos"        bivariante.numericas                    "numericP(2)"                      ""
 item           binumericMenu    command                   "Diagrama dispersión datos cuantitativos"                       dispersion.numericas                "numericP(2)"                      ""
+item          EACSPIRMenu    separator                   ""            ""                          ""            "" 
 menu	       determMenu   EACSPIRMenu               ""            ""                          ""            ""
 item           EACSPIRMenu    cascade                   "Determinación tamaño de la muestra"           determMenu                              ""                      ""
 item           determMenu    command                   "Estadístico proporción"        determ.tam.proporcion                    ""                      ""

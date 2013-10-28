@@ -1,11 +1,25 @@
-export(ayuda.RcmdrPlugin.EACSPIR,resumen.categoricas,indices.categoricas,
-grafico.Pareto,resumen.ordinales,resumen.numericas,histograma,diagrama.caja.ord,diagrama.caja,
-bivariante.categoricas,barras.agrupadas,grafico.mosaico,bivariante.ordinales,dispersion.ordinales,
-bivariante.numericas,dispersion.numericas,yuen.test,winvar,yuenWelch.tTest,U.Mann.Whitney,
-pruebaT.Wilcoxon,prueba.conformidad.forma,prueba.conformidad.apuntamiento,tam.muestra,
-determ.tam.proporcion,determ.tam.media,pruebas.normalidad,avar.MR)
-import(Rcmdr)
-importFrom(tcltk,tkbutton)
+export(ayuda.RcmdrPlugin.EACSPIR,catResumen,resumen.categoricas,catindices,indices.categoricas,
+grafico.Pareto,pareto,ordindices,resumen.ordinales,numindices,resumen.numericas,histfun,histograma,
+bpfun,diagrama.caja.ord,diagrama.caja,bivcat,bivariante.categoricas,barragfun,barras.agrupadas,
+mosaicofun,grafico.mosaico,bivord,bivariante.ordinales,dispordfun,dispersion.ordinales,
+bivnum, bivariante.numericas,dispnumfun,dispersion.numericas,yuen.test,winvar,yuenWelch.tTest,
+UMWfun,U.Mann.Whitney,TWfun,pruebaT.Wilcoxon,formafun,prueba.conformidad.forma,apuntfun,
+prueba.conformidad.apuntamiento,tam.muestra,determ.tam.proporcion,determ.tam.media,
+normfun,normgrfun,pruebas.normalidad,avarMRfun, avarMRgraf,avar.MR)
+import(Rcmdr,R2HTML, abind, ez, nortest, reshape)
+importFrom(tcltk,tkbutton,ttknotebook,tkadd,tkselect)
 
 S3method (print,yuen)
 S3method (print,tmuestra)
+S3method (print,catindices)
+S3method (print,ordindices)
+S3method (print,numindices)
+S3method (print,bivcat)
+S3method (print,bivord)
+S3method (print,bivnum)
+S3method (print,UMW)
+S3method (print,TW)
+S3method (print,Zforma)
+S3method (print,Zapunt)
+S3method (print,prnorm)
+S3method (print,avarMR)
