@@ -42,6 +42,8 @@ if (getRversion() >= '2.15.1') globalVariables(c('dataTab', 'optionsTab', 'tksel
                                                  'tcFrame', 'tcRFrame', 'dispFrame', 'dispRFrame', 'statistics3Tab', 'posicFrame', 'posicRFrame',
                                                  'statistics4Tab', 'formaFrame', 'formaRFrame', '.indices.ord', 'ywttest'))
 
+# Resumen descriptivo univariante para variables categoricas: indicadores y graficos #
+
 catResumen <- function(x){
   ni <- table(x,useNA='always')
   fi <- ni/sum(ni)
@@ -146,7 +148,7 @@ catindices <- function(vars,statistics,kVariable=NULL){
     res  
   }
   teachman <- function(x){
-    res <- round(-sum(prop.table(x)*log(prop.table(x))),2)
+    res <- round(-sum(prop.table(x)[prop.table(x)!=0]*log(prop.table(x)[prop.table(x)!=0])),2)
     res
   }
   res <- list()
@@ -209,27 +211,28 @@ print.catindices <- function(x,...){
   if ("Odds" %in% x[[2]]) {
     for (i in 1:length(x[[1]])) {cat(paste("# Odds para ", x[[1]][i],": ",sep= ''),"\n")
                                  names(x[[j]][i]) <- NULL
-                                 print(x[[j]][[i]])
+                                 print(x[[j]][i])
                                  cat("\n\n")
     }
     j <- j + 1
   }
   if ("Moda" %in% x[[2]]) {
     for (i in 1:length(x[[1]])) {cat(paste("# Moda para ", x[[1]][i],": ",sep= ''),"\n\n")
-                                 names(x[[j]][i]) <- NULL
+                                 names(x[[j]][[i]]) <- NULL
                                  print(x[[j]][[i]])
                                  cat("\n\n")
     }
     j <- j + 1
   }  
-  if (sum(c("RV","Blau","IVQ","Teachman") %in% x[[2]]) > 0)
+  if (sum(c("RV","Blau","IVQ","Teachman") %in% x[[2]]) > 0){
     names(x[[j]]) <- NULL
-  .tablaResultados <- as.data.frame(x[[j]])
-  rownames(.tablaResultados) <- x[[1]]
-  colnames(.tablaResultados) <- c("RV","Blau","IVQ","Teachman")[c("RV","Blau","IVQ","Teachman") %in% x[[2]]]
-  cat("# Otros indices descriptivos:","\n\n")
-  print(.tablaResultados)  
-  cat("\n\n")
+    .tablaResultados <- as.data.frame(x[[j]])
+    rownames(.tablaResultados) <- x[[1]]
+    colnames(.tablaResultados) <- c("RV","Blau","IVQ","Teachman")[c("RV","Blau","IVQ","Teachman") %in% x[[2]]]
+    cat("# Otros indices descriptivos:","\n\n")
+    print(.tablaResultados)  
+    cat("\n\n")
+  }
   invisible(x)  
 }
     
@@ -484,6 +487,8 @@ grafico.Pareto <- function(){
   dialogSuffix(use.tabs=TRUE,grid.buttons=TRUE,tab.names=c("Datos","Opciones"))
 }
 
+# Resumen descriptivo univariante para variables ordinales: indicadores y graficos #
+
 ordindices <- function(vars,statistics,rec=NULL,propdat=NULL,percentil=NULL){
   
   vars <- as.data.frame(vars)
@@ -643,19 +648,21 @@ ordindices <- function(vars,statistics,rec=NULL,propdat=NULL,percentil=NULL){
     }
     if ("Moda" %in% statistics) {
       .moda <- lapply(vars,moda)
-      cat(names(vars))
+      
       for (variable in length(.moda))
       {
         if (length(.moda[[variable]]) > 1) {
+          #.moda[[variable]] <- .moda[[variable]][1]
           Message(message=gettextRcmdr(paste("Variable ",variables[variable]," tiene mas de una moda: ",
                                              "En documento HTML se muestra un solo valor.", sep="")),
-                  type="warning") 
-          .moda[[variable]] <- .moda[[variable]][1]
+                  type="warning")        
         }
-      }     
+      }
+      if (length(.moda[which(lapply(.moda,length)>1,useNames=FALSE)])>0)
+        .moda[which(lapply(.moda,length)>1,useNames=FALSE)]<-.moda[[which(lapply(.moda,length)>1,useNames=FALSE)]][1]
       .moda <- unlist(.moda,use.names=F)
       j <- j + 1
-      .tablaTC[,j]<-.moda
+      .tablaTC[,j] <- .moda
     }
     if ("Trimedia" %in% statistics) {
       .trimedia <- unlist(lapply(vars,trimedia),use.names=F)
@@ -810,8 +817,9 @@ print.ordindices <- function(x,...){
     .tablaposic <- as.data.frame(x[[j]])
     rownames(.tablaposic) <- x[[1]]
     colnames(.tablaposic) <- c("Min", "Max", "Q1", "Q2", "Q3",
-                               paste(x[[5]]*100,'%',sep=''))[c("Min",
-                                                               "Max", "Q1", "Q2", "Q3",rep("Pct",length(x[[5]]))) %in% x[[2]]]
+                               paste(if (!is.null(x[[5]])) x[[5]]*100 else "Pct",'%',sep=''))[c("Min",
+                                                                                                "Max", "Q1", "Q2", "Q3",rep("Pct",if (!is.null(x[[5]])) length(x[[5]])
+                                                                                                                            else 1)) %in% x[[2]]]
     cat("# Indices de posicion: \n\n")
     print(.tablaposic)  
     cat("\n\n")
@@ -1138,6 +1146,8 @@ resumen.ordinales <- function(){
   
 }
 
+# Resumen descriptivo univariante para variables cuantitativas: indicadores y graficos #
+
 numindices <- function(vars,statistics,rec=NULL,propdat=NULL,percentil=NULL){
   
   vars <- as.data.frame(vars)
@@ -1163,7 +1173,7 @@ numindices <- function(vars,statistics,rec=NULL,propdat=NULL,percentil=NULL){
     res
   }  
   mediageom <- function(x){
-    res <- round(mean(log(x),na.rm=TRUE),2)
+    res <- round(mean(log(x)[x!=0],na.rm=TRUE),2)
     res
   }
   trimedia <- function(x){
@@ -1201,7 +1211,7 @@ numindices <- function(vars,statistics,rec=NULL,propdat=NULL,percentil=NULL){
     res
   }  
   dtgeom <- function(x){
-    res <- round(sd(log(x),na.rm=TRUE),2)
+    res <- round(sd(log(x)[x!=0],na.rm=TRUE),2)
     res
   }    
   desvmed <- function(x){
@@ -2273,6 +2283,8 @@ diagrama.caja <- function (){
                tab.names=c("Datos","Estadisticos","Opciones"))
 }
 
+# Resumen descriptivo bivariante para variables categoricas: indicadores y graficos #
+
 bivcat <- function(rowvar,colvar,statistics=NULL,tables=NULL,subset=NULL,pcttable=NULL,data){
   res <- list()
   res[[1]] <- rowvar
@@ -2567,25 +2579,29 @@ bivariante.categoricas <- function(){
     selec <- as.numeric(jicuadrado) + as.numeric(phival) + as.numeric(contingval) + 
       as.numeric(sakodaval) + as.numeric(chuprovval) + as.numeric(VCramerval) +
       as.numeric(yuleval)*3
-    selec2 <- as.numeric(lambdaval)*3 + as.numeric(tauval)*2 + as.numeric(theilval)*3  
+    selec2 <- as.numeric(lambdaval)*3 + as.numeric(tauval)*2 + as.numeric(theilval)*3 
+    if (selec+selec2 >0)
     stats <- paste("c(",
                    paste(c('"JiCuadrado"', '"Phi"', '"CoefCont"', '"Sakoda"', '"Chuprov"',
                            '"VCramer"', '"Yule"', '"Lambda"', '"Tau"', '"Theil"')
                          [c(jicuadrado,phival,contingval,sakodaval,chuprovval,VCramerval,yuleval,
                             lambdaval,tauval,theilval) == 1], 
                          collapse=", "), ")", sep="") 
+    else stats <- 'NULL'
+    if ((porcentajes!='ninguno') || (as.numeric(esperadas)+as.numeric(jicomponentes))>0)
     tabs <- paste("c(",
                   paste(c('"Porcentajes"', '"FrecEsperadas"', '"JiComponentes"')
                         [c((porcentajes!="ninguno"),c(esperadas,jicomponentes) == 1)], 
                         collapse=", "), ")", sep="")
+    else tabs <- 'NULL'
     if (trim.blanks(subconjunto) == gettextRcmdr("<all valid cases>")) 
       instruccion1 <- paste(".indices.bc <- bivcat(rowvar='",fila, "', colvar='",columna, "', statistics=", stats,
-                            ", tables=",tabs, if(porcentajes!="ninguno"){paste(", pcttable='",porcentajes,sep='')},
-                            "', data='",ActiveDataSet(),"')", sep="")
+                            ", tables=",tabs, if(porcentajes!="ninguno"){paste(", pcttable='",porcentajes,"'",sep='')},
+                            ", data='",ActiveDataSet(),"')", sep="")
     else {
       instruccion1 <- paste(".indices.bc <- bivcat(rowvar='",fila, "', colvar='",columna, "', statistics=", stats,
-                            ", tables=",tabs, if(porcentajes!="ninguno"){paste(", pcttable='",porcentajes,sep='')},
-                            "', subset='",subconjunto, "', data='",ActiveDataSet(),"')", sep="")
+                            ", tables=",tabs, if(porcentajes!="ninguno"){paste(", pcttable='",porcentajes,"'",sep='')},
+                            ", subset='",subconjunto, "', data='",ActiveDataSet(),"')", sep="")
     }
     justDoIt(instruccion1)
     
@@ -2856,6 +2872,8 @@ grafico.mosaico <- function(){
                tab.names=c("Datos","Opciones"))         
 }
 
+# Resumen descriptivo bivariante para variables ordinales: indicadores y graficos #
+
 bivord <- function(rowvar,colvar,statistics=NULL,tables=FALSE,subset=NULL,pcttable=NULL,data){
   res <- list()
   res[[1]] <- rowvar
@@ -2976,7 +2994,7 @@ print.bivord <- function(x,...){
 }
 
 bivariante.ordinales <- function(){
-  defecto <- list(fila.inicial=NULL,columna.inicial=NULL,porcentajes.inicial="ninguno",
+  defecto <- list(porcentajes.inicial="ninguno",
                   gamma.inicial="0",tau.inicial="0",sommers.inicial="0",wilson.inicial="0",
                   subconjunto.inicial=gettextRcmdr("<all valid cases>"),
                   echo.inicial="0",creahtml.inicial="0",tab.inicial=0)
@@ -2984,10 +3002,8 @@ bivariante.ordinales <- function(){
   initializeDialog(title=gettextRcmdr("Descripcion bivariante datos ordinales"),use.tabs=TRUE,
                    tabs=c('dataTab','statisticsTab','statistics2Tab','optionsTab'))
   variablesFrame <- tkframe(dataTab)
-  filaVar <- variableListBox(variablesFrame, c(Factors(),Numeric()), title=gettextRcmdr("Variables (escoja una)"),
-                             initialSelection=varPosn(dialog.valores$fila.inicial,c("factor","numeric"))) 
-  columnaVar <- variableListBox(variablesFrame, c(Factors(),Numeric()), title=gettextRcmdr("Variables (escoja una)"),
-                                initialSelection=varPosn(dialog.valores$columna.inicial,c("factor","numeric")))  
+  filaVar <- variableListBox(variablesFrame, c(Factors(),Numeric()), title=gettextRcmdr("Variables (escoja una)")) 
+  columnaVar <- variableListBox(variablesFrame, c(Factors(),Numeric()), title=gettextRcmdr("Variables (escoja una)"))  
   subsetBox(dataTab, subset.expression=dialog.valores$subconjunto.inicial)
   radioButtons(statisticsTab,name = "porcentajes", buttons = c("fila","columna", "total", "ninguno"),
                values = c("fila", "columna","total", "ninguno"), 
@@ -3005,7 +3021,7 @@ bivariante.ordinales <- function(){
   checkBoxes(optionsTab,frame="opsFrame",boxes=c("echocodigo","creahtml"),
              initialValues=c(dialog.valores$echo.inicial,dialog.valores$creahtml.inicial),
              labels=gettextRcmdr(c("Mostrar en pantalla el codigo de R ejecutado ","Generar informe de resultados ")), 
-             title = gettextRcmdr("Opciones"))
+             title = gettextRcmdr("Opciones"))    
   onOK <- function(){
     tab <- if(as.character(tkselect(notebook)) == dataTab$ID) 0 else 1    
     fila <- getSelection(filaVar)
@@ -3031,27 +3047,27 @@ bivariante.ordinales <- function(){
     gammaval <- tclvalue(gammaVariable)
     tauval <- tclvalue(tauVariable)
     sommersval <- tclvalue(sommersVariable)
-    wilsonval <- tclvalue(wilsonVariable)        
+    wilsonval <- tclvalue(wilsonVariable)
     subconjunto <- tclvalue(subsetVariable)
     echocodigo <- tclvalue(echocodigoVariable)
+    creahtml <- tclvalue(creahtmlVariable)
+    putDialog("bivariante.ordinales",list(porcentajes.inicial=porcentajes,
+                                          gamma.inicial=gammaval,tau.inicial=tauval,sommers.inicial=sommersval,
+                                          wilson.inicial=wilsonval,subconjunto.inicial=subconjunto,
+                                          echo.inicial=echocodigo,creahtml.inicial=creahtml,tab.inicial=tab)) 
     selec <- as.numeric(gammaval) + as.numeric(tauval)*3 + as.numeric(sommersval)*3 +
       as.numeric(wilsonval)
-    creahtml <- tclvalue(creahtmlVariable)
-    putDialog("bivariante.ordinales",list(fila.inicial=fila,columna.inicial=columna,
-                                          porcentajes.inicial=porcentajes,
-                                          gamma.inicial=gammaval,tau.inicial=tauval,
-                                          sommers.inicial=sommersval,wilson.inicial=wilsonval,
-                                          subconjunto.inicial=subconjunto,
-                                          echo.inicial=echocodigo,creahtml.inicial=creahtml,tab.inicial=tab))     
-    stats <- paste("c(",
-                   paste(c('"Gamma"', '"Tau"', '"Sommers"', '"Wilson"')
-                         [c(gammaval,tauval,sommersval,wilsonval) == 1], 
-                         collapse=", "), ")", sep="") 
+    if (selec>0)
+      stats <- paste("c(",
+                     paste(c('"Gamma"', '"Tau"', '"Sommers"', '"Wilson"')
+                           [c(gammaval,tauval,sommersval,wilsonval) == 1], 
+                           collapse=", "), ")", sep="") 
+    else stats <- 'NULL'
     tabs <- if (porcentajes !='ninguno') TRUE else FALSE 
     if (trim.blanks(subconjunto) == gettextRcmdr("<all valid cases>")) 
-      instruccion1 <- paste(".indices.bo <- bivord(rowvar='",fila, "', colvar='",columna, "', statistics=", stats,
-                            ", tables=",tabs, if(porcentajes!="ninguno"){paste(", pcttable='",porcentajes,sep='')},
-                            "', data='",ActiveDataSet(),"')", sep="")
+      instruccion1 <- paste(".indices.bo <- bivord(rowvar='",fila, "', colvar='",columna,"', statistics=",stats,
+                            ", tables=",tabs, if(porcentajes!="ninguno"){paste(", pcttable='",porcentajes,"'",sep='')},
+                            ", data='",ActiveDataSet(),"')", sep="")
     else {
       instruccion1 <- paste(".indices.bo <- bivord(rowvar='",fila, "', colvar='",columna, "', statistics=", stats,
                             ", tables=",tabs, if(porcentajes!="ninguno"){paste(", pcttable='",porcentajes,sep='')},
@@ -3064,7 +3080,7 @@ bivariante.ordinales <- function(){
       logger(instruccion1)
     }
     doItAndPrint(paste(".indices.bo # Descripcion bivariante de: ",fila, 
-                       " y ", columna, sep=""))    
+                       " y ", columna, sep=""))
     if (creahtml == 1)
     {
       if (!file.exists("Informe de Resultados.html"))
@@ -3238,6 +3254,8 @@ dispersion.ordinales <- function(){
                tab.names=c("Datos","Opciones"))        
 }
 
+# Resumen descriptivo bivariante para variables cuantitativas I/R: indicadores y graficos #
+
 bivnum <- function(datos,variables,stats,subconjunto=NULL){
   if (is.null(subconjunto)) datos <- eval(parse(text='datos[variables]'))
   else datos <- eval(parse(text=paste('subset(datos,subset=',subconjunto,')[variables]')))
@@ -3248,9 +3266,9 @@ bivnum <- function(datos,variables,stats,subconjunto=NULL){
   numfilas <- sum(c("Variancia","Pearson","","Spearman","Kendall") %in% stats) + ("CoefDeterm" %in% stats)*
     sum(c("Pearson","","Spearman","Kendall") %in% stats)
   .tablaAsoc <- as.data.frame(matrix(nrow=numfilas,ncol=1))
+  j <- 0
   if ("Covariancia" %in% stats)
   {
-    j <- 0
     covariancia <- cov(datos,use='na.or.complete')[1,2]
     j <- j + 1
     .tablaAsoc[j,]<-covariancia
@@ -4038,6 +4056,8 @@ pruebaT.Wilcoxon <- function(){
                tab.names=c("Datos","Estadisticos","Opciones"))
 }
 
+# Pruebas conformidad: forma y apuntamiento #
+
 formafun <- function(data){
   variable <- unlist(strsplit(deparse(substitute(data)), "[$]"))[2]
   res <- list()
@@ -4242,6 +4262,8 @@ prueba.conformidad.apuntamiento <- function(){
                tab.names=c("Datos","Opciones"))
 }
 
+# Determinacion del tamano de la muestra: media y proporcion #
+
 tam.muestra <-function(conf,e,est=c("proporcion","media"),inf=TRUE,N=NULL,pi=0.5,sigma=NULL){
     if ((conf >= 1) || (conf <= 0)) stop("Especifique el valor para el nivel de confianza");
     alfa <- 1-conf
@@ -4378,7 +4400,7 @@ determ.tam.proporcion <- function(){
   precisionFrame <- tkframe(statisticsTab)
   precisionVariable <- tclVar(dialog.valores$precision.inicial)
   precisionField <- ttkentry(precisionFrame, width="8", textvariable=precisionVariable)
-  tkgrid(labelRcmdr(precisionFrame,text=gettextRcmdr("Tamano poblacional = "),font="RcmdrTitleFont"),
+  tkgrid(labelRcmdr(precisionFrame,text=gettextRcmdr("Valor de precision = "),font="RcmdrTitleFont"),
          precisionField,sticky="w")  
   ConfIntFrame <- tkframe(statisticsTab)
   ConfIntVariable <- tclVar(dialog.valores$confint.inicial)
@@ -4484,7 +4506,7 @@ determ.tam.media <- function(){
   precisionFrame <- tkframe(statisticsTab)
   precisionVariable <- tclVar(dialog.valores$precision.inicial)
   precisionField <- ttkentry(precisionFrame, width="8", textvariable=precisionVariable)
-  tkgrid(labelRcmdr(precisionFrame,text=gettextRcmdr("Tamano poblacional = "),font="RcmdrTitleFont"),
+  tkgrid(labelRcmdr(precisionFrame,text=gettextRcmdr("Valor de precision = "),font="RcmdrTitleFont"),
          precisionField,sticky="w")  
   ConfIntFrame <- tkframe(statisticsTab)
   ConfIntVariable <- tclVar(dialog.valores$confint.inicial)
@@ -4499,6 +4521,8 @@ determ.tam.media <- function(){
   dialogSuffix(use.tabs=TRUE,grid.buttons=TRUE,tabs=c('statisticsTab','optionsTab'),
                tab.names=c("Estadisticos","Opciones"))
 }
+
+# Ajuste a la normal: pruebas de bondad de ajuste y graficos #
 
 normfun <- function(variable,stats,group=NULL){
   res <- list()
@@ -4520,21 +4544,6 @@ normfun <- function(variable,stats,group=NULL){
     res[[i]] <- .prueba.pearson
     i <- i + 1
   }
-  if ('KStest' %in% stats)
-  { 
-    if (!is.null(group)){
-      .prueba.KS <- eval(parse(text=paste("by(",variable,","
-                                          ,group,",function(x)ks.test(x,'pnorm',mean(x),sd(x)))"
-                                          ,sep="")))
-      for (j in 1:dim(.prueba.KS))
-        .prueba.KS[[j]]$data.name <- variable        
-    }
-    else
-      .prueba.KS <- eval(parse(text=paste("ks.test(",variable,",'pnorm',mean(",
-                                          variable,"),sd(",variable,"))",sep="")))
-    res[[i]] <- .prueba.KS
-    i <- i + 1    
-  }
   if ('ADtest' %in% stats)
   { 
     if (!is.null(group)){
@@ -4546,6 +4555,21 @@ normfun <- function(variable,stats,group=NULL){
       .prueba.AD <- eval(parse(text=paste("ad.test(",variable,")",sep="")))
     res[[i]] <- .prueba.AD
     i <- i + 1  
+  }
+  if ('KStest' %in% stats)
+  { 
+    if (!is.null(group)){
+      .prueba.KS <- eval(parse(text=paste("by(",variable,","
+                                          ,group,",function(x)ks.test(x,'pnorm',mean(x,na.rm=T),sd(x,na.rm=T)))"
+                                          ,sep="")))
+      for (j in 1:dim(.prueba.KS))
+        .prueba.KS[[j]]$data.name <- variable        
+    }
+    else
+      .prueba.KS <- eval(parse(text=paste("ks.test(",variable,",'pnorm',mean(",
+                                          variable,",na.rm=T),sd(",variable,",na.rm=T))",sep="")))
+    res[[i]] <- .prueba.KS
+    i <- i + 1    
   }
   if ('Shapirotest' %in% stats)
   { 
@@ -4596,13 +4620,14 @@ print.prnorm <- function(x,...){
 normgrfun <- function(datos){
   par(mfrow=c(2,2))
   variable <- unlist(strsplit(deparse(substitute(datos)), "[$]"))[2]
+  datos <- as.vector(na.omit(datos))
   plot(density(datos),main=paste('Densidad suavizada para ',variable,sep=""),ylab='Densidades')
   box()
   x <- datos
   h <- hist(x,freq=TRUE,plot=FALSE)
   plot(h,col='red', xlab='Intervalos', ylab='Frecuencias',main=paste('Histograma para ',variable,sep=""))
-  xfit<-seq(min(x),max(x),length=1000)
-  yfit<-dnorm(xfit,mean=mean(x),sd=sd(x))
+  xfit<-seq(min(x,na.rm=T),max(x,na.rm=T),length=1000)
+  yfit<-dnorm(xfit,mean=mean(x,na.rm=T),sd=sd(x,na.rm=T))
   yfit<-yfit*diff(h$mids[1:2])*length(x)
   lines(xfit, yfit, col='blue', lwd=2)
   box()

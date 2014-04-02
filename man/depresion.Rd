@@ -1,20 +1,24 @@
 \name{depresion}
 \alias{depresion}
 \docType{data}
-\encoding{latin1}
 \title{
-Datos simulados sobre depresión
+Datos simulados sobre depresion
 }
 \description{
-Datos simulados sobre depresión en tres poblaciones distintas.
+Datos simulados sobre depresion en tres poblaciones distintas.
 }
 \usage{depresion}
 \format{
   Una base de datos con 21 observaciones y  2 variables.
   \describe{
-    \item{\code{depresion}}{Nivel de depresión medido con una prueba psicométrica}
-    \item{\code{poblacion}}{Población de referencia de los sujetos de la muestra}
+    \item{\code{depresion}}{Nivel de depresion medido con una prueba psicometrica}
+    \item{\code{poblacion}}{Poblacion de referencia de los sujetos de la muestra}
   }
+}
+
+\examples{
+  data(depresion)
+  with(depresion,by(depresion,poblacion,summary))
 }
 
 \keyword{datasets}
