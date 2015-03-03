@@ -6,7 +6,7 @@ bivnum, bivariante.numericas,dispnumfun,dispersion.numericas,yuen.test,winvar,yu
 UMWfun,U.Mann.Whitney,TWfun,pruebaT.Wilcoxon,formafun,prueba.conformidad.forma,apuntfun,
 prueba.conformidad.apuntamiento,tam.muestra,determ.tam.proporcion,determ.tam.media,
 normfun,normgrfun,pruebas.normalidad,avarMRfun, avarMRgraf,avar.MR)
-import(Rcmdr,R2HTML, abind, ez, nortest, reshape)
+import(Rcmdr, RcmdrMisc, R2HTML, abind, ez, nortest, reshape)
 importFrom(tcltk,tkbutton,ttknotebook,tkadd,tkselect)
 
 S3method (print,yuen)

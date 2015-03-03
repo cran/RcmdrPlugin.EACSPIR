@@ -1481,6 +1481,7 @@ numindices <- function(vars,statistics,rec=NULL,propdat=NULL,percentil=NULL){
     res[[i]] <- .tabladisp
   }
   
+  
   if (posiccol > 0){
     j <- 0
     if ("Min" %in% statistics) {
@@ -1601,8 +1602,9 @@ print.numindices <- function(x,...){
     .tablaposic <- as.data.frame(x[[j]])
     rownames(.tablaposic) <- x[[1]]
     colnames(.tablaposic) <- c("Min", "Max", "Q1", "Q2", "Q3",
-                               paste(x[[5]]*100,'%',sep=''))[c("Min",
-                                                               "Max", "Q1", "Q2", "Q3",rep("Pct",length(x[[5]]))) %in% x[[2]]]
+                               paste(if (!is.null(x[[5]])) x[[5]]*100 else "Pct",'%',sep=''))[c("Min",
+                                                                                                "Max", "Q1", "Q2", "Q3",rep("Pct",if (!is.null(x[[5]])) length(x[[5]])
+                                                                                                                            else 1)) %in% x[[2]]]
     cat("# Indices de posicion: \n\n")
     print(.tablaposic)  
     cat("\n\n")
@@ -1930,15 +1932,15 @@ resumen.numericas <- function(){
   tkgrid(posicFrame, labelRcmdr(statistics3Tab,text="  "),
          posicRFrame, labelRcmdr(statistics3Tab,text="  "), percentFrame, sticky="nw")  
   
-  checkBoxes(statistics4Tab,frame="formaFrame",boxes=c("H1","H3","beta1","beta2"),
+  checkBoxes(statistics4Tab,frame="formaFrame",boxes=c("H1","H3","beta1","gamma1"),
              initialValues=c(dialog.valores$H1.inicial,dialog.valores$H3.inicial,
-                             dialog.valores$beta1.inicial,dialog.valores$beta2.inicial),
+                             dialog.valores$beta1.inicial,dialog.valores$gamma1.inicial),
              labels=gettextRcmdr(c("Coef. Asimetria H1 ","Coef. Asimetria H3 ",
                                    "Coef. Asimetria Pearson ","Coef. Asimetria Fisher ")), 
              title = gettextRcmdr("Indices de forma")) 
-  checkBoxes(statistics4Tab,frame="formaRFrame",boxes=c("K2","K3","gamma1","gamma2"),
+  checkBoxes(statistics4Tab,frame="formaRFrame",boxes=c("K2","K3","beta2","gamma2"),
              initialValues=c(dialog.valores$K2.inicial,dialog.valores$K3.inicial,
-                             dialog.valores$gamma1.inicial,dialog.valores$gamma2.inicial),
+                             dialog.valores$beta2.inicial,dialog.valores$gamma2.inicial),
              labels=gettextRcmdr(c("Coef. Apuntamiento K2 ","Coef. Apuntamiento K3 ",
                                    "Coef. Apuntamiento Pearson ","Coef. Apuntamiento Fisher ")), 
              title = gettextRcmdr("   ")) 
@@ -2343,6 +2345,9 @@ bivcat <- function(rowvar,colvar,statistics=NULL,tables=NULL,subset=NULL,pcttabl
     {
       .Jicuadrado <- chisq.test(.Tabla, correct=FALSE)$statistic
       names(.Jicuadrado)<-NULL
+    }
+    if ("JiCuadrado" %in% statistics)
+    {
       j <- j + 1
       .tablaMA[j] <- .Jicuadrado
     }
@@ -2381,6 +2386,7 @@ bivcat <- function(rowvar,colvar,statistics=NULL,tables=NULL,subset=NULL,pcttabl
       if ( dim(.Tabla)[1] != 2 || dim(.Tabla)[2] != 2){
         Message(message=gettextRcmdr("La tabla de contingencia no es de tamano 2x2: \n Indices de Yule no se calcularan"),
                 type="warning")
+        return()
       }
       .a <- .Tabla[1,1]
       .b <- .Tabla[1,2]
@@ -2994,7 +3000,8 @@ print.bivord <- function(x,...){
 }
 
 bivariante.ordinales <- function(){
-  defecto <- list(porcentajes.inicial="ninguno",
+  defecto <- list(fila.inicial=NULL,columna.inicial=NULL,
+                  porcentajes.inicial="ninguno",
                   gamma.inicial="0",tau.inicial="0",sommers.inicial="0",wilson.inicial="0",
                   subconjunto.inicial=gettextRcmdr("<all valid cases>"),
                   echo.inicial="0",creahtml.inicial="0",tab.inicial=0)
@@ -3002,8 +3009,11 @@ bivariante.ordinales <- function(){
   initializeDialog(title=gettextRcmdr("Descripcion bivariante datos ordinales"),use.tabs=TRUE,
                    tabs=c('dataTab','statisticsTab','statistics2Tab','optionsTab'))
   variablesFrame <- tkframe(dataTab)
-  filaVar <- variableListBox(variablesFrame, c(Factors(),Numeric()), title=gettextRcmdr("Variables (escoja una)")) 
-  columnaVar <- variableListBox(variablesFrame, c(Factors(),Numeric()), title=gettextRcmdr("Variables (escoja una)"))  
+  
+  filaVar <- variableListBox(variablesFrame, c(Factors(),Numeric()), title=gettextRcmdr("Variables (escoja una)"),
+                             initialSelection=varPosn(dialog.valores$fila.inicial,"factor")) 
+  columnaVar <- variableListBox(variablesFrame, c(Factors(),Numeric()), title=gettextRcmdr("Variables (escoja una)"),
+                                initialSelection=varPosn(dialog.valores$columna.inicial,"factor"))  
   subsetBox(dataTab, subset.expression=dialog.valores$subconjunto.inicial)
   radioButtons(statisticsTab,name = "porcentajes", buttons = c("fila","columna", "total", "ninguno"),
                values = c("fila", "columna","total", "ninguno"), 
@@ -3051,7 +3061,8 @@ bivariante.ordinales <- function(){
     subconjunto <- tclvalue(subsetVariable)
     echocodigo <- tclvalue(echocodigoVariable)
     creahtml <- tclvalue(creahtmlVariable)
-    putDialog("bivariante.ordinales",list(porcentajes.inicial=porcentajes,
+    putDialog("bivariante.ordinales",list(fila.inicial=fila,columna.inicial=columna,
+                                          porcentajes.inicial=porcentajes,
                                           gamma.inicial=gammaval,tau.inicial=tauval,sommers.inicial=sommersval,
                                           wilson.inicial=wilsonval,subconjunto.inicial=subconjunto,
                                           echo.inicial=echocodigo,creahtml.inicial=creahtml,tab.inicial=tab)) 
