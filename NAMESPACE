@@ -1,3 +1,12 @@
+importFrom("grDevices", "boxplot.stats", "dev.print", "heat.colors",
+           "jpeg")
+importFrom("graphics", "abline", "axis", "barplot", "box", "boxplot",
+           "hist", "identify", "layout", "lines", "mosaicplot",
+           "mtext", "par", "points", "title")
+importFrom("stats", "chisq.test", "cor", "cov", "density", "dnorm",
+           "ecdf", "fivenum", "median", "na.omit", "pnorm", "pt",
+           "qnorm", "qqnorm", "qt", "quantile", "sd", "var")
+
 export(ayuda.RcmdrPlugin.EACSPIR,catResumen,resumen.categoricas,catindices,indices.categoricas,
 grafico.Pareto,pareto,ordindices,resumen.ordinales,numindices,resumen.numericas,histfun,histograma,
 bpfun,diagrama.caja.ord,diagrama.caja,bivcat,bivariante.categoricas,barragfun,barras.agrupadas,
